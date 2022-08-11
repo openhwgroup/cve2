@@ -41,9 +41,7 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-module cv32e40p_sleep_unit #(
-    parameter PULP_CLUSTER = 0
-) (
+module cve2_sleep_unit (
     // Clock, reset interface
     input  logic clk_ungated_i,  // Free running clock
     input  logic rst_n,

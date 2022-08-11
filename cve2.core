@@ -44,9 +44,10 @@ filesets:
     files:
       - lint/verible_waiver.vbw: {file_type: veribleLintWaiver}
 
-  files_check_tool_requirements:
-    depend:
-     - lowrisc:tool:check_tool_requirements
+  files_clk_gate:
+    files:
+    - bhv/cve2_sim_clock_gate.sv
+    file_type: systemVerilogSource
 
 parameters:
   RVFI:
@@ -147,6 +148,7 @@ targets:
       - tool_veriblelint ? (files_lint_verible)
       - files_rtl
       - target_sim? (files_clk_gate)
+      - target_sim-opt? (files_clk_gate)
     toplevel: ibex_core
     parameters:
       - tool_vivado ? (FPGA_XILINX=true)
