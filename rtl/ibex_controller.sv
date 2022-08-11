@@ -85,6 +85,9 @@ module ibex_controller #(
   input  logic                  debug_ebreaku_i,
   input  logic                  trigger_match_i,
 
+  // Wakeup Signal
+  output logic                  wake_from_sleep_o,
+
   output logic                  csr_save_if_o,
   output logic                  csr_save_id_o,
   output logic                  csr_save_wb_o,
@@ -438,12 +441,13 @@ module ibex_controller #(
 
         // normal execution flow
         // in debug mode or single step mode we leave immediately (wfi=nop)
-        if (irq_nm_i || irq_pending_i || debug_req_i || debug_mode_q || debug_single_step_i) begin
-          ctrl_fsm_ns = FIRST_FETCH;
+        if (wake_from_sleep_o) begin
+          ctrl_fsm_ns  = FIRST_FETCH;
         end else begin
           // Make sure clock remains disabled.
           ctrl_busy_o = 1'b0;
         end
+
       end
 
       FIRST_FETCH: begin
@@ -816,6 +820,9 @@ module ibex_controller #(
       illegal_insn_q          <= illegal_insn_d;
     end
   end
+
+  assign wake_from_sleep_o = irq_nm_i || irq_pending_i || debug_req_i || debug_mode_q || debug_single_step_i;
+
 
   //////////
   // FCOV //

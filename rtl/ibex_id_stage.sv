@@ -141,6 +141,9 @@ module ibex_id_stage #(
   input  logic                      debug_ebreaku_i,
   input  logic                      trigger_match_i,
 
+  // Wakeup Signal
+  output logic                      wake_from_sleep_o,
+
   // Write back signal
   input  logic [31:0]               result_ex_i,
   input  logic [31:0]               csr_rdata_i,
@@ -609,6 +612,9 @@ module ibex_id_stage #(
     .debug_ebreakm_i    (debug_ebreakm_i),
     .debug_ebreaku_i    (debug_ebreaku_i),
     .trigger_match_i    (trigger_match_i),
+
+    // Wakeup Signal
+    .wake_from_sleep_o(wake_from_sleep_o),
 
     .stall_id_i(stall_id),
     .stall_wb_i(stall_wb),
