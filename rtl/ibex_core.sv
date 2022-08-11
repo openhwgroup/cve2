@@ -361,6 +361,7 @@ module ibex_core import ibex_pkg::*; #(
 
   logic clk;
   logic fetch_enable;
+  logic wake_from_sleep;
 
   cve2_sleep_unit sleep_unit_i (
       // Clock, reset interface
