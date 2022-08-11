@@ -2,8 +2,9 @@ CAPI=2:
 # Copyright lowRISC contributors.
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
-name: "lowrisc:ibex:ibex_core:0.1"
-description: "Ibex CPU Core Components"
+
+name: "openhwgroup.org:ip:cve2"
+description: "OpenHW Group RISC-V Core CVE2"
 
 filesets:
   files_rtl:
