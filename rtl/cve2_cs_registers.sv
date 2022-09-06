@@ -279,6 +279,8 @@ module cve2_cs_registers #(
       CSR_MIMPID: csr_rdata_int = CSR_MIMPID_VALUE;
       // mhartid: unique hardware thread id
       CSR_MHARTID: csr_rdata_int = hart_id_i;
+      // mconfigptr: pointer to configuration data structre
+      CSR_MCONFIGPTR: csr_rdata_int = CSR_MCONFIGPTR_VALUE;
 
       // mstatus: always M-mode, contains IE bit
       CSR_MSTATUS: begin
@@ -289,6 +291,13 @@ module cve2_cs_registers #(
         csr_rdata_int[CSR_MSTATUS_MPRV_BIT]                             = mstatus_q.mprv;
         csr_rdata_int[CSR_MSTATUS_TW_BIT]                               = mstatus_q.tw;
       end
+
+      // mstatush: All zeros for Ibex (fixed little endian and all other bits reserved)
+      CSR_MSTATUSH: csr_rdata_int = '0;
+
+      // menvcfg: machine environment configuration, all zeros for Ibex (none of the relevant
+      // features are implemented)
+      CSR_MENVCFG, CSR_MENVCFGH: csr_rdata_int = '0;
 
       // misa
       CSR_MISA: csr_rdata_int = MISA_VALUE;
