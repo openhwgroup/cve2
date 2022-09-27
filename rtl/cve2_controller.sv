@@ -109,6 +109,7 @@ module cve2_controller #(
 
   logic nmi_mode_q, nmi_mode_d;
   logic debug_mode_q, debug_mode_d;
+  dbg_cause_e debug_cause_d, debug_cause_q;
   logic load_err_q, load_err_d;
   logic store_err_q, store_err_d;
   logic exc_req_q, exc_req_d;
@@ -312,6 +313,22 @@ module cve2_controller #(
 
   assign unused_irq_timer = irqs_i.irq_timer;
 
+  assign debug_cause_d = trigger_match_i   ? DBG_CAUSE_TRIGGER :
+                         ebreak_into_debug ? DBG_CAUSE_EBREAK  :
+                         debug_req_i       ? DBG_CAUSE_HALTREQ :
+                         do_single_step_d  ? DBG_CAUSE_STEP    :
+                                             DBG_CAUSE_NONE ;
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      debug_cause_q <= DBG_CAUSE_NONE;
+    end else begin
+      debug_cause_q <= debug_cause_d;
+    end
+  end
+
+  assign debug_cause_o = debug_cause_q;
+
   /////////////////////
   // Core controller //
   /////////////////////
@@ -346,7 +363,6 @@ module cve2_controller #(
     flush_id               = 1'b0;
 
     debug_csr_save_o       = 1'b0;
-    debug_cause_o          = DBG_CAUSE_EBREAK;
     debug_mode_d           = debug_mode_q;
     nmi_mode_d             = nmi_mode_q;
 
@@ -531,13 +547,6 @@ module cve2_controller #(
         debug_csr_save_o = 1'b1;
 
         csr_save_cause_o = 1'b1;
-        if (trigger_match_i) begin
-          debug_cause_o = DBG_CAUSE_TRIGGER;
-        end else if (debug_single_step_i) begin
-          debug_cause_o = DBG_CAUSE_STEP;
-        end else begin
-          debug_cause_o = DBG_CAUSE_HALTREQ;
-        end
 
         // enter debug mode
         debug_mode_d = 1'b1;
@@ -567,7 +576,6 @@ module cve2_controller #(
 
           // dcsr
           debug_csr_save_o = 1'b1;
-          debug_cause_o    = DBG_CAUSE_EBREAK;
         end
 
         // enter debug mode
