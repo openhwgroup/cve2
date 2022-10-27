@@ -738,9 +738,6 @@ module cve2_controller #(
             csr_restore_dret_id_o = 1'b1;
           end else if (wfi_insn) begin
             ctrl_fsm_ns           = WAIT_SLEEP;
-          end else if (csr_pipe_flush && handle_irq) begin
-            // start handling IRQs when doing CSR-related pipeline flushes
-            ctrl_fsm_ns           = IRQ_TAKEN;
           end
         end // exc_req_q
 
