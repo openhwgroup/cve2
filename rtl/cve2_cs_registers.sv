@@ -117,7 +117,7 @@ module cve2_cs_registers #(
   input  logic                 mem_load_i,                  // load from memory in this cycle
   input  logic                 mem_store_i,                 // store to memory in this cycle
   input  logic                 dside_wait_i,                // core waiting for the dside
-  input  logic                 mul_wait_i,                  // core waiting for multiply
+  input  logic                 wfi_wait_i,                  // core waiting for interrupt
   input  logic                 div_wait_i                   // core waiting for divide
 );
 
@@ -1234,7 +1234,7 @@ module cve2_cs_registers #(
     mhpmcounter_incr[8]  = branch_i;               // num of branches (conditional)
     mhpmcounter_incr[9]  = branch_taken_i;         // num of taken branches (conditional)
     mhpmcounter_incr[10] = instr_ret_compressed_i; // num of compressed instr
-    mhpmcounter_incr[11] = mul_wait_i;             // cycles waiting for multiply
+    mhpmcounter_incr[11] = wfi_wait_i;             // cycles waiting for multiply
     mhpmcounter_incr[12] = div_wait_i;             // cycles waiting for divide
   end
 
