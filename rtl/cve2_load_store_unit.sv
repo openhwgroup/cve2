@@ -14,7 +14,7 @@
 `include "prim_assert.sv"
 `include "dv_fcov_macros.svh"
 
-module ibex_load_store_unit
+module cve2_load_store_unit
 (
   input  logic         clk_i,
   input  logic         rst_ni,

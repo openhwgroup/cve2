@@ -12,7 +12,7 @@
 /**
  * Top level module of the ibex RISC-V core
  */
-module ibex_top import ibex_pkg::*; #(
+module cve2_top import cve2_pkg::*; #(
   parameter bit          PMPEnable        = 1'b0,
   parameter int unsigned PMPGranularity   = 0,
   parameter int unsigned PMPNumRegions    = 4,
@@ -226,7 +226,7 @@ module ibex_top import ibex_pkg::*; #(
     .out_o(rf_rdata_b_ecc_buf)
   );
 
-  ibex_core #(
+  cve2_core #(
     .PMPEnable        (PMPEnable),
     .PMPGranularity   (PMPGranularity),
     .PMPNumRegions    (PMPNumRegions),
@@ -254,7 +254,7 @@ module ibex_top import ibex_pkg::*; #(
     .RegFileDataWidth (RegFileDataWidth),
     .DmHaltAddr       (DmHaltAddr),
     .DmExceptionAddr  (DmExceptionAddr)
-  ) u_ibex_core (
+  ) u_cve2_core (
     .clk_i(clk),
     .rst_ni,
 
@@ -352,7 +352,7 @@ module ibex_top import ibex_pkg::*; #(
   /////////////////////////////////
 
   if (RegFile == RegFileFF) begin : gen_regfile_ff
-    ibex_register_file_ff #(
+    cve2_register_file_ff #(
       .RV32E            (RV32E),
       .DataWidth        (RegFileDataWidth),
       .DummyInstructions(DummyInstructions),
@@ -373,7 +373,7 @@ module ibex_top import ibex_pkg::*; #(
       .we_a_i   (rf_we_wb)
     );
   end else if (RegFile == RegFileFPGA) begin : gen_regfile_fpga
-    ibex_register_file_fpga #(
+    cve2_register_file_fpga #(
       .RV32E            (RV32E),
       .DataWidth        (RegFileDataWidth),
       .DummyInstructions(DummyInstructions),
@@ -394,7 +394,7 @@ module ibex_top import ibex_pkg::*; #(
       .we_a_i   (rf_we_wb)
     );
   end else if (RegFile == RegFileLatch) begin : gen_regfile_latch
-    ibex_register_file_latch #(
+    cve2_register_file_latch #(
       .RV32E            (RV32E),
       .DataWidth        (RegFileDataWidth),
       .DummyInstructions(DummyInstructions),
@@ -806,7 +806,7 @@ module ibex_top import ibex_pkg::*; #(
     logic lockstep_alert_minor_local, lockstep_alert_major_internal_local;
     logic lockstep_alert_major_bus_local;
 
-    ibex_lockstep #(
+    cve2_lockstep #(
       .PMPEnable        (PMPEnable),
       .PMPGranularity   (PMPGranularity),
       .PMPNumRegions    (PMPNumRegions),
@@ -834,7 +834,7 @@ module ibex_top import ibex_pkg::*; #(
       .RegFileDataWidth (RegFileDataWidth),
       .DmHaltAddr       (DmHaltAddr),
       .DmExceptionAddr  (DmExceptionAddr)
-    ) u_ibex_lockstep (
+    ) u_cve2_lockstep (
       .clk_i                  (clk),
       .rst_ni                 (rst_ni),
 

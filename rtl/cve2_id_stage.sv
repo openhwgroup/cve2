@@ -17,10 +17,10 @@
 `include "prim_assert.sv"
 `include "dv_fcov_macros.svh"
 
-module ibex_id_stage #(
+module cve2_id_stage #(
   parameter bit               RV32E           = 0,
-  parameter ibex_pkg::rv32m_e RV32M           = ibex_pkg::RV32MFast,
-  parameter ibex_pkg::rv32b_e RV32B           = ibex_pkg::RV32BNone,
+  parameter cve2_pkg::rv32m_e RV32M           = cve2_pkg::RV32MFast,
+  parameter cve2_pkg::rv32b_e RV32B           = cve2_pkg::RV32BNone,
   parameter bit               DataIndTiming   = 1'b0,
   parameter bit               BranchTargetALU = 0,
   parameter bit               WritebackStage  = 0,
@@ -50,11 +50,11 @@ module ibex_id_stage #(
 
   // IF and ID stage signals
   output logic                      pc_set_o,
-  output ibex_pkg::pc_sel_e         pc_mux_o,
+  output cve2_pkg::pc_sel_e         pc_mux_o,
   output logic                      nt_branch_mispredict_o,
   output logic [31:0]               nt_branch_addr_o,
-  output ibex_pkg::exc_pc_sel_e     exc_pc_mux_o,
-  output ibex_pkg::exc_cause_e      exc_cause_o,
+  output cve2_pkg::exc_pc_sel_e     exc_pc_mux_o,
+  output cve2_pkg::exc_cause_e      exc_cause_o,
 
   input  logic                      illegal_c_insn_i,
   input  logic                      instr_fetch_err_i,
@@ -66,7 +66,7 @@ module ibex_id_stage #(
   input  logic                      ex_valid_i,       // EX stage has valid output
   input  logic                      lsu_resp_valid_i, // LSU has valid output, or is done
   // ALU
-  output ibex_pkg::alu_op_e         alu_operator_ex_o,
+  output cve2_pkg::alu_op_e         alu_operator_ex_o,
   output logic [31:0]               alu_operand_a_ex_o,
   output logic [31:0]               alu_operand_b_ex_o,
 
@@ -84,7 +84,7 @@ module ibex_id_stage #(
   output logic                      div_en_ex_o,
   output logic                      mult_sel_ex_o,
   output logic                      div_sel_ex_o,
-  output ibex_pkg::md_op_e          multdiv_operator_ex_o,
+  output cve2_pkg::md_op_e          multdiv_operator_ex_o,
   output logic  [1:0]               multdiv_signed_mode_ex_o,
   output logic [31:0]               multdiv_operand_a_ex_o,
   output logic [31:0]               multdiv_operand_b_ex_o,
@@ -92,7 +92,7 @@ module ibex_id_stage #(
 
   // CSR
   output logic                      csr_access_o,
-  output ibex_pkg::csr_op_e         csr_op_o,
+  output cve2_pkg::csr_op_e         csr_op_o,
   output logic                      csr_op_en_o,
   output logic                      csr_save_if_o,
   output logic                      csr_save_id_o,
@@ -101,7 +101,7 @@ module ibex_id_stage #(
   output logic                      csr_restore_dret_id_o,
   output logic                      csr_save_cause_o,
   output logic [31:0]               csr_mtval_o,
-  input  ibex_pkg::priv_lvl_e       priv_mode_i,
+  input  cve2_pkg::priv_lvl_e       priv_mode_i,
   input  logic                      csr_mstatus_tw_i,
   input  logic                      illegal_csr_insn_i,
   input  logic                      data_ind_timing_i,
@@ -124,7 +124,7 @@ module ibex_id_stage #(
   // Interrupt signals
   input  logic                      csr_mstatus_mie_i,
   input  logic                      irq_pending_i,
-  input  ibex_pkg::irqs_t           irqs_i,
+  input  cve2_pkg::irqs_t           irqs_i,
   input  logic                      irq_nm_i,
   output logic                      nmi_mode_o,
 
@@ -133,7 +133,7 @@ module ibex_id_stage #(
 
   // Debug Signal
   output logic                      debug_mode_o,
-  output ibex_pkg::dbg_cause_e      debug_cause_o,
+  output cve2_pkg::dbg_cause_e      debug_cause_o,
   output logic                      debug_csr_save_o,
   input  logic                      debug_req_i,
   input  logic                      debug_single_step_i,
@@ -166,7 +166,7 @@ module ibex_id_stage #(
   input  logic                      rf_write_wb_i,
 
   output  logic                     en_wb_o,
-  output  ibex_pkg::wb_instr_type_e instr_type_wb_o,
+  output  cve2_pkg::wb_instr_type_e instr_type_wb_o,
   output  logic                     instr_perf_count_id_o,
   input logic                       ready_wb_i,
   input logic                       outstanding_load_wb_i,
@@ -183,7 +183,7 @@ module ibex_id_stage #(
   output logic                      instr_id_done_o
 );
 
-  import ibex_pkg::*;
+  import cve2_pkg::*;
 
   // Decoder/Controller, ID stage internal signals
   logic        illegal_insn_dec;
@@ -419,7 +419,7 @@ module ibex_id_stage #(
   // Decoder //
   /////////////
 
-  ibex_decoder #(
+  cve2_decoder #(
     .RV32E          (RV32E),
     .RV32M          (RV32M),
     .RV32B          (RV32B),
@@ -529,7 +529,7 @@ module ibex_id_stage #(
 
   assign illegal_insn_o = instr_valid_i & (illegal_insn_dec | illegal_csr_insn_i);
 
-  ibex_controller #(
+  cve2_controller #(
     .WritebackStage (WritebackStage),
     .BranchPredictor(BranchPredictor)
   ) controller_i (

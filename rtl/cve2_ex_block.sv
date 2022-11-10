@@ -8,16 +8,16 @@
  *
  * Execution block: Hosts ALU and MUL/DIV unit
  */
-module ibex_ex_block #(
-  parameter ibex_pkg::rv32m_e RV32M           = ibex_pkg::RV32MFast,
-  parameter ibex_pkg::rv32b_e RV32B           = ibex_pkg::RV32BNone,
+module cve2_ex_block #(
+  parameter cve2_pkg::rv32m_e RV32M           = cve2_pkg::RV32MFast,
+  parameter cve2_pkg::rv32b_e RV32B           = cve2_pkg::RV32BNone,
   parameter bit               BranchTargetALU = 0
 ) (
   input  logic                  clk_i,
   input  logic                  rst_ni,
 
   // ALU
-  input  ibex_pkg::alu_op_e     alu_operator_i,
+  input  cve2_pkg::alu_op_e     alu_operator_i,
   input  logic [31:0]           alu_operand_a_i,
   input  logic [31:0]           alu_operand_b_i,
   input  logic                  alu_instr_first_cycle_i,
@@ -28,7 +28,7 @@ module ibex_ex_block #(
   input  logic [31:0]           bt_b_operand_i,
 
   // Multiplier/Divider
-  input  ibex_pkg::md_op_e      multdiv_operator_i,
+  input  cve2_pkg::md_op_e      multdiv_operator_i,
   input  logic                  mult_en_i,             // dynamic enable signal, for FSM control
   input  logic                  div_en_i,              // dynamic enable signal, for FSM control
   input  logic                  mult_sel_i,            // static decoder output, for data muxes
@@ -53,7 +53,7 @@ module ibex_ex_block #(
   output logic                  ex_valid_o             // EX has valid output
 );
 
-  import ibex_pkg::*;
+  import cve2_pkg::*;
 
   logic [31:0] alu_result, multdiv_result;
 
@@ -113,7 +113,7 @@ module ibex_ex_block #(
   // ALU //
   /////////
 
-  ibex_alu #(
+  cve2_alu #(
     .RV32B(RV32B)
   ) alu_i (
     .operator_i         (alu_operator_i),
@@ -138,7 +138,7 @@ module ibex_ex_block #(
   ////////////////
 
   if (RV32M == RV32MSlow) begin : gen_multdiv_slow
-    ibex_multdiv_slow multdiv_i (
+    cve2_multdiv_slow multdiv_i (
       .clk_i             (clk_i),
       .rst_ni            (rst_ni),
       .mult_en_i         (mult_en_i),
@@ -163,7 +163,7 @@ module ibex_ex_block #(
       .multdiv_result_o  (multdiv_result)
     );
   end else if (RV32M == RV32MFast || RV32M == RV32MSingleCycle) begin : gen_multdiv_fast
-    ibex_multdiv_fast #(
+    cve2_multdiv_fast #(
       .RV32M(RV32M)
     ) multdiv_i (
       .clk_i             (clk_i),

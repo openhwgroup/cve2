@@ -6,7 +6,7 @@
  * Top level module of the ibex RISC-V core with tracing enabled
  */
 
-module ibex_top_tracing import ibex_pkg::*; #(
+module cve2_top_tracing import cve2_pkg::*; #(
   parameter bit          PMPEnable        = 1'b0,
   parameter int unsigned PMPGranularity   = 0,
   parameter int unsigned PMPNumRegions    = 4,
@@ -91,7 +91,7 @@ module ibex_top_tracing import ibex_pkg::*; #(
 
 );
 
-  // ibex_tracer relies on the signals from the RISC-V Formal Interface
+  // cve2_tracer relies on the signals from the RISC-V Formal Interface
   `ifndef RVFI
     $fatal("Fatal error: RVFI needs to be defined globally.");
   `endif
@@ -136,7 +136,7 @@ module ibex_top_tracing import ibex_pkg::*; #(
   assign unused_rvfi_ext_debug_req = rvfi_ext_debug_req;
   assign unused_rvfi_ext_mcycle = rvfi_ext_mcycle;
 
-  ibex_top #(
+  cve2_top #(
     .PMPEnable        ( PMPEnable        ),
     .PMPGranularity   ( PMPGranularity   ),
     .PMPNumRegions    ( PMPNumRegions    ),
@@ -159,7 +159,7 @@ module ibex_top_tracing import ibex_pkg::*; #(
     .RndCnstLfsrPerm  ( RndCnstLfsrPerm  ),
     .DmHaltAddr       ( DmHaltAddr       ),
     .DmExceptionAddr  ( DmExceptionAddr  )
-  ) u_ibex_top (
+  ) u_cve2_top (
     .clk_i,
     .rst_ni,
 
@@ -240,8 +240,8 @@ module ibex_top_tracing import ibex_pkg::*; #(
     .core_sleep_o
   );
 
-  ibex_tracer
-  u_ibex_tracer (
+  cve2_tracer
+  u_cve2_tracer (
     .clk_i,
     .rst_ni,
 

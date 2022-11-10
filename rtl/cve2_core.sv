@@ -12,7 +12,7 @@
 /**
  * Top level module of the ibex RISC-V core
  */
-module ibex_core import ibex_pkg::*; #(
+module cve2_core import cve2_pkg::*; #(
   parameter bit          PMPEnable         = 1'b0,
   parameter int unsigned PMPGranularity    = 0,
   parameter int unsigned PMPNumRegions     = 4,
@@ -362,7 +362,7 @@ module ibex_core import ibex_pkg::*; #(
   // IF stage //
   //////////////
 
-  ibex_if_stage #(
+  cve2_if_stage #(
     .DmHaltAddr       (DmHaltAddr),
     .DmExceptionAddr  (DmExceptionAddr),
     .DummyInstructions(DummyInstructions),
@@ -481,7 +481,7 @@ module ibex_core import ibex_pkg::*; #(
   // ID stage //
   //////////////
 
-  ibex_id_stage #(
+  cve2_id_stage #(
     .RV32E          (RV32E),
     .RV32M          (RV32M),
     .RV32B          (RV32B),
@@ -640,7 +640,7 @@ module ibex_core import ibex_pkg::*; #(
   // for RVFI only
   assign unused_illegal_insn_id = illegal_insn_id;
 
-  ibex_ex_block #(
+  cve2_ex_block #(
     .RV32M          (RV32M),
     .RV32B          (RV32B),
     .BranchTargetALU(BranchTargetALU)
@@ -692,7 +692,7 @@ module ibex_core import ibex_pkg::*; #(
   assign data_req_o   = data_req_out & ~pmp_req_err[PMP_D];
   assign lsu_resp_err = lsu_load_err | lsu_store_err;
 
-  ibex_load_store_unit load_store_unit_i (
+  cve2_load_store_unit load_store_unit_i (
     .clk_i (clk_i),
     .rst_ni(rst_ni),
 
@@ -738,7 +738,7 @@ module ibex_core import ibex_pkg::*; #(
     .perf_store_o(perf_store)
   );
 
-  ibex_wb_stage #(
+  cve2_wb_stage #(
     .ResetAll       ( ResetAll       ),
     .WritebackStage(WritebackStage)
   ) wb_stage_i (
@@ -912,7 +912,7 @@ module ibex_core import ibex_pkg::*; #(
   assign csr_wdata  = alu_operand_a_ex;
   assign csr_addr   = csr_num_e'(csr_access ? alu_operand_b_ex[11:0] : 12'b0);
 
-  ibex_cs_registers #(
+  cve2_cs_registers #(
     .DbgTriggerEn     (DbgTriggerEn),
     .DbgHwBreakNum    (DbgHwBreakNum),
     .DataIndTiming    (DataIndTiming),
@@ -1040,7 +1040,7 @@ module ibex_core import ibex_pkg::*; #(
     assign pmp_req_type[PMP_D]  = data_we_o ? PMP_ACC_WRITE : PMP_ACC_READ;
     assign pmp_priv_lvl[PMP_D]  = priv_mode_lsu;
 
-    ibex_pmp #(
+    cve2_pmp #(
       .PMPGranularity(PMPGranularity),
       .PMPNumChan    (PMP_NUM_CHAN),
       .PMPNumRegions (PMPNumRegions)
@@ -1146,14 +1146,14 @@ module ibex_core import ibex_pkg::*; #(
   logic            new_debug_req;
   logic            new_nmi;
   logic            new_irq;
-  ibex_pkg::irqs_t captured_mip;
+  cve2_pkg::irqs_t captured_mip;
   logic            captured_nmi;
   logic            captured_debug_req;
   logic            captured_valid;
 
   // RVFI extension for co-simulation support
   // debug_req and MIP captured at IF -> ID transition so one extra stage
-  ibex_pkg::irqs_t rvfi_ext_stage_mip          [RVFI_STAGES+1];
+  cve2_pkg::irqs_t rvfi_ext_stage_mip          [RVFI_STAGES+1];
   logic            rvfi_ext_stage_nmi          [RVFI_STAGES+1];
   logic            rvfi_ext_stage_debug_req    [RVFI_STAGES+1];
   logic [63:0]     rvfi_ext_stage_mcycle       [RVFI_STAGES];

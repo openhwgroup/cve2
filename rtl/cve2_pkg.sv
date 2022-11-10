@@ -6,7 +6,7 @@
 /**
  * Package with constants used by Ibex
  */
-package ibex_pkg;
+package cve2_pkg;
 
   ////////////////
   // IO Structs //
@@ -614,7 +614,7 @@ package ibex_pkg;
   // Note that if adjusting these parameters it is assumed the bottom bit is set for On and unset
   // for Off. This allows the use of FetchEnableOn/FetchEnableOff to work for both secure and
   // non-secure Ibex. If this assumption is broken the RTL that uses the fetch_enable signal within
-  // `ibex_core` may need adjusting.
+  // `cve2_core` may need adjusting.
   parameter fetch_enable_t FetchEnableOn  = 4'b1001;
   parameter fetch_enable_t FetchEnableOff = 4'b0110;
 endpackage

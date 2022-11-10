@@ -14,7 +14,7 @@
 `include "prim_assert.sv"
 `include "dv_fcov_macros.svh"
 
-module ibex_wb_stage #(
+module cve2_wb_stage #(
   parameter bit ResetAll       = 1'b0,
   parameter bit WritebackStage = 1'b0
 ) (
@@ -22,7 +22,7 @@ module ibex_wb_stage #(
   input  logic                     rst_ni,
 
   input  logic                     en_wb_i,
-  input  ibex_pkg::wb_instr_type_e instr_type_wb_i,
+  input  cve2_pkg::wb_instr_type_e instr_type_wb_i,
   input  logic [31:0]              pc_id_i,
   input  logic                     instr_is_compressed_id_i,
   input  logic                     instr_perf_count_id_i,
@@ -56,7 +56,7 @@ module ibex_wb_stage #(
   output logic                     instr_done_wb_o
 );
 
-  import ibex_pkg::*;
+  import cve2_pkg::*;
 
   // 0 == RF write from ID
   // 1 == RF write from LSU

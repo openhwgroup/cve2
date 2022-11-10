@@ -6,10 +6,10 @@
 /**
  * Arithmetic logic unit
  */
-module ibex_alu #(
-  parameter ibex_pkg::rv32b_e RV32B = ibex_pkg::RV32BNone
+module cve2_alu #(
+  parameter cve2_pkg::rv32b_e RV32B = cve2_pkg::RV32BNone
 ) (
-  input  ibex_pkg::alu_op_e operator_i,
+  input  cve2_pkg::alu_op_e operator_i,
   input  logic [31:0]       operand_a_i,
   input  logic [31:0]       operand_b_i,
 
@@ -31,7 +31,7 @@ module ibex_alu #(
   output logic              comparison_result_o,
   output logic              is_equal_result_o
 );
-  import ibex_pkg::*;
+  import cve2_pkg::*;
 
   logic [31:0] operand_a_rev;
   logic [32:0] operand_b_neg;

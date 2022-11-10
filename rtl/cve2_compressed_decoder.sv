@@ -13,7 +13,7 @@
 
 `include "prim_assert.sv"
 
-module ibex_compressed_decoder (
+module cve2_compressed_decoder (
   input  logic        clk_i,
   input  logic        rst_ni,
   input  logic        valid_i,
@@ -22,7 +22,7 @@ module ibex_compressed_decoder (
   output logic        is_compressed_o,
   output logic        illegal_instr_o
 );
-  import ibex_pkg::*;
+  import cve2_pkg::*;
 
   // valid_i indicates if instr_i is valid and is used for assertions only.
   // The following signal is used to avoid possible lint errors.

@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-module ibex_pmp #(
+module cve2_pmp #(
   // Granularity of NAPOT access,
   // 0 = No restriction, 1 = 8 byte, 2 = 16 byte, 3 = 32 byte, etc.
   parameter int unsigned PMPGranularity = 0,
@@ -16,19 +16,19 @@ module ibex_pmp #(
   input  logic                    rst_ni,
 
   // Interface to CSRs
-  input  ibex_pkg::pmp_cfg_t      csr_pmp_cfg_i     [PMPNumRegions],
+  input  cve2_pkg::pmp_cfg_t      csr_pmp_cfg_i     [PMPNumRegions],
   input  logic [33:0]             csr_pmp_addr_i    [PMPNumRegions],
-  input  ibex_pkg::pmp_mseccfg_t  csr_pmp_mseccfg_i,
+  input  cve2_pkg::pmp_mseccfg_t  csr_pmp_mseccfg_i,
 
-  input  ibex_pkg::priv_lvl_e     priv_mode_i    [PMPNumChan],
+  input  cve2_pkg::priv_lvl_e     priv_mode_i    [PMPNumChan],
   // Access checking channels
   input  logic [33:0]             pmp_req_addr_i [PMPNumChan],
-  input  ibex_pkg::pmp_req_e      pmp_req_type_i [PMPNumChan],
+  input  cve2_pkg::pmp_req_e      pmp_req_type_i [PMPNumChan],
   output logic                    pmp_req_err_o  [PMPNumChan]
 
 );
 
-  import ibex_pkg::*;
+  import cve2_pkg::*;
 
   // Access Checking Signals
   logic [33:0]                                region_start_addr [PMPNumRegions];
@@ -177,7 +177,7 @@ module ibex_pmp #(
     assign pmp_req_err_o[c] = access_fault[c];
   end
 
-  // RLB, rule locking bypass, is only relevant to ibex_cs_registers which controls writes to the
+  // RLB, rule locking bypass, is only relevant to cve2_cs_registers which controls writes to the
   // PMP CSRs. Tie to unused signal here to prevent lint warnings.
   logic unused_csr_pmp_mseccfg_rlb;
   assign unused_csr_pmp_mseccfg_rlb = csr_pmp_mseccfg_i.rlb;

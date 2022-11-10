@@ -9,7 +9,7 @@
  */
 
 // SEC_CM: CTRL_FLOW.UNPREDICTABLE
-module ibex_dummy_instr import ibex_pkg::*; #(
+module cve2_dummy_instr import cve2_pkg::*; #(
     parameter lfsr_seed_t RndCnstLfsrSeed = RndCnstLfsrSeedDefault,
     parameter lfsr_perm_t RndCnstLfsrPerm = RndCnstLfsrPermDefault
 ) (

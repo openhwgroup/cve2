@@ -12,7 +12,7 @@
 
 `include "prim_assert.sv"
 
-module ibex_fetch_fifo #(
+module cve2_fetch_fifo #(
   parameter int unsigned NUM_REQS = 2,
   parameter bit          ResetAll = 1'b0
 ) (

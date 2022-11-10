@@ -3,8 +3,8 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-package ibex_tracer_pkg;
-  import ibex_pkg::*;
+package cve2_tracer_pkg;
+  import cve2_pkg::*;
 
   parameter logic [1:0] OPCODE_C0 = 2'b00;
   parameter logic [1:0] OPCODE_C1 = 2'b01;

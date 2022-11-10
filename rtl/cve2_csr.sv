@@ -8,7 +8,7 @@
 
 `include "prim_assert.sv"
 
-module ibex_csr #(
+module cve2_csr #(
   parameter int unsigned    Width      = 32,
   parameter bit             ShadowCopy = 1'b0,
   parameter bit [Width-1:0] ResetValue = '0

@@ -10,7 +10,7 @@
 
 `include "prim_assert.sv"
 
-module ibex_icache import ibex_pkg::*; #(
+module cve2_icache import cve2_pkg::*; #(
   parameter bit          ICacheECC       = 1'b0,
   parameter bit          ResetAll        = 1'b0,
   parameter int unsigned BusSizeECC      = BUS_SIZE,

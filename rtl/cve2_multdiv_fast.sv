@@ -14,8 +14,8 @@
 
 `include "prim_assert.sv"
 
-module ibex_multdiv_fast #(
-  parameter ibex_pkg::rv32m_e RV32M = ibex_pkg::RV32MFast
+module cve2_multdiv_fast #(
+  parameter cve2_pkg::rv32m_e RV32M = cve2_pkg::RV32MFast
   ) (
   input  logic             clk_i,
   input  logic             rst_ni,
@@ -23,7 +23,7 @@ module ibex_multdiv_fast #(
   input  logic             div_en_i,   // dynamic enable signal, for FSM control
   input  logic             mult_sel_i, // static decoder output, for data muxes
   input  logic             div_sel_i,  // static decoder output, for data muxes
-  input  ibex_pkg::md_op_e operator_i,
+  input  cve2_pkg::md_op_e operator_i,
   input  logic  [1:0]      signed_mode_i,
   input  logic [31:0]      op_a_i,
   input  logic [31:0]      op_b_i,
@@ -45,7 +45,7 @@ module ibex_multdiv_fast #(
   output logic             valid_o
 );
 
-  import ibex_pkg::*;
+  import cve2_pkg::*;
 
   // Both multiplier variants
   logic signed [34:0] mac_res_signed;
@@ -530,4 +530,4 @@ module ibex_multdiv_fast #(
   `endif
 `endif
 
-endmodule // ibex_mult
+endmodule // cve2_mult
