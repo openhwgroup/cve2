@@ -339,7 +339,6 @@ module cve2_core import cve2_pkg::*; #(
   logic        perf_instr_ret_compressed_wb_spec;
   logic        perf_iside_wait;
   logic        perf_dside_wait;
-  logic        perf_mul_wait;
   logic        perf_wfi_wait;
   logic        perf_div_wait;
   logic        perf_jump;
@@ -632,7 +631,6 @@ module cve2_core import cve2_pkg::*; #(
     .perf_branch_o    (perf_branch),
     .perf_tbranch_o   (perf_tbranch),
     .perf_dside_wait_o(perf_dside_wait),
-    .perf_mul_wait_o  (perf_mul_wait),
     .perf_wfi_wait_o  (perf_wfi_wait),
     .perf_div_wait_o  (perf_div_wait),
     .instr_id_done_o  (instr_id_done)
@@ -1014,7 +1012,6 @@ module cve2_core import cve2_pkg::*; #(
     .mem_load_i                 (perf_load),
     .mem_store_i                (perf_store),
     .dside_wait_i               (perf_dside_wait),
-    .mul_wait_i                 (perf_mul_wait),
     .wfi_wait_i                 (perf_wfi_wait),
     .div_wait_i                 (perf_div_wait)
   );
