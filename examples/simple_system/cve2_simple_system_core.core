@@ -2,25 +2,25 @@ CAPI=2:
 # Copyright lowRISC contributors.
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
-name: "lowrisc:ibex:ibex_simple_system_core"
+name: "lowrisc:cve2:cve2_simple_system_core"
 description: "Generic simple system for running binaries on ibex using verilator"
 filesets:
   files_sim:
     depend:
-      - lowrisc:ibex:ibex_top_tracing
-      - lowrisc:ibex:sim_shared
+      - lowrisc:cve2:cve2_top_tracing
+      - lowrisc:cve2:sim_shared
     files:
-      - rtl/ibex_simple_system.sv
+      - rtl/cve2_simple_system.sv
     file_type: systemVerilogSource
 
   files_verilator:
     depend:
       - lowrisc:dv_verilator:memutil_verilator
       - lowrisc:dv_verilator:simutil_verilator
-      - lowrisc:dv_verilator:ibex_pcounts
+      - lowrisc:dv_verilator:cve2_pcounts
     files:
-      - ibex_simple_system.cc: { file_type: cppSource }
-      - ibex_simple_system.h:  { file_type: cppSource, is_include_file: true}
+      - cve2_simple_system.cc: { file_type: cppSource }
+      - cve2_simple_system.h:  { file_type: cppSource, is_include_file: true}
       - lint/verilator_waiver.vlt: {file_type: vlt}
 
   files_lint_verible:

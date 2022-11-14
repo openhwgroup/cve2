@@ -315,7 +315,7 @@
            style="fill:#000000;stroke-width:0.26458332px"
            x="50.900173"
            y="70.702904"
-           id="tspan861">core_ibex_base_test</tspan></text>
+           id="tspan861">core_cve2_base_test</tspan></text>
       <g
          id="g947"
          transform="matrix(0.26458333,0,0,0.26458333,-15.697697,79.233817)">
@@ -349,7 +349,7 @@
                sodipodi:role="line"
                id="tspan1030"
                x="90.395103"
-               y="498.28259">In the UVM run phase, the core_ibex_base_test</tspan><tspan
+               y="498.28259">In the UVM run phase, the core_cve2_base_test</tspan><tspan
                sodipodi:role="line"
                x="90.395103"
                y="516.61591"
@@ -361,7 +361,7 @@
                sodipodi:role="line"
                x="90.395103"
                y="553.28259"
-               id="tspan1038">derive from core_ibex_base_test and override</tspan><tspan
+               id="tspan1038">derive from core_cve2_base_test and override</tspan><tspan
                sodipodi:role="line"
                x="90.395103"
                y="571.61591"
@@ -412,7 +412,7 @@
              id="tspan983"
              y="90.343819"
              x="34.48238"
-             style="fill:#000000;stroke-width:0.26458097px">core_ibex_env</tspan></text>
+             style="fill:#000000;stroke-width:0.26458097px">core_cve2_env</tspan></text>
         <g
            transform="translate(0.26727063,-15.478201)"
            id="g2312">
@@ -442,7 +442,7 @@
                id="text1015"><tspan
                  x="189.98438"
                  y="378.39615"
-                 id="tspan1013">ibex_mem_intf_agent (dside)</tspan></text>
+                 id="tspan1013">cve2_mem_intf_agent (dside)</tspan></text>
           </g>
         </g>
         <g
@@ -471,7 +471,7 @@
                id="tspan1013-5"
                y="104.25224"
                x="34.569"
-               style="stroke-width:0.26458332px">ibex_cosim_agent</tspan></text>
+               style="stroke-width:0.26458332px">cve2_cosim_agent</tspan></text>
           <g
              id="g2293"
              transform="translate(3.3545413,1.1339286)">
@@ -498,7 +498,7 @@
                  style="stroke-width:0.26458332px"
                  x="30.930977"
                  y="109.68816"
-                 id="tspan997">ibex_cosim_scoreboard</tspan></text>
+                 id="tspan997">cve2_cosim_scoreboard</tspan></text>
           </g>
         </g>
         <g
@@ -527,7 +527,7 @@
              id="text1015-74"><tspan
                x="189.98438"
                y="378.39615"
-               id="tspan1013-7">ibex_mem_intf_agent (iside)</tspan></text>
+               id="tspan1013-7">cve2_mem_intf_agent (iside)</tspan></text>
         </g>
         <g
            style="stroke-linecap:butt"
@@ -555,7 +555,7 @@
              id="text1015-74-0"><tspan
                x="189.98438"
                y="378.39615"
-               id="tspan1013-7-8">ibex_irq_agent</tspan></text>
+               id="tspan1013-7-8">cve2_irq_agent</tspan></text>
         </g>
         <rect
            x="4.2931142"
@@ -581,7 +581,7 @@
            style="font-size:4.23333311px;fill:#000000;stroke-width:0.26458332px"
            x="34.628601"
            y="161.96948"
-           id="tspan867-8">core_ibex_env_cfg</tspan></text>
+           id="tspan867-8">core_cve2_env_cfg</tspan></text>
     </g>
     <g
        id="g9160">
@@ -922,7 +922,7 @@
            sodipodi:role="line"
            id="tspan8838"
            x="125.14215"
-           y="187.71576">core_ibex_ifetch_if ifetch_vif</tspan></text>
+           y="187.71576">core_cve2_ifetch_if ifetch_vif</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:normal;font-weight:normal;font-size:3.52777767px;line-height:1.25;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332;stroke-linecap:butt"
@@ -959,7 +959,7 @@
              id="tspan8860"
              x="277.61084"
              y="110.63695"
-             style="stroke-width:0.26458332">core_ibex_fcov_if</tspan></text>
+             style="stroke-width:0.26458332">core_cve2_fcov_if</tspan></text>
       </g>
     </g>
     <g

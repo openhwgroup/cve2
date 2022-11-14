@@ -9,9 +9,9 @@
 # (4 cycles for mulh), resulting in 2 stall cycles for mul (3 for mulh)
 small:
   RV32E                    : 0
-  RV32M                    : "ibex_pkg::RV32MFast"
-  RV32B                    : "ibex_pkg::RV32BNone"
-  RegFile                  : "ibex_pkg::RegFileFF"
+  RV32M                    : "cve2_pkg::RV32MFast"
+  RV32B                    : "cve2_pkg::RV32BNone"
+  RegFile                  : "cve2_pkg::RegFileFF"
   BranchTargetALU          : 0
   WritebackStage           : 0
   ICache                   : 0
@@ -20,15 +20,15 @@ small:
   PMPEnable                : 0
   PMPGranularity           : 0
   PMPNumRegions            : 4
-  SecureIbex               : 0
+  SecureCVE2               : 0
   ICacheScramble           : 0
 
 # Configuration to match that used in the OpenTitan project
 opentitan:
   RV32E                    : 0
-  RV32M                    : "ibex_pkg::RV32MSingleCycle"
-  RV32B                    : "ibex_pkg::RV32BOTEarlGrey"
-  RegFile                  : "ibex_pkg::RegFileFF"
+  RV32M                    : "cve2_pkg::RV32MSingleCycle"
+  RV32B                    : "cve2_pkg::RV32BOTEarlGrey"
+  RegFile                  : "cve2_pkg::RegFileFF"
   BranchTargetALU          : 1
   WritebackStage           : 1
   ICache                   : 1
@@ -37,7 +37,7 @@ opentitan:
   PMPEnable                : 1
   PMPGranularity           : 0
   PMPNumRegions            : 16
-  SecureIbex               : 1
+  SecureCVE2               : 1
   ICacheScramble           : 0
 
 # ===============================
@@ -49,9 +49,9 @@ opentitan:
 # maximum performance configuration.
 experimental-maxperf:
   RV32E                    : 0
-  RV32M                    : "ibex_pkg::RV32MSingleCycle"
-  RV32B                    : "ibex_pkg::RV32BNone"
-  RegFile                  : "ibex_pkg::RegFileFF"
+  RV32M                    : "cve2_pkg::RV32MSingleCycle"
+  RV32B                    : "cve2_pkg::RV32BNone"
+  RegFile                  : "cve2_pkg::RegFileFF"
   BranchTargetALU          : 1
   WritebackStage           : 1
   ICache                   : 0
@@ -60,15 +60,15 @@ experimental-maxperf:
   PMPEnable                : 0
   PMPGranularity           : 0
   PMPNumRegions            : 4
-  SecureIbex               : 0
+  SecureCVE2               : 0
   ICacheScramble           : 0
 
 # experimental-maxperf config above plus PMP enabled with 16 regions.
 experimental-maxperf-pmp:
   RV32E                    : 0
-  RV32M                    : "ibex_pkg::RV32MSingleCycle"
-  RV32B                    : "ibex_pkg::RV32BNone"
-  RegFile                  : "ibex_pkg::RegFileFF"
+  RV32M                    : "cve2_pkg::RV32MSingleCycle"
+  RV32B                    : "cve2_pkg::RV32BNone"
+  RegFile                  : "cve2_pkg::RegFileFF"
   BranchTargetALU          : 1
   WritebackStage           : 1
   ICache                   : 0
@@ -77,15 +77,15 @@ experimental-maxperf-pmp:
   PMPEnable                : 1
   PMPGranularity           : 0
   PMPNumRegions            : 16
-  SecureIbex               : 0
+  SecureCVE2               : 0
   ICacheScramble           : 0
 
 # experimental-maxperf-pmp config above with balanced bitmanip extension
 experimental-maxperf-pmp-bmbalanced:
   RV32E                    : 0
-  RV32M                    : "ibex_pkg::RV32MSingleCycle"
-  RV32B                    : "ibex_pkg::RV32BBalanced"
-  RegFile                  : "ibex_pkg::RegFileFF"
+  RV32M                    : "cve2_pkg::RV32MSingleCycle"
+  RV32B                    : "cve2_pkg::RV32BBalanced"
+  RegFile                  : "cve2_pkg::RegFileFF"
   BranchTargetALU          : 1
   WritebackStage           : 1
   ICache                   : 0
@@ -94,15 +94,15 @@ experimental-maxperf-pmp-bmbalanced:
   PMPEnable                : 1
   PMPGranularity           : 0
   PMPNumRegions            : 16
-  SecureIbex               : 0
+  SecureCVE2               : 0
   ICacheScramble           : 0
 
 # experimental-maxperf-pmp config above with full bitmanip extension
 experimental-maxperf-pmp-bmfull:
   RV32E                    : 0
-  RV32M                    : "ibex_pkg::RV32MSingleCycle"
-  RV32B                    : "ibex_pkg::RV32BFull"
-  RegFile                  : "ibex_pkg::RegFileFF"
+  RV32M                    : "cve2_pkg::RV32MSingleCycle"
+  RV32B                    : "cve2_pkg::RV32BFull"
+  RegFile                  : "cve2_pkg::RegFileFF"
   BranchTargetALU          : 1
   WritebackStage           : 1
   ICache                   : 0
@@ -111,15 +111,15 @@ experimental-maxperf-pmp-bmfull:
   PMPEnable                : 1
   PMPGranularity           : 0
   PMPNumRegions            : 16
-  SecureIbex               : 0
+  SecureCVE2               : 0
   ICacheScramble           : 0
 
 # experimental-maxperf-pmp-bmfull config above with icache enabled
 experimental-maxperf-pmp-bmfull-icache:
   RV32E                    : 0
-  RV32M                    : "ibex_pkg::RV32MSingleCycle"
-  RV32B                    : "ibex_pkg::RV32BFull"
-  RegFile                  : "ibex_pkg::RegFileFF"
+  RV32M                    : "cve2_pkg::RV32MSingleCycle"
+  RV32B                    : "cve2_pkg::RV32BFull"
+  RegFile                  : "cve2_pkg::RegFileFF"
   BranchTargetALU          : 1
   WritebackStage           : 1
   ICache                   : 1
@@ -128,7 +128,7 @@ experimental-maxperf-pmp-bmfull-icache:
   PMPEnable                : 1
   PMPGranularity           : 0
   PMPNumRegions            : 16
-  SecureIbex               : 0
+  SecureCVE2               : 0
   ICacheScramble           : 0
 
 # experimental-maxperf with branch predictor switched on. This exists to allow
@@ -137,9 +137,9 @@ experimental-maxperf-pmp-bmfull-icache:
 # development.
 experimental-branch-predictor:
   RV32E                    : 0
-  RV32M                    : "ibex_pkg::RV32MSingleCycle"
-  RV32B                    : "ibex_pkg::RV32BNone"
-  RegFile                  : "ibex_pkg::RegFileFF"
+  RV32M                    : "cve2_pkg::RV32MSingleCycle"
+  RV32B                    : "cve2_pkg::RV32BNone"
+  RegFile                  : "cve2_pkg::RegFileFF"
   BranchTargetALU          : 1
   WritebackStage           : 1
   ICache                   : 0
@@ -148,6 +148,6 @@ experimental-branch-predictor:
   PMPEnable                : 0
   PMPGranularity           : 0
   PMPNumRegions            : 4
-  SecureIbex               : 0
+  SecureCVE2               : 0
   ICacheScramble           : 0
 

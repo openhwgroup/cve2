@@ -31,7 +31,7 @@ The Simple System simulator binary can be built via FuseSoC. From the Ibex
 repository root run:
 
 ```
-fusesoc --cores-root=. run --target=sim --setup --build lowrisc:ibex:ibex_simple_system --RV32E=0 --RV32M=ibex_pkg::RV32MFast
+fusesoc --cores-root=. run --target=sim --setup --build lowrisc:cve2:cve2_simple_system --RV32E=0 --RV32M=cve2_pkg::RV32MFast
 ```
 
 ## Building Software
@@ -60,7 +60,7 @@ correct compiler binaries.
 Having built the simulator and software, from the Ibex repository root run:
 
 ```
-./build/lowrisc_ibex_ibex_simple_system_0/sim-verilator/Vibex_simple_system [-t] --meminit=ram,<sw_elf_file>
+./build/lowrisc_cve2_cve2_simple_system_0/sim-verilator/Vcve2_simple_system [-t] --meminit=ram,<sw_elf_file>
 ```
 
 `<sw_elf_file>` should be a path to an ELF file  (or alternatively a vmem file)
@@ -97,8 +97,8 @@ Compressed Instructions:    182
 
 The simulator produces several output files
 
-* `ibex_simple_system.log` - The ASCII output written via the output peripheral
-* `ibex_simple_system_pcount.csv` - A CSV of the performance counters
+* `cve2_simple_system.log` - The ASCII output written via the output peripheral
+* `cve2_simple_system_pcount.csv` - A CSV of the performance counters
 * `trace_core_00000000.log` - An instruction trace of execution
 
 ## Simulating with Synopsys VCS
@@ -106,7 +106,7 @@ The simulator produces several output files
 Similar to the Verilator flow the Simple System simulator binary can be built using:
 
 ```
-fusesoc --cores-root=. run --target=sim --tool=vcs --setup --build lowrisc:ibex:ibex_simple_system --RV32E=0 --RV32M=ibex_pkg::RV32MFast --SRAMInitFile=`<sw_vmem_file>`
+fusesoc --cores-root=. run --target=sim --tool=vcs --setup --build lowrisc:cve2:cve2_simple_system --RV32E=0 --RV32M=cve2_pkg::RV32MFast --SRAMInitFile=`<sw_vmem_file>`
 ```
 
 `<sw_vmem_file>` should be a path to a vmem file built as described above, use
@@ -116,7 +116,7 @@ binary.
 To run the simulator:
 
 ```
-./build/lowrisc_ibex_ibex_simple_system_0/sim-vcs/lowrisc_ibex_ibex_simple_system_0
+./build/lowrisc_cve2_cve2_simple_system_0/sim-vcs/lowrisc_cve2_cve2_simple_system_0
 ```
 
 Pass `-gui` to use the DVE GUI.
@@ -126,7 +126,7 @@ Pass `-gui` to use the DVE GUI.
 To build and run Simple System run:
 
 ```
-fusesoc --cores-root=. run --target=sim --tool=rivierapro lowrisc:ibex:ibex_simple_system --RV32E=0 --RV32M=ibex_pkg::RV32MFast --SRAMInitFile=\"$(readlink -f <sw_vmem_file>)\"
+fusesoc --cores-root=. run --target=sim --tool=rivierapro lowrisc:cve2:cve2_simple_system --RV32E=0 --RV32M=cve2_pkg::RV32MFast --SRAMInitFile=\"$(readlink -f <sw_vmem_file>)\"
 ```
 
 `<sw_vmem_file>` should be a path to a vmem file built as described above, use

@@ -4,7 +4,7 @@
 
 # A simple wrapper around fusesoc to make it a bit easier to run the formal flow
 
-core-name   := lowrisc:fpv:ibex_data_ind_timing
+core-name   := lowrisc:fpv:cve2_data_ind_timing
 vlnv        := $(subst :,_,$(core-name))
 build-root  := $(abspath ../../build/$(vlnv))
 

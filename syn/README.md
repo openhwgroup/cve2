@@ -58,10 +58,10 @@ The environment variables that must be set in `syn_setup.sh` are
 
 Once `syn_setup.sh` has been created, call `syn_yosys.sh` to run the entire
 flow. All outputs are placed under the `syn/syn_out` directory with the prefix
-`ibex_` with the current date/time forming the rest of the name, e.g.
-`syn/syn_out/ibex_06_01_2020_11_19_15`
+`cve2_` with the current date/time forming the rest of the name, e.g.
+`syn/syn_out/cve2_06_01_2020_11_19_15`
 
-- `syn/syn_out/ibex_date`
+- `syn/syn_out/cve2_date`
   - `reports` - All of the generated reports
     - area.rpt - Total area used and per cell instance counts
     - `timing`
@@ -72,10 +72,10 @@ flow. All outputs are placed under the `syn/syn_out` directory with the prefix
       - sta.log - Log of the OpenSTA run
     - `generated`
       - *.v - Ibex RTL after sv2v processing
-      - ibex_top.pre_map.v - Pre-mapping synthesis netlists
-      - ibex_top_netlist.v - Post-synthesis netlist
-      - ibex_top_netlist.sta.v - Post-synthesis netlist usable by OpenSTA
-      - ibex_top.[library-name].out.sdc - Generated .sdc timing constraints
+      - cve2_top.pre_map.v - Pre-mapping synthesis netlists
+      - cve2_top_netlist.v - Post-synthesis netlist
+      - cve2_top_netlist.sta.v - Post-synthesis netlist usable by OpenSTA
+      - cve2_top.[library-name].out.sdc - Generated .sdc timing constraints
         file
 
 If you wish to change the results directory naming or location edit
@@ -86,7 +86,7 @@ If you wish to change the results directory naming or location edit
 Two files specify the timing constraints and timing related settings for the
 flow. These are used to generate a single .sdc file
 
-* `ibex_top_lr_synth_core.tcl` - This specifies the constraints on all inputs
+* `cve2_top_lr_synth_core.tcl` - This specifies the constraints on all inputs
   and outputs as a fraction of a clock cycle, the names of the clock and reset
   inputs and the desired clock period in ps
 * `ibex.[library-name].sdc` - Header to include in generated .sdc file. Settings

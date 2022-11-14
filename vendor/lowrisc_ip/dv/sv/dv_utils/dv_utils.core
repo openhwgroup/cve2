@@ -12,7 +12,7 @@ filesets:
       - lowrisc:dv:dv_fcov_macros
       - lowrisc:dv:common_ifs
       - lowrisc:prim:assert:0.1
-      - lowrisc:ibex:bus_params_pkg
+      - lowrisc:cve2:bus_params_pkg
       - lowrisc:dv:str_utils
       - lowrisc:dv:dv_test_status
     files:

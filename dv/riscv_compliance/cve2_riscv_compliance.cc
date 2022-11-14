@@ -7,14 +7,14 @@
 #include "verilator_sim_ctrl.h"
 
 int main(int argc, char **argv) {
-  ibex_riscv_compliance top;
+  cve2_riscv_compliance top;
   VerilatorMemUtil memutil;
   VerilatorSimCtrl &simctrl = VerilatorSimCtrl::GetInstance();
   simctrl.SetTop(&top, &top.IO_CLK, &top.IO_RST_N,
                  VerilatorSimCtrlFlags::ResetPolarityNegative);
 
   MemArea ram(
-      "TOP.ibex_riscv_compliance.u_ram.u_ram.gen_generic.u_impl_generic",
+      "TOP.cve2_riscv_compliance.u_ram.u_ram.gen_generic.u_impl_generic",
       64 * 1024 / 4, 4);
 
   memutil.RegisterMemoryArea("ram", 0x0, &ram);

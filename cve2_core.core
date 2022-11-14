@@ -2,26 +2,67 @@ CAPI=2:
 # Copyright lowRISC contributors.
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
-name: "lowrisc:ibex:ibex_top_tracing:0.1"
-description: "Ibex, a small RV32 CPU core with tracing enabled"
+name: "lowrisc:cve2:cve2_core:0.1"
+description: "Ibex CPU Core Components"
+
 filesets:
   files_rtl:
     depend:
-      - lowrisc:ibex:ibex_top
-      - lowrisc:ibex:ibex_tracer
+      - lowrisc:prim:assert
+      - lowrisc:prim:clock_gating
+      - lowrisc:prim:lfsr
+      - lowrisc:cve2:cve2_pkg
+      - lowrisc:cve2:cve2_icache
+      - lowrisc:dv:dv_fcov_macros
     files:
-      - rtl/ibex_top_tracing.sv
+      - rtl/cve2_alu.sv
+      - rtl/cve2_branch_predict.sv
+      - rtl/cve2_compressed_decoder.sv
+      - rtl/cve2_controller.sv
+      - rtl/cve2_cs_registers.sv
+      - rtl/cve2_csr.sv
+      - rtl/cve2_counter.sv
+      - rtl/cve2_decoder.sv
+      - rtl/cve2_ex_block.sv
+      - rtl/cve2_fetch_fifo.sv
+      - rtl/cve2_id_stage.sv
+      - rtl/cve2_if_stage.sv
+      - rtl/cve2_load_store_unit.sv
+      - rtl/cve2_multdiv_fast.sv
+      - rtl/cve2_multdiv_slow.sv
+      - rtl/cve2_prefetch_buffer.sv
+      - rtl/cve2_pmp.sv
+      - rtl/cve2_wb_stage.sv
+      - rtl/cve2_dummy_instr.sv
+      - rtl/cve2_core.sv
+      - rtl/cve2_pmp_reset_default.svh: {is_include_file: true}
     file_type: systemVerilogSource
 
+  files_lint_verilator:
+    files:
+      - lint/verilator_waiver.vlt: {file_type: vlt}
+
+  files_lint_verible:
+    files:
+      - lint/verible_waiver.vbw: {file_type: veribleLintWaiver}
+
+  files_check_tool_requirements:
+    depend:
+     - lowrisc:tool:check_tool_requirements
+
 parameters:
-  # The tracer uses the RISC-V Formal Interface (RVFI) to collect trace signals.
   RVFI:
     datatype: bool
     paramtype: vlogdefine
-    default: true
 
   SYNTHESIS:
     datatype: bool
+    paramtype: vlogdefine
+
+  FPGA_XILINX:
+    datatype: bool
+    description: Identifies Xilinx FPGA targets to set DSP pragmas for performance counters.
+    default: false
     paramtype: vlogdefine
 
   RV32E:
@@ -31,21 +72,21 @@ parameters:
 
   RV32M:
     datatype: str
-    default: ibex_pkg::RV32MFast
+    default: cve2_pkg::RV32MFast
     paramtype: vlogdefine
-    description: "RV32M implementation parameter enum. See the ibex_pkg::rv32m_e enum in ibex_pkg.sv for permitted values."
+    description: "RV32M implementation parameter enum. See the cve2_pkg::rv32m_e enum in cve2_pkg.sv for permitted values."
 
   RV32B:
     datatype: str
-    default: ibex_pkg::RV32BNone
+    default: cve2_pkg::RV32BNone
     paramtype: vlogdefine
-    description: "Bitmanip implementation parameter enum. See the ibex_pkg::rv32b_e enum in ibex_pkg.sv for permitted values."
+    description: "Bitmanip implementation parameter enum. See the cve2_pkg::rv32b_e enum in cve2_pkg.sv for permitted values."
 
   RegFile:
     datatype: str
-    default: ibex_pkg::RegFileFF
+    default: cve2_pkg::RegFileFF
     paramtype: vlogdefine
-    description: "Register file implementation parameter enum. See the ibex_pkg::regfile_e enum in ibex_pkg.sv for permitted values."
+    description: "Register file implementation parameter enum. See the cve2_pkg::regfile_e enum in cve2_pkg.sv for permitted values."
 
   ICache:
     datatype: int
@@ -77,17 +118,11 @@ parameters:
     default: 0
     description: "Enables static branch prediction (EXPERIMENTAL)"
 
-  SecureIbex:
+  SecureCVE2:
     datatype: int
     default: 0
     paramtype: vlogparam
     description: "Enables security hardening features (EXPERIMENTAL) [0/1]"
-
-  ICacheScramble:
-    datatype: int
-    default: 0
-    paramtype: vlogparam
-    description: "Enables ICache scrambling feature (EXPERIMENTAL) [0/1]"
 
   PMPEnable:
     datatype: int
@@ -110,30 +145,18 @@ parameters:
 targets:
   default: &default_target
     filesets:
+      - tool_verilator ? (files_lint_verilator)
+      - tool_veriblelint ? (files_lint_verible)
       - files_rtl
+      - files_check_tool_requirements
+    toplevel: cve2_core
     parameters:
-      - RVFI=true
-    toplevel: ibex_top_tracing
-
+      - tool_vivado ? (FPGA_XILINX=true)
   lint:
     <<: *default_target
     parameters:
-      - RVFI=true
       - SYNTHESIS=true
-      - RV32E
-      - RV32M
-      - RV32B
-      - RegFile
-      - ICache
-      - ICacheECC
-      - BranchTargetALU
-      - WritebackStage
-      - BranchPredictor
-      - SecureIbex
-      - ICacheScramble
-      - PMPEnable
-      - PMPGranularity
-      - PMPNumRegions
+      - RVFI=true
     default_tool: verilator
     tools:
       verilator:
@@ -150,12 +173,8 @@ targets:
       - SYNTHESIS=true
       - RVFI=true
     default_tool: veribleformat
-    toplevel: ibex_top_tracing
+    toplevel: cve2_core
     tools:
       veribleformat:
         verible_format_args:
           - "--inplace"
-          - "--formal_parameters_indentation=indent"
-          - "--named_parameter_indentation=indent"
-          - "--named_port_indentation=indent"
-          - "--port_declarations_indentation=indent"

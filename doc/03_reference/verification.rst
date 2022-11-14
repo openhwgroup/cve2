@@ -32,8 +32,8 @@ A block diagram of the testbench is below.
 Memory Interface Agents
 """""""""""""""""""""""
 
-The code can be found in the `dv/uvm/core_ibex/common/ibex_mem_intf_agent
-<https://github.com/lowRISC/ibex/tree/master/dv/uvm/core_ibex/common/ibex_mem_intf_agent>`_ directory.
+The code can be found in the `dv/uvm/core_ibex/common/cve2_mem_intf_agent
+<https://github.com/lowRISC/ibex/tree/master/dv/uvm/core_ibex/common/cve2_mem_intf_agent>`_ directory.
 Two of these agents are instantiated within the testbench, one for the instruction fetch interface,
 and the second for the LSU interface.
 These agents run slave sequences that wait for memory requests from the core, and then grant the
@@ -65,7 +65,7 @@ The code can be found in the
 `dv/uvm/core_ibex/tests <https://github.com/lowRISC/ibex/tree/master/dv/uvm/core_ibex/tests>`_ directory.
 The tests here are the main sources of external stimulus generation and checking for this testbench,
 as the memory interface slave sequences simply serve the core's memory requests.
-The tests here are all extended from ``core_ibex_base_test``, and coordinate the entire flow for a
+The tests here are all extended from ``core_cve2_base_test``, and coordinate the entire flow for a
 single test, from loading the compiled assembly binary program into the testbench memory model, to
 checking the Ibex core status during the test and dealing with test timeouts.
 The sequences here are used to drive interrupt and debug stimulus into the core.
@@ -123,7 +123,7 @@ to tell the RISCV-DV code where to find them:
     export RISCV_OBJCOPY="$RISCV_TOOLCHAIN/bin/riscv32-unknown-elf-objcopy"
     export SPIKE_PATH=/path/to/spike/bin
 
-.. _LRSpike: https://github.com/lowRISC/riscv-isa-sim/tree/ibex_cosim
+.. _LRSpike: https://github.com/lowRISC/riscv-isa-sim/tree/cve2_cosim
 .. _riscv-toolchain-source: https://github.com/riscv/riscv-gnu-toolchain
 .. _riscv-toolchain-releases: https://github.com/lowRISC/lowrisc-toolchains/releases
 .. _bitmanip-patches: https://github.com/lowRISC/lowrisc-toolchains#how-to-generate-the-bitmanip-patches
@@ -154,12 +154,12 @@ any analysis that is required to increase verification effectiveness.
 This mechanism is explained in detail at https://github.com/google/riscv-dv/blob/master/HANDSHAKE.md.
 As a sidenote, the signature address that this testbench uses for the handshaking is ``0x8ffffffc``.
 Additionally, as is mentioned in the RISCV-DV documentation of this handshake, a small set of API
-tasks are provided in `dv/uvm/core_ibex/tests/core_ibex_base_test.sv
-<https://github.com/lowRISC/ibex/blob/master/dv/uvm/core_ibex/tests/core_ibex_base_tests.sv>`_ to enable easy
+tasks are provided in `dv/uvm/core_ibex/tests/core_cve2_base_test.sv
+<https://github.com/lowRISC/ibex/blob/master/dv/uvm/core_ibex/tests/core_cve2_base_tests.sv>`_ to enable easy
 and efficient integration and usage of this mechanism in this test environment.
 To see how this handshake is used during real simulations, look in
-`dv/uvm/core_ibex/tests/core_ibex_test_lib.sv
-<https://github.com/lowRISC/ibex/blob/master/dv/uvm/core_ibex/tests/core_ibex_test_lib.sv>`_.
+`dv/uvm/core_ibex/tests/core_cve2_test_lib.sv
+<https://github.com/lowRISC/ibex/blob/master/dv/uvm/core_ibex/tests/core_cve2_test_lib.sv>`_.
 As can be seen, this mechanism is extensively used to provide runtime verification for situations involving external debug
 requests, interrupt assertions, and memory faults.
 To add another layer of correctness checking to the checking already provided by the handshake
@@ -244,10 +244,10 @@ classes that provides basic UVM testbench functionality and components.
 This DV environment will be compiled and simulated using the `dvsim simulation tool
 <https://github.com/lowRISC/opentitan/tree/master/util/dvsim>`_.
 The master ``.hjson`` file that controls simulation with ``dvsim`` can be found
-at `dv/uvm/icache/dv/ibex_icache_sim_cfg.hjson
-<https://github.com/lowRISC/ibex/blob/master/dv/uvm/icache/dv/ibex_icache_sim_cfg.hjson>`_.
-The associated testplan ``.hjson`` file is located at `dv/uvm/icache/data/ibex_icache_testplan.hjson
-<https://github.com/lowRISC/ibex/blob/master/dv/uvm/icache/data/ibex_icache_testplan.hjson>`_.
+at `dv/uvm/icache/dv/cve2_icache_sim_cfg.hjson
+<https://github.com/lowRISC/ibex/blob/master/dv/uvm/icache/dv/cve2_icache_sim_cfg.hjson>`_.
+The associated testplan ``.hjson`` file is located at `dv/uvm/icache/data/cve2_icache_testplan.hjson
+<https://github.com/lowRISC/ibex/blob/master/dv/uvm/icache/data/cve2_icache_testplan.hjson>`_.
 As this testbench is still in its infancy, it is currently only able to be compiled, as no tests or
 sequences are implemented, nor are there any entries in the testplan file.
 To build the testbench locally using the VCS simulator, run the following command from the root of
@@ -255,7 +255,7 @@ the Ibex repository:
 
 .. code-block:: bash
 
-   ./vendor/lowrisc_ip/util/dvsim/dvsim.py dv/uvm/icache/dv/ibex_icache_sim_cfg.hjson --build-only
+   ./vendor/lowrisc_ip/util/dvsim/dvsim.py dv/uvm/icache/dv/cve2_icache_sim_cfg.hjson --build-only
    --skip-ral --purge --sr sim_out
 
 Specify the intended output directory using either the ``--sr`` or ``-scratch-root`` option.

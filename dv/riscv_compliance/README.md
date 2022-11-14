@@ -37,13 +37,13 @@ How to run RISC-V Compliance on Ibex
 
    ```sh
    cd $IBEX_REPO_BASE
-   fusesoc --cores-root=. run --target=sim --setup --build lowrisc:ibex:ibex_riscv_compliance --RV32E=0 --RV32M=ibex_pkg::RV32MNone
+   fusesoc --cores-root=. run --target=sim --setup --build lowrisc:cve2:cve2_riscv_compliance --RV32E=0 --RV32M=cve2_pkg::RV32MNone
    ```
 
    You can use the two compile-time options `--RV32M` and `--RV32E` to
    enable/disable the M and E ISA extensions, respectively.
 
-   You can now find the compiled simulation at `build/lowrisc_ibex_ibex_riscv_compliance_0.1/sim-verilator/Vibex_riscv_compliance`.
+   You can now find the compiled simulation at `build/lowrisc_cve2_cve2_riscv_compliance_0.1/sim-verilator/Vcve2_riscv_compliance`.
 
 2. Get the RISC-V Compliance test suite
 
@@ -60,7 +60,7 @@ How to run RISC-V Compliance on Ibex
    # adjust to match your compiler name
    export RISCV_PREFIX=riscv32-unknown-elf-
    # give the absolute path to the simulation binary compiled in step 1
-   export TARGET_SIM=/path/to/your/Vibex_riscv_compliance
+   export TARGET_SIM=/path/to/your/Vcve2_riscv_compliance
 
    export RISCV_DEVICE=rv32imc
    export RISCV_TARGET=ibex

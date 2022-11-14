@@ -12,7 +12,7 @@ import sys
 
 import yaml
 
-_DEFAULT_CONFIG_FILE = 'ibex_configs.yaml'
+_DEFAULT_CONFIG_FILE = 'cve2_configs.yaml'
 
 
 class ConfigException(Exception):
@@ -208,10 +208,10 @@ class SimOpts:
 def get_config_file_location():
     """Returns the location of the config file
 
-    Default is _DEFAULT_CONFIG_FILE and the IBEX_CONFIG_FILE environment
+    Default is _DEFAULT_CONFIG_FILE and the CVE2_CONFIG_FILE environment
     variable overrides the default"""
 
-    return os.environ.get('IBEX_CONFIG_FILE', _DEFAULT_CONFIG_FILE)
+    return os.environ.get('CVE2_CONFIG_FILE', _DEFAULT_CONFIG_FILE)
 
 
 def parse_config(config_name, config_filename):
@@ -278,7 +278,7 @@ def main():
         'Outputs Ibex configuration parameters for a named config in a number '
         'of formats.  If not specified on the command line the config will be '
         'read from {0}. This default can be overridden by setting the '
-        'IBEX_CONFIG_FILE environment variable. Some output types support '
+        'CVE2_CONFIG_FILE environment variable. Some output types support '
         'arguments to see help for them pass a config_name and an output type '
         'followed by --help').format(get_config_file_location()))
 
@@ -304,8 +304,8 @@ def main():
         print('ERROR: No output format specified.')
         sys.exit(1)
 
-    parsed_ibex_config = parse_config(args.config_name, args.config_filename)
-    print(args.output_fn(parsed_ibex_config, args))
+    parsed_cve2_config = parse_config(args.config_name, args.config_filename)
+    print(args.output_fn(parsed_cve2_config, args))
 
 if __name__ == "__main__":
     main()

@@ -6,9 +6,9 @@
 #include <fstream>
 #include <iostream>
 
-#include "Vibex_simple_system__Syms.h"
-#include "ibex_pcounts.h"
-#include "ibex_simple_system.h"
+#include "Vcve2_simple_system__Syms.h"
+#include "cve2_pcounts.h"
+#include "cve2_simple_system.h"
 #include "verilated_toplevel.h"
 #include "verilator_memutil.h"
 #include "verilator_sim_ctrl.h"
@@ -34,18 +34,18 @@ int SimpleSystem::Main(int argc, char **argv) {
 }
 
 std::string SimpleSystem::GetIsaString() const {
-  const Vibex_simple_system &top = _top;
-  assert(top.ibex_simple_system);
+  const Vcve2_simple_system &top = _top;
+  assert(top.cve2_simple_system);
 
-  std::string base = top.ibex_simple_system->RV32E ? "rv32e" : "rv32i";
+  std::string base = top.cve2_simple_system->RV32E ? "rv32e" : "rv32i";
 
   std::string extensions = "c";
-  if (top.ibex_simple_system->RV32M)
+  if (top.cve2_simple_system->RV32M)
     extensions += "m";
 
-  // See the equivalent get_isa_string() function in core_ibex_base_test.sv for
+  // See the equivalent get_isa_string() function in core_cve2_base_test.sv for
   // an explanation of the different ISA strings
-  switch (top.ibex_simple_system->RV32B) {
+  switch (top.cve2_simple_system->RV32B) {
     case 0:  // RV32BNone
       break;
 
@@ -92,17 +92,17 @@ bool SimpleSystem::Finish() {
     return false;
   }
 
-  // Set the scope to the root scope, the ibex_pcount_string function otherwise
-  // doesn't know the scope itself. Could be moved to ibex_pcount_string, but
+  // Set the scope to the root scope, the cve2_pcount_string function otherwise
+  // doesn't know the scope itself. Could be moved to cve2_pcount_string, but
   // would require a way to set the scope name from here, similar to MemUtil.
-  svSetScope(svGetScopeFromName("TOP.ibex_simple_system"));
+  svSetScope(svGetScopeFromName("TOP.cve2_simple_system"));
 
   std::cout << "\nPerformance Counters" << std::endl
             << "====================" << std::endl;
-  std::cout << ibex_pcount_string(false);
+  std::cout << cve2_pcount_string(false);
 
-  std::ofstream pcount_csv("ibex_simple_system_pcount.csv");
-  pcount_csv << ibex_pcount_string(true);
+  std::ofstream pcount_csv("cve2_simple_system_pcount.csv");
+  pcount_csv << cve2_pcount_string(true);
 
   return true;
 }

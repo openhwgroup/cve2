@@ -10,7 +10,7 @@
  * simulators (if the top-level clk and rst ports are replaced with a generated
  * clock).
  */
-module ibex_riscv_compliance (
+module cve2_riscv_compliance (
   input IO_CLK,
   input IO_RST_N
 );
@@ -19,9 +19,9 @@ module ibex_riscv_compliance (
   parameter int unsigned PMPGranularity = 0;
   parameter int unsigned PMPNumRegions  = 4;
   parameter bit RV32E                   = 1'b0;
-  parameter ibex_pkg::rv32m_e RV32M     = ibex_pkg::RV32MFast;
-  parameter ibex_pkg::rv32b_e RV32B     = ibex_pkg::RV32BNone;
-  parameter ibex_pkg::regfile_e RegFile = ibex_pkg::RegFileFF;
+  parameter cve2_pkg::rv32m_e RV32M     = cve2_pkg::RV32MFast;
+  parameter cve2_pkg::rv32b_e RV32B     = cve2_pkg::RV32BNone;
+  parameter cve2_pkg::regfile_e RegFile = cve2_pkg::RegFileFF;
   parameter bit BranchTargetALU         = 1'b0;
   parameter bit WritebackStage          = 1'b0;
   parameter bit ICache                  = 1'b0;
@@ -113,7 +113,7 @@ module ibex_riscv_compliance (
     .cfg_device_addr_mask
   );
 
-  ibex_top_tracing #(
+  cve2_top_tracing #(
       .PMPEnable       (PMPEnable       ),
       .PMPGranularity  (PMPGranularity  ),
       .PMPNumRegions   (PMPNumRegions   ),
@@ -177,7 +177,7 @@ module ibex_riscv_compliance (
       .crash_dump_o           (                       ),
       .double_fault_seen_o    (                       ),
 
-      .fetch_enable_i         (ibex_pkg::FetchEnableOn),
+      .fetch_enable_i         (cve2_pkg::FetchEnableOn),
       .alert_minor_o          (                       ),
       .alert_major_internal_o (                       ),
       .alert_major_bus_o      (                       ),

@@ -2,18 +2,16 @@ CAPI=2:
 # Copyright lowRISC contributors.
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
-name: "lowrisc:cve2:fpga_xilinx_shared"
-description: "Collection of useful RTL for Xilinx based examples"
+name: "lowrisc:cve2:cve2_pkg:0.1"
+description: "Header package for CVE2"
+
 filesets:
-  files_sv:
-    depend:
-      - lowrisc:prim:ram_2p
+  files_rtl:
     files:
-      - rtl/fpga/xilinx/clkgen_xil7series.sv
-      - rtl/ram_2p.sv
+      - rtl/cve2_pkg.sv
     file_type: systemVerilogSource
 
 targets:
   default:
     filesets:
-      - files_sv
+      - files_rtl

@@ -5,7 +5,7 @@
 # Provide a convenient way to create a Verilog source of Ibex.
 # This is used by riscv-formal. See README.md for more details.
 
-IBEX_ENABLE_WB ?= 0
+CVE2_ENABLE_WB ?= 0
 
 # Name of the output file
 IBEX_OUT := ibex.v
@@ -28,29 +28,29 @@ INC_DIRS :=                    \
 
 # SystemVerilog sources of Ibex
 SRCS_SV ?=                              \
-  $(SRC_DIR)/ibex_alu.sv                \
-  $(SRC_DIR)/ibex_compressed_decoder.sv \
-  $(SRC_DIR)/ibex_controller.sv         \
-  $(SRC_DIR)/ibex_counter.sv            \
-  $(SRC_DIR)/ibex_csr.sv                \
-  $(SRC_DIR)/ibex_cs_registers.sv       \
-  $(SRC_DIR)/ibex_decoder.sv            \
-  $(SRC_DIR)/ibex_ex_block.sv           \
-  $(SRC_DIR)/ibex_fetch_fifo.sv         \
-  $(SRC_DIR)/ibex_id_stage.sv           \
-  $(SRC_DIR)/ibex_if_stage.sv           \
-  $(SRC_DIR)/ibex_load_store_unit.sv    \
-  $(SRC_DIR)/ibex_multdiv_fast.sv       \
-  $(SRC_DIR)/ibex_multdiv_slow.sv       \
-  $(SRC_DIR)/ibex_prefetch_buffer.sv    \
-  $(SRC_DIR)/ibex_pmp.sv                \
-  $(SRC_DIR)/ibex_register_file_ff.sv   \
-  $(SRC_DIR)/ibex_wb_stage.sv           \
-  $(SRC_DIR)/ibex_core.sv               \
-  $(SRC_DIR)/ibex_top.sv
+  $(SRC_DIR)/cve2_alu.sv                \
+  $(SRC_DIR)/cve2_compressed_decoder.sv \
+  $(SRC_DIR)/cve2_controller.sv         \
+  $(SRC_DIR)/cve2_counter.sv            \
+  $(SRC_DIR)/cve2_csr.sv                \
+  $(SRC_DIR)/cve2_cs_registers.sv       \
+  $(SRC_DIR)/cve2_decoder.sv            \
+  $(SRC_DIR)/cve2_ex_block.sv           \
+  $(SRC_DIR)/cve2_fetch_fifo.sv         \
+  $(SRC_DIR)/cve2_id_stage.sv           \
+  $(SRC_DIR)/cve2_if_stage.sv           \
+  $(SRC_DIR)/cve2_load_store_unit.sv    \
+  $(SRC_DIR)/cve2_multdiv_fast.sv       \
+  $(SRC_DIR)/cve2_multdiv_slow.sv       \
+  $(SRC_DIR)/cve2_prefetch_buffer.sv    \
+  $(SRC_DIR)/cve2_pmp.sv                \
+  $(SRC_DIR)/cve2_register_file_ff.sv   \
+  $(SRC_DIR)/cve2_wb_stage.sv           \
+  $(SRC_DIR)/cve2_core.sv               \
+  $(SRC_DIR)/cve2_top.sv
 
 PKGS ?=                                        \
-  $(SRC_DIR)/ibex_pkg.sv                       \
+  $(SRC_DIR)/cve2_pkg.sv                       \
   $(LOWRISC_IP)/ip/prim/rtl/prim_ram_1p_pkg.sv
 
 PRIM_CLOCK ?= $(SYN_DIR)/rtl/prim_clock_gating.v
@@ -73,9 +73,9 @@ $(GEN_V): $(OUTDIR)%.v: $(SRC_DIR)%.sv $(PKGS) | $(OUTDIR)
 # Disable "M" extension
 $(IBEX_OUT): $(GEN_V) $(PRIM_CLOCK)
 	yosys -p "read_verilog $(PRIM_CLOCK) $(GEN_V)"                     \
-	      -p "chparam -set RV32M 0 ibex_top"                           \
-	      -p "chparam -set WritebackStage $(IBEX_ENABLE_WB) ibex_top"  \
-	      -p "synth -top ibex_top"                                     \
+	      -p "chparam -set RV32M 0 cve2_top"                           \
+	      -p "chparam -set WritebackStage $(CVE2_ENABLE_WB) cve2_top"  \
+	      -p "synth -top cve2_top"                                     \
 	      -p "write_verilog $(IBEX_OUT)"
 
 .PHONY: clean

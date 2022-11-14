@@ -3,13 +3,13 @@ CAPI=2:
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
-name: "lowrisc:fpv:ibex_icache_fpv:0.1"
+name: "lowrisc:fpv:cve2_icache_fpv:0.1"
 description: "Formal properties for Ibex ICache"
 
 filesets:
   all:
     depend:
-      - lowrisc:ibex:ibex_icache
+      - lowrisc:cve2:cve2_icache
       - lowrisc:prim:assert
       - lowrisc:util:sv2v
     files:
@@ -30,7 +30,7 @@ targets:
       - ICacheECC
     filesets:
       - all
-    toplevel: ibex_icache
+    toplevel: cve2_icache
     default_tool: symbiyosys
     tools:
       symbiyosys:

@@ -7,7 +7,7 @@
 # Whether to use ECC (0 for disabled; 1 for enabled)
 ECC := 0
 
-core-name   := lowrisc:fpv:ibex_icache_fpv
+core-name   := lowrisc:fpv:cve2_icache_fpv
 vlnv        := $(subst :,_,$(core-name))
 build-root  := $(abspath ../../build/$(vlnv))
 

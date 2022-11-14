@@ -1,42 +1,42 @@
-ibex:
+cve2:
   incdirs: [
     rtl,
     shared/rtl,
   ]
   files: [
-    rtl/ibex_pkg.sv,
-    rtl/ibex_alu.sv,
-    rtl/ibex_compressed_decoder.sv,
-    rtl/ibex_controller.sv,
-    rtl/ibex_cs_registers.sv,
-    rtl/ibex_counters.sv,
-    rtl/ibex_decoder.sv,
-    rtl/ibex_ex_block.sv,
-    rtl/ibex_id_stage.sv,
-    rtl/ibex_if_stage.sv,
-    rtl/ibex_wb_stage.sv,
-    rtl/ibex_load_store_unit.sv,
-    rtl/ibex_multdiv_slow.sv,
-    rtl/ibex_multdiv_fast.sv,
-    rtl/ibex_prefetch_buffer.sv,
-    rtl/ibex_fetch_fifo.sv,
-    rtl/ibex_pmp.sv,
-    rtl/ibex_core.sv,
+    rtl/cve2_pkg.sv,
+    rtl/cve2_alu.sv,
+    rtl/cve2_compressed_decoder.sv,
+    rtl/cve2_controller.sv,
+    rtl/cve2_cs_registers.sv,
+    rtl/cve2_counters.sv,
+    rtl/cve2_decoder.sv,
+    rtl/cve2_ex_block.sv,
+    rtl/cve2_id_stage.sv,
+    rtl/cve2_if_stage.sv,
+    rtl/cve2_wb_stage.sv,
+    rtl/cve2_load_store_unit.sv,
+    rtl/cve2_multdiv_slow.sv,
+    rtl/cve2_multdiv_fast.sv,
+    rtl/cve2_prefetch_buffer.sv,
+    rtl/cve2_fetch_fifo.sv,
+    rtl/cve2_pmp.sv,
+    rtl/cve2_core.sv,
     shared/rtl/prim_assert.sv,
   ]
-ibex_vip_rtl:
+cve2_vip_rtl:
   targets: [
     rtl,
   ]
   incdirs: [
   ]
   files: [
-    rtl/ibex_pkg.sv,
-    rtl/ibex_tracer_pkg.sv,
-    rtl/ibex_tracer.sv,
-    rtl/ibex_core_tracing.sv,
+    rtl/cve2_pkg.sv,
+    rtl/cve2_tracer_pkg.sv,
+    rtl/cve2_tracer.sv,
+    rtl/cve2_core_tracing.sv,
   ]
-ibex_regfile_rtl:
+cve2_regfile_rtl:
   targets: [
     rtl,
     tsmc55,
@@ -45,15 +45,15 @@ ibex_regfile_rtl:
   incdirs: [
   ]
   files: [
-    rtl/ibex_register_file_latch.sv,
+    rtl/cve2_register_file_latch.sv,
   ]
-ibex_regfile_fpga:
+cve2_regfile_fpga:
   targets: [
     xilinx,
   ]
   incdirs: [
   ]
   files: [
-    rtl/ibex_register_file_fpga.sv,
+    rtl/cve2_register_file_fpga.sv,
   ]
 

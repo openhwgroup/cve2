@@ -5,7 +5,7 @@
 puts "=================== Flow Vars ==================="
 
 set_flow_var cell_library_path "cmos_cells.lib" "Path to cell library"
-set_flow_var top_module "ibex_top" "top module"
+set_flow_var top_module "cve2_top" "top module"
 set_flow_var out_dir "syn_out" "Output directory for synthesis"
 set_flow_var pre_map_out "./${lr_synth_out_dir}/generated/${lr_synth_top_module}.pre_map.v" "Pre-mapping netlist out"
 set_flow_var netlist_out "./${lr_synth_out_dir}/generated/${lr_synth_top_module}_netlist.v" "netlist out"
@@ -13,11 +13,11 @@ set_flow_var config_file "${lr_synth_top_module}_lr_synth_conf.tcl" "Synth confi
 set_flow_var rpt_out "./${lr_synth_out_dir}/reports" "Report output directory"
 set_flow_bool_var flatten 1 "flatten"
 set_flow_bool_var timing_run 0 "timing run"
-set_flow_bool_var ibex_branch_target_alu 0 "Enable branch target ALU in Ibex"
-set_flow_bool_var ibex_writeback_stage 0 "Enable writeback stage in Ibex"
-set_flow_var ibex_bitmanip 0 "Bitmanip extenion setting for Ibex (see ibex_pkg::rv32b_e for permitted values. Enum names are not supported in Yosys.)"
-set_flow_var ibex_multiplier 2 "Multiplier extension setting for Ibex (see ibex_pkg::rv32m_e for permitted values. Enum names are not supported in Yosys.)"
-set_flow_var ibex_regfile 2 "Register file implementation selection for Ibex (see ibex_pkg::regfile_e for permitted values. Enum names are not supported in Yosys.)"
+set_flow_bool_var cve2_branch_target_alu 0 "Enable branch target ALU in Ibex"
+set_flow_bool_var cve2_writeback_stage 0 "Enable writeback stage in Ibex"
+set_flow_var cve2_bitmanip 0 "Bitmanip extenion setting for Ibex (see cve2_pkg::rv32b_e for permitted values. Enum names are not supported in Yosys.)"
+set_flow_var cve2_multiplier 2 "Multiplier extension setting for Ibex (see cve2_pkg::rv32m_e for permitted values. Enum names are not supported in Yosys.)"
+set_flow_var cve2_regfile 2 "Register file implementation selection for Ibex (see cve2_pkg::regfile_e for permitted values. Enum names are not supported in Yosys.)"
 
 source $lr_synth_config_file
 

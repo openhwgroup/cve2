@@ -1013,7 +1013,7 @@ module cve2_cs_registers #(
 
   if (PMPEnable) begin : g_pmp_registers
     // PMP reset values
-    `ifdef IBEX_CUSTOM_PMP_RESET_VALUES
+    `ifdef CVE2_CUSTOM_PMP_RESET_VALUES
       `include "cve2_pmp_reset.svh"
     `else
       `include "cve2_pmp_reset_default.svh"

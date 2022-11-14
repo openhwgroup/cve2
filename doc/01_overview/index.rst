@@ -1,4 +1,4 @@
-Introduction to Ibex
+Introduction to CVE2
 ====================
 
 Ibex is a production-quality open source 32-bit RISC-V CPU core written in SystemVerilog.

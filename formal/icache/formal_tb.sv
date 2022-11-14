@@ -16,7 +16,7 @@
   `ASSUME(name``_zero_in_reset, `IMPLIES(!rst_ni, ~|(name)), clk_i, 1'b0)
 
 module formal_tb
-  import ibex_pkg::*;
+  import cve2_pkg::*;
 #(
   // DUT parameters
   parameter bit          BranchPredictor = 1'b0,

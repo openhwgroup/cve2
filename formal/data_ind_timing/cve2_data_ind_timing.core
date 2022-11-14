@@ -3,14 +3,14 @@ CAPI=2:
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
-name: "lowrisc:fpv:ibex_data_ind_timing:0.1"
+name: "lowrisc:fpv:cve2_data_ind_timing:0.1"
 description: "Formal test for data independent timing"
 
 filesets:
   testbench:
     depend:
-      - lowrisc:ibex:ibex_pkg
-      - lowrisc:ibex:ibex_multdiv
+      - lowrisc:cve2:cve2_pkg
+      - lowrisc:cve2:cve2_multdiv
       - lowrisc:util:sv2v
     files:
       - run.sby.j2 : {file_type: sbyConfigTemplate}
@@ -76,7 +76,7 @@ targets:
   slow: &slow
     filesets:
       - testbench
-    toplevel: ibex_multdiv_slow
+    toplevel: cve2_multdiv_slow
     default_tool: symbiyosys
     tools:
       symbiyosys:
@@ -113,7 +113,7 @@ targets:
 
   fast: &fast
     <<: *slow
-    toplevel: ibex_multdiv_fast
+    toplevel: cve2_multdiv_fast
     tools:
       symbiyosys:
         tasknames:

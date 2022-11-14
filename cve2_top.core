@@ -2,40 +2,24 @@ CAPI=2:
 # Copyright lowRISC contributors.
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
-name: "lowrisc:ibex:ibex_core:0.1"
-description: "Ibex CPU Core Components"
+name: "lowrisc:cve2:cve2_top:0.1"
+description: "Ibex, a small RV32 CPU core"
 
 filesets:
   files_rtl:
     depend:
-      - lowrisc:prim:assert
-      - lowrisc:prim:clock_gating
-      - lowrisc:prim:lfsr
-      - lowrisc:ibex:ibex_pkg
-      - lowrisc:ibex:ibex_icache
-      - lowrisc:dv:dv_fcov_macros
+      - lowrisc:cve2:cve2_pkg
+      - lowrisc:cve2:cve2_core
+      - lowrisc:prim:buf
+      - lowrisc:prim:clock_mux2
+      - lowrisc:prim:flop
+      - lowrisc:prim:ram_1p_scr
     files:
-      - rtl/ibex_alu.sv
-      - rtl/ibex_branch_predict.sv
-      - rtl/ibex_compressed_decoder.sv
-      - rtl/ibex_controller.sv
-      - rtl/ibex_cs_registers.sv
-      - rtl/ibex_csr.sv
-      - rtl/ibex_counter.sv
-      - rtl/ibex_decoder.sv
-      - rtl/ibex_ex_block.sv
-      - rtl/ibex_fetch_fifo.sv
-      - rtl/ibex_id_stage.sv
-      - rtl/ibex_if_stage.sv
-      - rtl/ibex_load_store_unit.sv
-      - rtl/ibex_multdiv_fast.sv
-      - rtl/ibex_multdiv_slow.sv
-      - rtl/ibex_prefetch_buffer.sv
-      - rtl/ibex_pmp.sv
-      - rtl/ibex_wb_stage.sv
-      - rtl/ibex_dummy_instr.sv
-      - rtl/ibex_core.sv
-      - rtl/ibex_pmp_reset_default.svh: {is_include_file: true}
+      - rtl/cve2_register_file_ff.sv # generic FF-based
+      - rtl/cve2_register_file_fpga.sv # FPGA
+      - rtl/cve2_register_file_latch.sv # ASIC
+      - rtl/cve2_lockstep.sv
+      - rtl/cve2_top.sv
     file_type: systemVerilogSource
 
   files_lint_verilator:
@@ -72,21 +56,21 @@ parameters:
 
   RV32M:
     datatype: str
-    default: ibex_pkg::RV32MFast
+    default: cve2_pkg::RV32MFast
     paramtype: vlogdefine
-    description: "RV32M implementation parameter enum. See the ibex_pkg::rv32m_e enum in ibex_pkg.sv for permitted values."
+    description: "RV32M implementation parameter enum. See the cve2_pkg::rv32m_e enum in cve2_pkg.sv for permitted values."
 
   RV32B:
     datatype: str
-    default: ibex_pkg::RV32BNone
+    default: cve2_pkg::RV32BNone
     paramtype: vlogdefine
-    description: "Bitmanip implementation parameter enum. See the ibex_pkg::rv32b_e enum in ibex_pkg.sv for permitted values."
+    description: "Bitmanip implementation parameter enum. See the cve2_pkg::rv32b_e enum in cve2_pkg.sv for permitted values."
 
   RegFile:
     datatype: str
-    default: ibex_pkg::RegFileFF
+    default: cve2_pkg::RegFileFF
     paramtype: vlogdefine
-    description: "Register file implementation parameter enum. See the ibex_pkg::regfile_e enum in ibex_pkg.sv for permitted values."
+    description: "Register file implementation parameter enum. See the cve2_pkg::regfile_e enum in cve2_pkg.sv for permitted values."
 
   ICache:
     datatype: int
@@ -118,11 +102,17 @@ parameters:
     default: 0
     description: "Enables static branch prediction (EXPERIMENTAL)"
 
-  SecureIbex:
+  SecureCVE2:
     datatype: int
     default: 0
     paramtype: vlogparam
     description: "Enables security hardening features (EXPERIMENTAL) [0/1]"
+
+  ICacheScramble:
+    datatype: int
+    default: 0
+    paramtype: vlogparam
+    description: "Enables ICache scrambling feature (EXPERIMENTAL) [0/1]"
 
   PMPEnable:
     datatype: int
@@ -149,7 +139,7 @@ targets:
       - tool_veriblelint ? (files_lint_verible)
       - files_rtl
       - files_check_tool_requirements
-    toplevel: ibex_core
+    toplevel: cve2_top
     parameters:
       - tool_vivado ? (FPGA_XILINX=true)
   lint:
@@ -173,8 +163,12 @@ targets:
       - SYNTHESIS=true
       - RVFI=true
     default_tool: veribleformat
-    toplevel: ibex_core
+    toplevel: cve2_top
     tools:
       veribleformat:
         verible_format_args:
           - "--inplace"
+          - "--formal_parameters_indentation=indent"
+          - "--named_parameter_indentation=indent"
+          - "--named_port_indentation=indent"
+          - "--port_declarations_indentation=indent"

@@ -49,10 +49,10 @@ jobs:
   # Verible format is experimental so only run on default config for now,
   # will eventually become part of the per-config CI
   - bash: |
-      fusesoc --cores-root . run --no-export --target=format --tool=veribleformat lowrisc:ibex:ibex_top_tracing
+      fusesoc --cores-root . run --no-export --target=format --tool=veribleformat lowrisc:cve2:cve2_top_tracing
       if [ $? != 0 ]; then
         echo -n "##vso[task.logissue type=error]"
-        echo "Verilog format with Verible failed. Run 'fusesoc --cores-root . run --no-export --target=format --tool=veribleformat lowrisc:ibex:ibex_top_tracing' to check and fix all errors."
+        echo "Verilog format with Verible failed. Run 'fusesoc --cores-root . run --no-export --target=format --tool=veribleformat lowrisc:cve2:cve2_top_tracing' to check and fix all errors."
         echo "This flow is currently experimental and failures can be ignored."
       fi
       # Show diff of what verilog_format would have changed, and then revert.
@@ -78,7 +78,7 @@ jobs:
   - bash: |
       # Build and run CSR testbench, chosen Ibex configuration does not effect
       # this so doesn't need to be part of per-config CI
-      fusesoc --cores-root=. run --target=sim --tool=verilator lowrisc:ibex:tb_cs_registers
+      fusesoc --cores-root=. run --target=sim --tool=verilator lowrisc:cve2:tb_cs_registers
     displayName: Build and run CSR testbench with Verilator
 
   - bash: |
@@ -96,7 +96,7 @@ jobs:
   # Run Ibex RTL CI per supported configuration
   - template : ci/ibex-rtl-ci-steps.yml
     parameters:
-      ibex_configs:
+      cve2_configs:
         # Note: Try to keep the list of configurations in sync with the one used
         # in Private CI.
         - small
@@ -107,19 +107,19 @@ jobs:
 
   # Run lint on simple system
   - bash: |
-      fusesoc --cores-root . run --target=lint --tool=verilator lowrisc:ibex:ibex_simple_system
+      fusesoc --cores-root . run --target=lint --tool=verilator lowrisc:cve2:cve2_simple_system
       if [ $? != 0 ]; then
         echo -n "##vso[task.logissue type=error]"
-        echo "Verilog lint with Verilator failed. Run 'fusesoc --cores-root . run --target=lint --tool=verilator lowrisc:ibex:ibex_simple_system' to check and fix all errors."
+        echo "Verilog lint with Verilator failed. Run 'fusesoc --cores-root . run --target=lint --tool=verilator lowrisc:cve2:cve2_simple_system' to check and fix all errors."
         exit 1
       fi
     displayName: Run Verilator lint on simple system
 
   - bash: |
-      fusesoc --cores-root . run --target=lint --tool=veriblelint lowrisc:ibex:ibex_simple_system
+      fusesoc --cores-root . run --target=lint --tool=veriblelint lowrisc:cve2:cve2_simple_system
       if [ $? != 0 ]; then
         echo -n "##vso[task.logissue type=error]"
-        echo "Verilog lint with Verible failed. Run 'fusesoc --cores-root . run --target=lint --tool=veriblelint lowrisc:ibex:ibex_simple_system' to check and fix all errors."
+        echo "Verilog lint with Verible failed. Run 'fusesoc --cores-root . run --target=lint --tool=veriblelint lowrisc:cve2:cve2_simple_system' to check and fix all errors."
         exit 1
       fi
     displayName: Run Verible lint on simple system

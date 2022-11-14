@@ -23,7 +23,7 @@
 #-------------------------------------------------------------------------
 rm -Rf build lec_out
 fusesoc --cores-root .. run --tool=icarus --target=lint \
-  --setup "lowrisc:ibex:ibex_top" > /dev/null 2>&1
+  --setup "lowrisc:cve2:cve2_top" > /dev/null 2>&1
 
 # copy all files to lec_out
 mkdir lec_out

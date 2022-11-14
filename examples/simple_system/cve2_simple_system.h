@@ -16,7 +16,7 @@ class SimpleSystem {
   std::string GetIsaString() const;
 
  protected:
-  ibex_simple_system _top;
+  cve2_simple_system _top;
   VerilatorMemUtil _memutil;
   MemArea _ram;
 
