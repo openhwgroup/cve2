@@ -63,7 +63,7 @@ Run the UVM DV regression with co-simulation enabled
 .. code-block:: bash
 
   # Run regression with co-simulation enabled
-  cd <cve2_area>/dv/uvm/core_ibex
+  cd <cve2_area>/dv/uvm/core_cve2
   make COSIM=1
 
 Build and run Simple System with the co-simulation enabled
