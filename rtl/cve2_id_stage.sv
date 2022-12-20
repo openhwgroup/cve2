@@ -22,7 +22,6 @@ module cve2_id_stage #(
   parameter cve2_pkg::rv32m_e RV32M           = cve2_pkg::RV32MFast,
   parameter cve2_pkg::rv32b_e RV32B           = cve2_pkg::RV32BNone,
   parameter bit               DataIndTiming   = 1'b0,
-  parameter bit               BranchTargetALU = 0,
   parameter bit               WritebackStage  = 0,
   parameter bit               BranchPredictor = 0
 ) (
@@ -74,10 +73,6 @@ module cve2_id_stage #(
   input  logic [1:0]                imd_val_we_ex_i,
   input  logic [33:0]               imd_val_d_ex_i[2],
   output logic [33:0]               imd_val_q_ex_o[2],
-
-  // Branch target ALU
-  output logic [31:0]               bt_a_operand_o,
-  output logic [31:0]               bt_b_operand_o,
 
   // MUL, DIV
   output logic                      mult_en_ex_o,
@@ -257,9 +252,6 @@ module cve2_id_stage #(
 
   logic [33:0] imd_val_q[2];
 
-  op_a_sel_e   bt_a_mux_sel;
-  imm_b_sel_e  bt_b_mux_sel;
-
   imm_a_sel_e  imm_a_mux_sel;
   imm_b_sel_e  imm_b_mux_sel, imm_b_mux_sel_dec;
 
@@ -310,52 +302,9 @@ module cve2_id_stage #(
     endcase
   end
 
-  if (BranchTargetALU) begin : g_btalu_muxes
-    // Branch target ALU operand A mux
-    always_comb begin : bt_operand_a_mux
-      unique case (bt_a_mux_sel)
-        OP_A_REG_A:  bt_a_operand_o = rf_rdata_a_fwd;
-        OP_A_CURRPC: bt_a_operand_o = pc_id_i;
-        default:     bt_a_operand_o = pc_id_i;
-      endcase
-    end
-
-    // Branch target ALU operand B mux
-    always_comb begin : bt_immediate_b_mux
-      unique case (bt_b_mux_sel)
-        IMM_B_I:         bt_b_operand_o = imm_i_type;
-        IMM_B_B:         bt_b_operand_o = imm_b_type;
-        IMM_B_J:         bt_b_operand_o = imm_j_type;
-        IMM_B_INCR_PC:   bt_b_operand_o = instr_is_compressed_i ? 32'h2 : 32'h4;
-        default:         bt_b_operand_o = instr_is_compressed_i ? 32'h2 : 32'h4;
-      endcase
-    end
-
-    // Reduced main ALU immediate MUX for Operand B
-    always_comb begin : immediate_b_mux
-      unique case (imm_b_mux_sel)
-        IMM_B_I:         imm_b = imm_i_type;
-        IMM_B_S:         imm_b = imm_s_type;
-        IMM_B_U:         imm_b = imm_u_type;
-        IMM_B_INCR_PC:   imm_b = instr_is_compressed_i ? 32'h2 : 32'h4;
-        IMM_B_INCR_ADDR: imm_b = 32'h4;
-        default:         imm_b = 32'h4;
-      endcase
-    end
-    `ASSERT(IbexImmBMuxSelValid, instr_valid_i |-> imm_b_mux_sel inside {
-        IMM_B_I,
-        IMM_B_S,
-        IMM_B_U,
-        IMM_B_INCR_PC,
-        IMM_B_INCR_ADDR})
-  end else begin : g_nobtalu
+  begin : g_nobtalu
     op_a_sel_e  unused_a_mux_sel;
     imm_b_sel_e unused_b_mux_sel;
-
-    assign unused_a_mux_sel = bt_a_mux_sel;
-    assign unused_b_mux_sel = bt_b_mux_sel;
-    assign bt_a_operand_o   = '0;
-    assign bt_b_operand_o   = '0;
 
     // Full main ALU immediate MUX for Operand B
     always_comb begin : immediate_b_mux
@@ -422,8 +371,7 @@ module cve2_id_stage #(
   cve2_decoder #(
     .RV32E          (RV32E),
     .RV32M          (RV32M),
-    .RV32B          (RV32B),
-    .BranchTargetALU(BranchTargetALU)
+    .RV32B          (RV32B)
   ) decoder_i (
     .clk_i (clk_i),
     .rst_ni(rst_ni),
@@ -448,8 +396,6 @@ module cve2_id_stage #(
     // immediates
     .imm_a_mux_sel_o(imm_a_mux_sel),
     .imm_b_mux_sel_o(imm_b_mux_sel_dec),
-    .bt_a_mux_sel_o (bt_a_mux_sel),
-    .bt_b_mux_sel_o (bt_b_mux_sel),
 
     .imm_i_type_o   (imm_i_type),
     .imm_s_type_o   (imm_s_type),
@@ -653,11 +599,7 @@ module cve2_id_stage #(
   // Branch set control //
   ////////////////////////
 
-  if (BranchTargetALU && !DataIndTiming) begin : g_branch_set_direct
-    // Branch set fed straight to controller with branch target ALU
-    // (condition pass/fail used same cycle as generated instruction request)
-    assign branch_set_raw      = branch_set_raw_d;
-  end else begin : g_branch_set_flop
+  begin : g_branch_set_flop
     // SEC_CM: CORE.DATA_REG_SW.SCA
     // Branch set flopped without branch target ALU, or in fixed time execution mode
     // (condition pass/fail used next cycle where branch target is calculated)
@@ -674,8 +616,7 @@ module cve2_id_stage #(
     // Branches always take two cycles in fixed time execution mode, with or without the branch
     // target ALU (to avoid a path from the branch decision into the branch target ALU operand
     // muxing).
-    assign branch_set_raw      = (BranchTargetALU && !data_ind_timing_i) ? branch_set_raw_d :
-                                                                           branch_set_raw_q;
+    assign branch_set_raw      = branch_set_raw_q;
 
   end
 
@@ -802,9 +743,9 @@ module cve2_id_stage #(
               // All branches take two cycles in fixed time execution mode, regardless of branch
               // condition.
               // SEC_CM: CORE.DATA_REG_SW.SCA
-              id_fsm_d         = (data_ind_timing_i || (!BranchTargetALU && branch_decision_i)) ?
+              id_fsm_d         = (data_ind_timing_i || branch_decision_i) ?
                                      MULTI_CYCLE : FIRST_CYCLE;
-              stall_branch     = (~BranchTargetALU & branch_decision_i) | data_ind_timing_i;
+              stall_branch     = (branch_decision_i | data_ind_timing_i);
               branch_set_raw_d = (branch_decision_i | data_ind_timing_i);
 
               if (BranchPredictor) begin
@@ -815,9 +756,8 @@ module cve2_id_stage #(
             end
             jump_in_dec: begin
               // uncond branch operation
-              // BTALU means jumps only need one cycle
-              id_fsm_d      = BranchTargetALU ? FIRST_CYCLE : MULTI_CYCLE;
-              stall_jump    = ~BranchTargetALU;
+              id_fsm_d      = MULTI_CYCLE;
+              stall_jump    = 1'b1;
               jump_set_raw  = jump_set_dec;
             end
             alu_multicycle_dec: begin
@@ -1080,16 +1020,6 @@ module cve2_id_stage #(
       OP_A_FWD,
       OP_A_CURRPC,
       OP_A_IMM})
-  `ASSERT_KNOWN_IF(IbexBTAluAOpMuxSelKnown, bt_a_mux_sel, instr_valid_i)
-  `ASSERT(IbexBTAluAOpMuxSelValid, instr_valid_i |-> bt_a_mux_sel inside {
-      OP_A_REG_A,
-      OP_A_CURRPC})
-  `ASSERT_KNOWN_IF(IbexBTAluBOpMuxSelKnown, bt_b_mux_sel, instr_valid_i)
-  `ASSERT(IbexBTAluBOpMuxSelValid, instr_valid_i |-> bt_b_mux_sel inside {
-      IMM_B_I,
-      IMM_B_B,
-      IMM_B_J,
-      IMM_B_INCR_PC})
   `ASSERT(IbexRegfileWdataSelValid, instr_valid_i |-> rf_wdata_sel inside {
       RF_WD_EX,
       RF_WD_CSR})

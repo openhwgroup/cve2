@@ -21,7 +21,6 @@ module cve2_core import cve2_pkg::*; #(
   parameter bit          RV32E             = 1'b0,
   parameter rv32m_e      RV32M             = RV32MFast,
   parameter rv32b_e      RV32B             = RV32BNone,
-  parameter bit          BranchTargetALU   = 1'b0,
   parameter bit          WritebackStage    = 1'b0,
   parameter bit          ICache            = 1'b0,
   parameter bit          ICacheECC         = 1'b0,
@@ -237,9 +236,6 @@ module cve2_core import cve2_pkg::*; #(
   alu_op_e     alu_operator_ex;
   logic [31:0] alu_operand_a_ex;
   logic [31:0] alu_operand_b_ex;
-
-  logic [31:0] bt_a_operand;
-  logic [31:0] bt_b_operand;
 
   logic [31:0] alu_adder_result_ex;    // Used to forward computed address to LSU
   logic [31:0] result_ex;
@@ -485,7 +481,6 @@ module cve2_core import cve2_pkg::*; #(
     .RV32E          (RV32E),
     .RV32M          (RV32M),
     .RV32B          (RV32B),
-    .BranchTargetALU(BranchTargetALU),
     .DataIndTiming  (DataIndTiming),
     .WritebackStage (WritebackStage),
     .BranchPredictor(BranchPredictor)
@@ -538,9 +533,6 @@ module cve2_core import cve2_pkg::*; #(
     .imd_val_q_ex_o (imd_val_q_ex),
     .imd_val_d_ex_i (imd_val_d_ex),
     .imd_val_we_ex_i(imd_val_we_ex),
-
-    .bt_a_operand_o(bt_a_operand),
-    .bt_b_operand_o(bt_b_operand),
 
     .mult_en_ex_o            (mult_en_ex),
     .div_en_ex_o             (div_en_ex),
@@ -642,8 +634,7 @@ module cve2_core import cve2_pkg::*; #(
 
   cve2_ex_block #(
     .RV32M          (RV32M),
-    .RV32B          (RV32B),
-    .BranchTargetALU(BranchTargetALU)
+    .RV32B          (RV32B)
   ) ex_block_i (
     .clk_i (clk_i),
     .rst_ni(rst_ni),
@@ -653,10 +644,6 @@ module cve2_core import cve2_pkg::*; #(
     .alu_operand_a_i        (alu_operand_a_ex),
     .alu_operand_b_i        (alu_operand_b_ex),
     .alu_instr_first_cycle_i(instr_first_cycle_id),
-
-    // Branch target ALU signal from ID stage
-    .bt_a_operand_i(bt_a_operand),
-    .bt_b_operand_i(bt_b_operand),
 
     // Multipler/Divider signal from ID stage
     .multdiv_operator_i   (multdiv_operator_ex),

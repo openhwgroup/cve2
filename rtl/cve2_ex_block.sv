@@ -10,8 +10,7 @@
  */
 module cve2_ex_block #(
   parameter cve2_pkg::rv32m_e RV32M           = cve2_pkg::RV32MFast,
-  parameter cve2_pkg::rv32b_e RV32B           = cve2_pkg::RV32BNone,
-  parameter bit               BranchTargetALU = 0
+  parameter cve2_pkg::rv32b_e RV32B           = cve2_pkg::RV32BNone
 ) (
   input  logic                  clk_i,
   input  logic                  rst_ni,
@@ -21,11 +20,6 @@ module cve2_ex_block #(
   input  logic [31:0]           alu_operand_a_i,
   input  logic [31:0]           alu_operand_b_i,
   input  logic                  alu_instr_first_cycle_i,
-
-  // Branch Target ALU
-  // All of these signals are unusued when BranchTargetALU == 0
-  input  logic [31:0]           bt_a_operand_i,
-  input  logic [31:0]           bt_b_operand_i,
 
   // Multiplier/Divider
   input  cve2_pkg::md_op_e      multdiv_operator_i,
@@ -91,20 +85,9 @@ module cve2_ex_block #(
   // branch handling
   assign branch_decision_o  = alu_cmp_result;
 
-  if (BranchTargetALU) begin : g_branch_target_alu
-    logic [32:0] bt_alu_result;
-    logic        unused_bt_carry;
-
-    assign bt_alu_result   = bt_a_operand_i + bt_b_operand_i;
-
-    assign unused_bt_carry = bt_alu_result[32];
-    assign branch_target_o = bt_alu_result[31:0];
-  end else begin : g_no_branch_target_alu
+  begin : g_no_branch_target_alu
     // Unused bt_operand signals cause lint errors, this avoids them
-    logic [31:0] unused_bt_a_operand, unused_bt_b_operand;
-
-    assign unused_bt_a_operand = bt_a_operand_i;
-    assign unused_bt_b_operand = bt_b_operand_i;
+    //logic [31:0] unused_bt_a_operand, unused_bt_b_operand;
 
     assign branch_target_o = alu_adder_result_ex_o;
   end

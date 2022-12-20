@@ -16,8 +16,7 @@
 module cve2_decoder #(
   parameter bit RV32E               = 0,
   parameter cve2_pkg::rv32m_e RV32M = cve2_pkg::RV32MFast,
-  parameter cve2_pkg::rv32b_e RV32B = cve2_pkg::RV32BNone,
-  parameter bit BranchTargetALU     = 0
+  parameter cve2_pkg::rv32b_e RV32B = cve2_pkg::RV32BNone
 ) (
   input  logic                 clk_i,
   input  logic                 rst_ni,
@@ -45,8 +44,6 @@ module cve2_decoder #(
   // immediates
   output cve2_pkg::imm_a_sel_e  imm_a_mux_sel_o,       // immediate selection for operand a
   output cve2_pkg::imm_b_sel_e  imm_b_mux_sel_o,       // immediate selection for operand b
-  output cve2_pkg::op_a_sel_e   bt_a_mux_sel_o,        // branch target selection operand a
-  output cve2_pkg::imm_b_sel_e  bt_b_mux_sel_o,        // branch target selection operand b
   output logic [31:0]           imm_i_type_o,
   output logic [31:0]           imm_s_type_o,
   output logic [31:0]           imm_b_type_o,
@@ -244,8 +241,8 @@ module cve2_decoder #(
         jump_in_dec_o      = 1'b1;
 
         if (instr_first_cycle_i) begin
-          // Calculate jump target (and store PC + 4 if BranchTargetALU is configured)
-          rf_we            = BranchTargetALU;
+          // Calculate jump target (and store PC)
+          rf_we            = 1'b0;
           jump_set_o       = 1'b1;
         end else begin
           // Calculate and store PC+4
@@ -257,8 +254,8 @@ module cve2_decoder #(
         jump_in_dec_o      = 1'b1;
 
         if (instr_first_cycle_i) begin
-          // Calculate jump target (and store PC + 4 if BranchTargetALU is configured)
-          rf_we            = BranchTargetALU;
+          // Calculate jump target (and store PC)
+          rf_we            = 1'b0;
           jump_set_o       = 1'b1;
         end else begin
           // Calculate and store PC+4
@@ -676,10 +673,6 @@ module cve2_decoder #(
     imm_a_mux_sel_o    = IMM_A_ZERO;
     imm_b_mux_sel_o    = IMM_B_I;
 
-    bt_a_mux_sel_o     = OP_A_CURRPC;
-    bt_b_mux_sel_o     = IMM_B_I;
-
-
     opcode_alu         = opcode_e'(instr_alu[6:0]);
 
     use_rs3_d          = 1'b0;
@@ -694,13 +687,8 @@ module cve2_decoder #(
       ///////////
 
       OPCODE_JAL: begin // Jump and Link
-        if (BranchTargetALU) begin
-          bt_a_mux_sel_o = OP_A_CURRPC;
-          bt_b_mux_sel_o = IMM_B_J;
-        end
-
         // Jumps take two cycles without the BTALU
-        if (instr_first_cycle_i && !BranchTargetALU) begin
+        if (instr_first_cycle_i) begin
           // Calculate jump target
           alu_op_a_mux_sel_o  = OP_A_CURRPC;
           alu_op_b_mux_sel_o  = OP_B_IMM;
@@ -716,13 +704,8 @@ module cve2_decoder #(
       end
 
       OPCODE_JALR: begin // Jump and Link Register
-        if (BranchTargetALU) begin
-          bt_a_mux_sel_o = OP_A_REG_A;
-          bt_b_mux_sel_o = IMM_B_I;
-        end
-
         // Jumps take two cycles without the BTALU
-        if (instr_first_cycle_i && !BranchTargetALU) begin
+        if (instr_first_cycle_i) begin
           // Calculate jump target
           alu_op_a_mux_sel_o  = OP_A_REG_A;
           alu_op_b_mux_sel_o  = OP_B_IMM;
@@ -749,19 +732,13 @@ module cve2_decoder #(
           default: ;
         endcase
 
-        if (BranchTargetALU) begin
-          bt_a_mux_sel_o = OP_A_CURRPC;
-          // Not-taken branch will jump to next instruction (used in secure mode)
-          bt_b_mux_sel_o = branch_taken_i ? IMM_B_B : IMM_B_INCR_PC;
-        end
-
         // Without branch target ALU, a branch is a two-stage operation using the Main ALU in both
         // stages
         if (instr_first_cycle_i) begin
           // First evaluate the branch condition
           alu_op_a_mux_sel_o  = OP_A_REG_A;
           alu_op_b_mux_sel_o  = OP_B_REG_B;
-        end else if (!BranchTargetALU) begin
+        end else begin
           // Then calculate jump target
           alu_op_a_mux_sel_o  = OP_A_CURRPC;
           alu_op_b_mux_sel_o  = OP_B_IMM;
@@ -1147,15 +1124,10 @@ module cve2_decoder #(
           end
           3'b001: begin
             // FENCE.I will flush the IF stage, prefetch buffer and ICache if present.
-            if (BranchTargetALU) begin
-              bt_a_mux_sel_o     = OP_A_CURRPC;
-              bt_b_mux_sel_o     = IMM_B_INCR_PC;
-            end else begin
               alu_op_a_mux_sel_o = OP_A_CURRPC;
               alu_op_b_mux_sel_o = OP_B_IMM;
               imm_b_mux_sel_o    = IMM_B_INCR_PC;
               alu_operator_o     = ALU_ADD;
-            end
           end
           default: ;
         endcase
