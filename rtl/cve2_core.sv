@@ -22,11 +22,6 @@ module cve2_core import cve2_pkg::*; #(
   parameter rv32m_e      RV32M             = RV32MFast,
   parameter rv32b_e      RV32B             = RV32BNone,
   parameter bit          WritebackStage    = 1'b0,
-  parameter bit          ICache            = 1'b0,
-  parameter bit          ICacheECC         = 1'b0,
-  parameter int unsigned BusSizeECC        = BUS_SIZE,
-  parameter int unsigned TagSizeECC        = IC_TAG_SIZE,
-  parameter int unsigned LineSizeECC       = IC_LINE_SIZE,
   parameter bit          BranchPredictor   = 1'b0,
   parameter bit          DbgTriggerEn      = 1'b0,
   parameter int unsigned DbgHwBreakNum     = 1,
@@ -73,19 +68,6 @@ module cve2_core import cve2_pkg::*; #(
   output logic [31:0]  rf_wdata_wb_ecc_o,
   input  logic [31:0]  rf_rdata_a_ecc_i,
   input  logic [31:0]  rf_rdata_b_ecc_i,
-
-  // RAMs interface
-  output logic [IC_NUM_WAYS-1:0]       ic_tag_req_o,
-  output logic                         ic_tag_write_o,
-  output logic [IC_INDEX_W-1:0]        ic_tag_addr_o,
-  output logic [TagSizeECC-1:0]        ic_tag_wdata_o,
-  input  logic [TagSizeECC-1:0]        ic_tag_rdata_i [IC_NUM_WAYS],
-  output logic [IC_NUM_WAYS-1:0]       ic_data_req_o,
-  output logic                         ic_data_write_o,
-  output logic [IC_INDEX_W-1:0]        ic_data_addr_o,
-  output logic [LineSizeECC-1:0]       ic_data_wdata_o,
-  input  logic [LineSizeECC-1:0]       ic_data_rdata_i [IC_NUM_WAYS],
-  input  logic                         ic_scr_key_valid_i,
 
   // Interrupt inputs
   input  logic                         irq_software_i,
@@ -140,7 +122,6 @@ module cve2_core import cve2_pkg::*; #(
   input  fetch_enable_t                fetch_enable_i,
   output logic                         alert_minor_o,
   output logic                         alert_major_o,
-  output logic                         icache_inval_o,
   output logic                         core_busy_o
 );
 
@@ -176,9 +157,6 @@ module cve2_core import cve2_pkg::*; #(
   logic [2:0]  dummy_instr_mask;
   logic        dummy_instr_seed_en;
   logic [31:0] dummy_instr_seed;
-  logic        icache_enable;
-  logic        icache_inval;
-  logic        icache_ecc_error;
   logic        pc_mismatch_alert;
   logic        csr_shadow_err;
 
@@ -360,11 +338,6 @@ module cve2_core import cve2_pkg::*; #(
     .DmHaltAddr       (DmHaltAddr),
     .DmExceptionAddr  (DmExceptionAddr),
     .DummyInstructions(DummyInstructions),
-    .ICache           (ICache),
-    .ICacheECC        (ICacheECC),
-    .BusSizeECC       (BusSizeECC),
-    .TagSizeECC       (TagSizeECC),
-    .LineSizeECC      (LineSizeECC),
     .PCIncrCheck      (PCIncrCheck),
     .RndCnstLfsrSeed   ( RndCnstLfsrSeed   ),
     .RndCnstLfsrPerm   ( RndCnstLfsrPerm   ),
@@ -383,18 +356,6 @@ module cve2_core import cve2_pkg::*; #(
     .instr_rvalid_i (instr_rvalid_i),
     .instr_rdata_i  (instr_rdata_i),
     .instr_err_i    (instr_err_i),
-
-    .ic_tag_req_o      (ic_tag_req_o),
-    .ic_tag_write_o    (ic_tag_write_o),
-    .ic_tag_addr_o     (ic_tag_addr_o),
-    .ic_tag_wdata_o    (ic_tag_wdata_o),
-    .ic_tag_rdata_i    (ic_tag_rdata_i),
-    .ic_data_req_o     (ic_data_req_o),
-    .ic_data_write_o   (ic_data_write_o),
-    .ic_data_addr_o    (ic_data_addr_o),
-    .ic_data_wdata_o   (ic_data_wdata_o),
-    .ic_data_rdata_i   (ic_data_rdata_i),
-    .ic_scr_key_valid_i(ic_scr_key_valid_i),
 
     // outputs to ID stage
     .instr_valid_id_o        (instr_valid_id),
@@ -424,9 +385,6 @@ module cve2_core import cve2_pkg::*; #(
     .dummy_instr_mask_i    (dummy_instr_mask),
     .dummy_instr_seed_en_i (dummy_instr_seed_en),
     .dummy_instr_seed_i    (dummy_instr_seed),
-    .icache_enable_i       (icache_enable),
-    .icache_inval_i        (icache_inval),
-    .icache_ecc_error_o    (icache_ecc_error),
 
     // branch targets
     .branch_target_ex_i(branch_target_ex),
@@ -511,7 +469,6 @@ module cve2_core import cve2_pkg::*; #(
     .nt_branch_addr_o      (nt_branch_addr),
     .exc_pc_mux_o          (exc_pc_mux_id),
     .exc_cause_o           (exc_cause),
-    .icache_inval_o        (icache_inval),
 
     .instr_fetch_err_i      (instr_fetch_err),
     .instr_fetch_err_plus2_i(instr_fetch_err_plus2),
@@ -625,7 +582,6 @@ module cve2_core import cve2_pkg::*; #(
     .instr_id_done_o  (instr_id_done)
   );
 
-  assign icache_inval_o = icache_inval;
   // for RVFI only
   assign unused_illegal_insn_id = illegal_insn_id;
 
@@ -837,7 +793,7 @@ module cve2_core import cve2_pkg::*; #(
   ///////////////////
 
   // Minor alert - core is in a recoverable state
-  assign alert_minor_o = icache_ecc_error;
+  assign alert_minor_o = 1'b0;
 
   // Major alert - core is unrecoverable
   assign alert_major_o = rf_ecc_err_comb | pc_mismatch_alert | csr_shadow_err;
@@ -901,7 +857,6 @@ module cve2_core import cve2_pkg::*; #(
     .DataIndTiming    (DataIndTiming),
     .DummyInstructions(DummyInstructions),
     .ShadowCSR        (ShadowCSR),
-    .ICache           (ICache),
     .MHPMCounterNum   (MHPMCounterNum),
     .MHPMCounterWidth (MHPMCounterWidth),
     .PMPEnable        (PMPEnable),
@@ -968,7 +923,6 @@ module cve2_core import cve2_pkg::*; #(
     .dummy_instr_mask_o   (dummy_instr_mask),
     .dummy_instr_seed_en_o(dummy_instr_seed_en),
     .dummy_instr_seed_o   (dummy_instr_seed),
-    .icache_enable_o      (icache_enable),
     .csr_shadow_err_o     (csr_shadow_err),
 
     .csr_save_if_i     (csr_save_if),

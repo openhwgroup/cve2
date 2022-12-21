@@ -19,11 +19,6 @@ module cve2_lockstep import cve2_pkg::*; #(
   parameter rv32m_e      RV32M             = RV32MFast,
   parameter rv32b_e      RV32B             = RV32BNone,
   parameter bit          WritebackStage    = 1'b0,
-  parameter bit          ICache            = 1'b0,
-  parameter bit          ICacheECC         = 1'b0,
-  parameter int unsigned BusSizeECC        = BUS_SIZE,
-  parameter int unsigned TagSizeECC        = IC_TAG_SIZE,
-  parameter int unsigned LineSizeECC       = IC_LINE_SIZE,
   parameter bit          BranchPredictor   = 1'b0,
   parameter bit          DbgTriggerEn      = 1'b0,
   parameter int unsigned DbgHwBreakNum     = 1,
@@ -70,18 +65,6 @@ module cve2_lockstep import cve2_pkg::*; #(
   input  logic [31:0]  rf_rdata_a_ecc_i,
   input  logic [31:0]  rf_rdata_b_ecc_i,
 
-  input  logic [IC_NUM_WAYS-1:0]       ic_tag_req_i,
-  input  logic                         ic_tag_write_i,
-  input  logic [IC_INDEX_W-1:0]        ic_tag_addr_i,
-  input  logic [TagSizeECC-1:0]        ic_tag_wdata_i,
-  input  logic [TagSizeECC-1:0]        ic_tag_rdata_i [IC_NUM_WAYS],
-  input  logic [IC_NUM_WAYS-1:0]       ic_data_req_i,
-  input  logic                         ic_data_write_i,
-  input  logic [IC_INDEX_W-1:0]        ic_data_addr_i,
-  input  logic [LineSizeECC-1:0]       ic_data_wdata_i,
-  input  logic [LineSizeECC-1:0]       ic_data_rdata_i [IC_NUM_WAYS],
-  input  logic                         ic_scr_key_valid_i,
-
   input  logic                         irq_software_i,
   input  logic                         irq_timer_i,
   input  logic                         irq_external_i,
@@ -97,7 +80,6 @@ module cve2_lockstep import cve2_pkg::*; #(
   output logic                         alert_minor_o,
   output logic                         alert_major_internal_o,
   output logic                         alert_major_bus_o,
-  input  logic                         icache_inval_i,
   input  logic                         core_busy_i,
   input  logic                         test_en_i,
   input  logic                         scan_rst_ni
@@ -182,15 +164,11 @@ module cve2_lockstep import cve2_pkg::*; #(
     logic                        irq_nm;
     logic                        debug_req;
     fetch_enable_t               fetch_enable;
-    logic                        ic_scr_key_valid;
   } delayed_inputs_t;
 
   delayed_inputs_t [LockstepOffset-1:0] shadow_inputs_q;
   delayed_inputs_t                      shadow_inputs_in;
   logic [6:0]                           instr_rdata_intg_q, data_rdata_intg_q;
-  // Packed arrays must be dealt with separately
-  logic [TagSizeECC-1:0]                shadow_tag_rdata_q [IC_NUM_WAYS][LockstepOffset];
-  logic [LineSizeECC-1:0]               shadow_data_rdata_q [IC_NUM_WAYS][LockstepOffset];
 
   // Assign the inputs to the delay structure
   assign shadow_inputs_in.instr_gnt        = instr_gnt_i;
@@ -210,7 +188,6 @@ module cve2_lockstep import cve2_pkg::*; #(
   assign shadow_inputs_in.irq_nm           = irq_nm_i;
   assign shadow_inputs_in.debug_req        = debug_req_i;
   assign shadow_inputs_in.fetch_enable     = fetch_enable_i;
-  assign shadow_inputs_in.ic_scr_key_valid = ic_scr_key_valid_i;
 
   // Delay the inputs
   always_ff @(posedge clk_i or negedge rst_ni) begin
@@ -219,20 +196,14 @@ module cve2_lockstep import cve2_pkg::*; #(
       data_rdata_intg_q  <= '0;
       for (int unsigned i = 0; i < LockstepOffset; i++) begin
         shadow_inputs_q[i]     <= delayed_inputs_t'('0);
-        shadow_tag_rdata_q[i]  <= '{default: 0};
-        shadow_data_rdata_q[i] <= '{default: 0};
       end
     end else begin
       instr_rdata_intg_q <= instr_rdata_intg_i;
       data_rdata_intg_q  <= data_rdata_intg_i;
       for (int unsigned i = 0; i < LockstepOffset - 1; i++) begin
         shadow_inputs_q[i]     <= shadow_inputs_q[i+1];
-        shadow_tag_rdata_q[i]  <= shadow_tag_rdata_q[i+1];
-        shadow_data_rdata_q[i] <= shadow_data_rdata_q[i+1];
       end
       shadow_inputs_q[LockstepOffset-1]     <= shadow_inputs_in;
-      shadow_tag_rdata_q[LockstepOffset-1]  <= ic_tag_rdata_i;
-      shadow_data_rdata_q[LockstepOffset-1] <= ic_data_rdata_i;
     end
   end
 
@@ -286,19 +257,9 @@ module cve2_lockstep import cve2_pkg::*; #(
     logic [4:0]                  rf_raddr_b;
     logic [4:0]                  rf_waddr_wb;
     logic                        rf_we_wb;
-    logic [31:0] rf_wdata_wb_ecc;
-    logic [IC_NUM_WAYS-1:0]      ic_tag_req;
-    logic                        ic_tag_write;
-    logic [IC_INDEX_W-1:0]       ic_tag_addr;
-    logic [TagSizeECC-1:0]       ic_tag_wdata;
-    logic [IC_NUM_WAYS-1:0]      ic_data_req;
-    logic                        ic_data_write;
-    logic [IC_INDEX_W-1:0]       ic_data_addr;
-    logic [LineSizeECC-1:0]      ic_data_wdata;
     logic                        irq_pending;
     crash_dump_t                 crash_dump;
     logic                        double_fault_seen;
-    logic                        icache_inval;
     logic                        core_busy;
   } delayed_outputs_t;
 
@@ -320,18 +281,9 @@ module cve2_lockstep import cve2_pkg::*; #(
   assign core_outputs_in.rf_waddr_wb         = rf_waddr_wb_i;
   assign core_outputs_in.rf_we_wb            = rf_we_wb_i;
   assign core_outputs_in.rf_wdata_wb_ecc     = rf_wdata_wb_ecc_i;
-  assign core_outputs_in.ic_tag_req          = ic_tag_req_i;
-  assign core_outputs_in.ic_tag_write        = ic_tag_write_i;
-  assign core_outputs_in.ic_tag_addr         = ic_tag_addr_i;
-  assign core_outputs_in.ic_tag_wdata        = ic_tag_wdata_i;
-  assign core_outputs_in.ic_data_req         = ic_data_req_i;
-  assign core_outputs_in.ic_data_write       = ic_data_write_i;
-  assign core_outputs_in.ic_data_addr        = ic_data_addr_i;
-  assign core_outputs_in.ic_data_wdata       = ic_data_wdata_i;
   assign core_outputs_in.irq_pending         = irq_pending_i;
   assign core_outputs_in.crash_dump          = crash_dump_i;
   assign core_outputs_in.double_fault_seen   = double_fault_seen_i;
-  assign core_outputs_in.icache_inval        = icache_inval_i;
   assign core_outputs_in.core_busy           = core_busy_i;
 
   // Delay the outputs
@@ -357,11 +309,6 @@ module cve2_lockstep import cve2_pkg::*; #(
     .RV32E             ( RV32E             ),
     .RV32M             ( RV32M             ),
     .RV32B             ( RV32B             ),
-    .ICache            ( ICache            ),
-    .ICacheECC         ( ICacheECC         ),
-    .BusSizeECC        ( BusSizeECC        ),
-    .TagSizeECC        ( TagSizeECC        ),
-    .LineSizeECC       ( LineSizeECC       ),
     .BranchPredictor   ( BranchPredictor   ),
     .DbgTriggerEn      ( DbgTriggerEn      ),
     .DbgHwBreakNum     ( DbgHwBreakNum     ),
@@ -405,18 +352,6 @@ module cve2_lockstep import cve2_pkg::*; #(
     .rf_wdata_wb_ecc_o   (shadow_outputs_d.rf_wdata_wb_ecc),
     .rf_rdata_a_ecc_i    (shadow_inputs_q[0].rf_rdata_a_ecc),
     .rf_rdata_b_ecc_i    (shadow_inputs_q[0].rf_rdata_b_ecc),
-
-    .ic_tag_req_o        (shadow_outputs_d.ic_tag_req),
-    .ic_tag_write_o      (shadow_outputs_d.ic_tag_write),
-    .ic_tag_addr_o       (shadow_outputs_d.ic_tag_addr),
-    .ic_tag_wdata_o      (shadow_outputs_d.ic_tag_wdata),
-    .ic_tag_rdata_i      (shadow_tag_rdata_q[0]),
-    .ic_data_req_o       (shadow_outputs_d.ic_data_req),
-    .ic_data_write_o     (shadow_outputs_d.ic_data_write),
-    .ic_data_addr_o      (shadow_outputs_d.ic_data_addr),
-    .ic_data_wdata_o     (shadow_outputs_d.ic_data_wdata),
-    .ic_data_rdata_i     (shadow_data_rdata_q[0]),
-    .ic_scr_key_valid_i  (shadow_inputs_q[0].ic_scr_key_valid),
 
     .irq_software_i      (shadow_inputs_q[0].irq_software),
     .irq_timer_i         (shadow_inputs_q[0].irq_timer),
@@ -462,7 +397,6 @@ module cve2_lockstep import cve2_pkg::*; #(
     .fetch_enable_i    (shadow_inputs_q[0].fetch_enable),
     .alert_minor_o     (shadow_alert_minor),
     .alert_major_o     (shadow_alert_major),
-    .icache_inval_o    (shadow_outputs_d.icache_inval),
     .core_busy_o       (shadow_outputs_d.core_busy)
   );
 

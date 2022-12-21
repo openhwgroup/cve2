@@ -14,13 +14,10 @@ module cve2_top_tracing import cve2_pkg::*; #(
   parameter rv32b_e      RV32B            = RV32BNone,
   parameter regfile_e    RegFile          = RegFileFF,
   parameter bit          WritebackStage   = 1'b0,
-  parameter bit          ICache           = 1'b0,
-  parameter bit          ICacheECC        = 1'b0,
   parameter bit          BranchPredictor  = 1'b0,
   parameter bit          DbgTriggerEn     = 1'b0,
   parameter int unsigned DbgHwBreakNum    = 1,
   parameter bit          SecureIbex       = 1'b0,
-  parameter bit          ICacheScramble   = 1'b0,
   parameter lfsr_seed_t  RndCnstLfsrSeed  = RndCnstLfsrSeedDefault,
   parameter lfsr_perm_t  RndCnstLfsrPerm  = RndCnstLfsrPermDefault,
   parameter int unsigned DmHaltAddr       = 32'h1A110800,
@@ -66,12 +63,6 @@ module cve2_top_tracing import cve2_pkg::*; #(
   input  logic                         irq_external_i,
   input  logic [14:0]                  irq_fast_i,
   input  logic                         irq_nm_i,       // non-maskeable interrupt
-
-  // Scrambling Interface
-  input  logic                         scramble_key_valid_i,
-  input  logic [SCRAMBLE_KEY_W-1:0]    scramble_key_i,
-  input  logic [SCRAMBLE_NONCE_W-1:0]  scramble_nonce_i,
-  output logic                         scramble_req_o,
 
   // Debug Interface
   input  logic                         debug_req_i,
@@ -139,14 +130,11 @@ module cve2_top_tracing import cve2_pkg::*; #(
     .RV32M            ( RV32M            ),
     .RV32B            ( RV32B            ),
     .RegFile          ( RegFile          ),
-    .ICache           ( ICache           ),
-    .ICacheECC        ( ICacheECC        ),
     .BranchPredictor  ( BranchPredictor  ),
     .DbgTriggerEn     ( DbgTriggerEn     ),
     .DbgHwBreakNum    ( DbgHwBreakNum    ),
     .WritebackStage   ( WritebackStage   ),
     .SecureIbex       ( SecureIbex       ),
-    .ICacheScramble   ( ICacheScramble   ),
     .RndCnstLfsrSeed  ( RndCnstLfsrSeed  ),
     .RndCnstLfsrPerm  ( RndCnstLfsrPerm  ),
     .DmHaltAddr       ( DmHaltAddr       ),
@@ -187,11 +175,6 @@ module cve2_top_tracing import cve2_pkg::*; #(
     .irq_external_i,
     .irq_fast_i,
     .irq_nm_i,
-
-    .scramble_key_valid_i,
-    .scramble_key_i,
-    .scramble_nonce_i,
-    .scramble_req_o,
 
     .debug_req_i,
     .crash_dump_o,

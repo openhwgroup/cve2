@@ -19,18 +19,15 @@ module cve2_top import cve2_pkg::*; #(
   parameter rv32m_e      RV32M            = RV32MFast,
   parameter regfile_e    RegFile          = RegFileFF,
   parameter bit          WritebackStage   = 1'b0,
-  parameter bit          ICache           = 1'b0,
-  parameter bit          ICacheECC        = 1'b0,
   parameter bit          BranchPredictor  = 1'b0,
   parameter bit          SecureIbex       = 1'b0,
-  parameter bit          ICacheScramble   = 1'b0,
   parameter lfsr_seed_t  RndCnstLfsrSeed  = RndCnstLfsrSeedDefault,
   parameter lfsr_perm_t  RndCnstLfsrPerm  = RndCnstLfsrPermDefault,
   parameter int unsigned DmHaltAddr       = 32'h1A110800,
   parameter int unsigned DmExceptionAddr  = 32'h1A110808,
   // Default seed and nonce for scrambling
-  parameter logic [SCRAMBLE_KEY_W-1:0]   RndCnstIbexKey   = RndCnstIbexKeyDefault,
-  parameter logic [SCRAMBLE_NONCE_W-1:0] RndCnstIbexNonce = RndCnstIbexNonceDefault
+  parameter logic [127:0]   RndCnstIbexKey   = RndCnstIbexKeyDefault,
+  parameter logic [63:0] RndCnstIbexNonce = RndCnstIbexNonceDefault
 ) (
   // Clock and Reset
   input  logic                         clk_i,
@@ -70,12 +67,6 @@ module cve2_top import cve2_pkg::*; #(
   input  logic                         irq_external_i,
   input  logic [14:0]                  irq_fast_i,
   input  logic                         irq_nm_i,       // non-maskeable interrupt
-
-  // Scrambling Interface
-  input  logic                         scramble_key_valid_i,
-  input  logic [SCRAMBLE_KEY_W-1:0]    scramble_key_i,
-  input  logic [SCRAMBLE_NONCE_W-1:0]  scramble_nonce_i,
-  output logic                         scramble_req_o,
 
   // Debug Interface
   input  logic                         debug_req_i,
@@ -129,12 +120,8 @@ module cve2_top import cve2_pkg::*; #(
   localparam bit          Lockstep          = SecureIbex;
   localparam bit          DummyInstructions = SecureIbex;
   localparam bit          RegFileECC        = SecureIbex;
-  // Icache parameters
-  localparam int unsigned BusSizeECC        = ICacheECC ? (BUS_SIZE + 7) : BUS_SIZE;
-  localparam int unsigned LineSizeECC       = BusSizeECC * IC_LINE_BEATS;
-  localparam int unsigned TagSizeECC        = ICacheECC ? (IC_TAG_SIZE + 6) : IC_TAG_SIZE;
   // Scrambling Parameter
-  localparam int unsigned NumAddrScrRounds  = ICacheScramble ? 2 : 0;
+  localparam int unsigned NumAddrScrRounds  = 0;
   localparam int unsigned NumDiffRounds     = NumAddrScrRounds;
 
   // Physical Memory Protection
@@ -163,27 +150,10 @@ module cve2_top import cve2_pkg::*; #(
   logic [31:0] rf_wdata_wb_ecc;
   logic [31:0] rf_rdata_a_ecc, rf_rdata_a_ecc_buf;
   logic [31:0] rf_rdata_b_ecc, rf_rdata_b_ecc_buf;
-  // Core <-> RAMs signals
-  logic [IC_NUM_WAYS-1:0]      ic_tag_req;
-  logic                        ic_tag_write;
-  logic [IC_INDEX_W-1:0]       ic_tag_addr;
-  logic [TagSizeECC-1:0]       ic_tag_wdata;
-  logic [TagSizeECC-1:0]       ic_tag_rdata [IC_NUM_WAYS];
-  logic [IC_NUM_WAYS-1:0]      ic_data_req;
-  logic                        ic_data_write;
-  logic [IC_INDEX_W-1:0]       ic_data_addr;
-  logic [LineSizeECC-1:0]      ic_data_wdata;
-  logic [LineSizeECC-1:0]      ic_data_rdata [IC_NUM_WAYS];
   // Alert signals
   logic                        core_alert_major, core_alert_minor;
   logic                        lockstep_alert_major_internal, lockstep_alert_major_bus;
   logic                        lockstep_alert_minor;
-  // Scramble signals
-  logic                         icache_inval;
-  logic [SCRAMBLE_KEY_W-1:0]    scramble_key_q;
-  logic [SCRAMBLE_NONCE_W-1:0]  scramble_nonce_q;
-  logic                         scramble_key_valid_d, scramble_key_valid_q;
-  logic                         scramble_req_d, scramble_req_q;
 
   fetch_enable_t fetch_enable_buf;
 
@@ -238,11 +208,6 @@ module cve2_top import cve2_pkg::*; #(
     .RV32E            (RV32E),
     .RV32M            (RV32M),
     .RV32B            (RV32B),
-    .ICache           (ICache),
-    .ICacheECC        (ICacheECC),
-    .BusSizeECC       (BusSizeECC),
-    .TagSizeECC       (TagSizeECC),
-    .LineSizeECC      (LineSizeECC),
     .BranchPredictor  (BranchPredictor),
     .DbgTriggerEn     (DbgTriggerEn),
     .DbgHwBreakNum    (DbgHwBreakNum),
@@ -286,18 +251,6 @@ module cve2_top import cve2_pkg::*; #(
     .rf_wdata_wb_ecc_o(rf_wdata_wb_ecc),
     .rf_rdata_a_ecc_i (rf_rdata_a_ecc_buf),
     .rf_rdata_b_ecc_i (rf_rdata_b_ecc_buf),
-
-    .ic_tag_req_o      (ic_tag_req),
-    .ic_tag_write_o    (ic_tag_write),
-    .ic_tag_addr_o     (ic_tag_addr),
-    .ic_tag_wdata_o    (ic_tag_wdata),
-    .ic_tag_rdata_i    (ic_tag_rdata),
-    .ic_data_req_o     (ic_data_req),
-    .ic_data_write_o   (ic_data_write),
-    .ic_data_addr_o    (ic_data_addr),
-    .ic_data_wdata_o   (ic_data_wdata),
-    .ic_data_rdata_i   (ic_data_rdata),
-    .ic_scr_key_valid_i(scramble_key_valid_q),
 
     .irq_software_i,
     .irq_timer_i,
@@ -343,7 +296,6 @@ module cve2_top import cve2_pkg::*; #(
     .fetch_enable_i(fetch_enable_buf),
     .alert_minor_o (core_alert_minor),
     .alert_major_o (core_alert_major),
-    .icache_inval_o(icache_inval),
     .core_busy_o   (core_busy_d)
   );
 
@@ -416,150 +368,17 @@ module cve2_top import cve2_pkg::*; #(
     );
   end
 
-  ///////////////////////////////
-  // Scrambling Infrastructure //
-  ///////////////////////////////
-
-  if (ICacheScramble) begin : gen_scramble
-
-    // SEC_CM: ICACHE.MEM.SCRAMBLE
-    // Scramble key valid starts with OTP returning new valid key and stays high
-    // until we request a new valid key.
-    assign scramble_key_valid_d = scramble_req_q ? scramble_key_valid_i :
-                                  icache_inval   ? 1'b0                 :
-                                                   scramble_key_valid_q;
-
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        scramble_key_q       <= RndCnstIbexKey;
-        scramble_nonce_q     <= RndCnstIbexNonce;
-      end else if (scramble_key_valid_i) begin
-        scramble_key_q       <= scramble_key_i;
-        scramble_nonce_q     <= scramble_nonce_i;
-      end
-    end
-
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        scramble_key_valid_q <= 1'b1;
-        scramble_req_q       <= '0;
-      end else begin
-        scramble_key_valid_q <= scramble_key_valid_d;
-        scramble_req_q       <= scramble_req_d;
-      end
-    end
-
-  // Scramble key request starts with invalidate signal from ICache and stays high
-  // until we got a valid key.
-    assign scramble_req_d = scramble_req_q ? ~scramble_key_valid_i : icache_inval;
-    assign scramble_req_o = scramble_req_q;
-
-  end else begin : gen_noscramble
-
-    logic unused_scramble_inputs = scramble_key_valid_i & (|scramble_key_i) & (|RndCnstIbexKey) &
-                                   (|scramble_nonce_i) & (|RndCnstIbexNonce) & scramble_req_q &
-                                   icache_inval & scramble_key_valid_d & scramble_req_d;
-
-    assign scramble_req_d       = 1'b0;
-    assign scramble_req_q       = 1'b0;
-    assign scramble_req_o       = 1'b0;
-    assign scramble_key_q       = '0;
-    assign scramble_nonce_q     = '0;
-    assign scramble_key_valid_q = 1'b1;
-    assign scramble_key_valid_d = 1'b1;
-  end
-
   ////////////////////////
   // Rams Instantiation //
   ////////////////////////
 
-  if (ICache) begin : gen_rams
-
-    for (genvar way = 0; way < IC_NUM_WAYS; way++) begin : gen_rams_inner
-
-      // SEC_CM: ICACHE.MEM.SCRAMBLE
-      // Tag RAM instantiation
-      prim_ram_1p_scr #(
-        .Width            (TagSizeECC),
-        .Depth            (IC_NUM_LINES),
-        .DataBitsPerMask  (TagSizeECC),
-        .EnableParity     (0),
-        .DiffWidth        (TagSizeECC),
-        .NumAddrScrRounds (NumAddrScrRounds),
-        .NumDiffRounds    (NumDiffRounds)
-      ) tag_bank (
-        .clk_i,
-        .rst_ni,
-
-        .key_valid_i (scramble_key_valid_q),
-        .key_i       (scramble_key_q),
-        .nonce_i     (scramble_nonce_q),
-
-        .req_i       (ic_tag_req[way]),
-
-        .gnt_o       (),
-        .write_i     (ic_tag_write),
-        .addr_i      (ic_tag_addr),
-        .wdata_i     (ic_tag_wdata),
-        .wmask_i     ({TagSizeECC{1'b1}}),
-        .intg_error_i(1'b0),
-
-        .rdata_o     (ic_tag_rdata[way]),
-        .rvalid_o    (),
-        .raddr_o     (),
-        .rerror_o    (),
-        .cfg_i       (ram_cfg_i)
-      );
-
-      // Data RAM instantiation
-      prim_ram_1p_scr #(
-        .Width              (LineSizeECC),
-        .Depth              (IC_NUM_LINES),
-        .DataBitsPerMask    (LineSizeECC),
-        .ReplicateKeyStream (1),
-        .EnableParity       (0),
-        .DiffWidth          (LineSizeECC),
-        .NumAddrScrRounds   (NumAddrScrRounds),
-        .NumDiffRounds      (NumDiffRounds)
-      ) data_bank (
-        .clk_i,
-        .rst_ni,
-
-        .key_valid_i (scramble_key_valid_q),
-        .key_i       (scramble_key_q),
-        .nonce_i     (scramble_nonce_q),
-
-        .req_i       (ic_data_req[way]),
-
-        .gnt_o       (),
-        .write_i     (ic_data_write),
-        .addr_i      (ic_data_addr),
-        .wdata_i     (ic_data_wdata),
-        .wmask_i     ({LineSizeECC{1'b1}}),
-        .intg_error_i(1'b0),
-
-        .rdata_o     (ic_data_rdata[way]),
-        .rvalid_o    (),
-        .raddr_o     (),
-        .rerror_o    (),
-        .cfg_i       (ram_cfg_i)
-      );
-    end
-
-  end else begin : gen_norams
+  begin : gen_norams
 
     prim_ram_1p_pkg::ram_1p_cfg_t unused_ram_cfg;
     logic unused_ram_inputs;
 
     assign unused_ram_cfg    = ram_cfg_i;
-    assign unused_ram_inputs = (|ic_tag_req) & ic_tag_write & (|ic_tag_addr) & (|ic_tag_wdata) &
-                               (|ic_data_req) & ic_data_write & (|ic_data_addr) & (|ic_data_wdata) &
-                               (|scramble_key_q) & (|scramble_nonce_q) & scramble_key_valid_q &
-                               scramble_key_valid_d & (|scramble_nonce_q) &
-                               (|NumAddrScrRounds);
-
-    assign ic_tag_rdata      = '{default:'b0};
-    assign ic_data_rdata     = '{default:'b0};
+    assign unused_ram_inputs = (|NumAddrScrRounds);
 
   end
 
@@ -600,15 +419,6 @@ module cve2_top import cve2_pkg::*; #(
       rf_wdata_wb_ecc,
       rf_rdata_a_ecc,
       rf_rdata_b_ecc,
-      ic_tag_req,
-      ic_tag_write,
-      ic_tag_addr,
-      ic_tag_wdata,
-      ic_data_req,
-      ic_data_write,
-      ic_data_addr,
-      ic_data_wdata,
-      scramble_key_valid_i,
       irq_software_i,
       irq_timer_i,
       irq_external_i,
@@ -619,7 +429,6 @@ module cve2_top import cve2_pkg::*; #(
       crash_dump_o,
       double_fault_seen_o,
       fetch_enable_i,
-      icache_inval,
       core_busy_d
     });
 
@@ -657,16 +466,6 @@ module cve2_top import cve2_pkg::*; #(
     logic [31:0]  rf_rdata_a_ecc_local;
     logic [31:0]  rf_rdata_b_ecc_local;
 
-    logic [IC_NUM_WAYS-1:0]       ic_tag_req_local;
-    logic                         ic_tag_write_local;
-    logic [IC_INDEX_W-1:0]        ic_tag_addr_local;
-    logic [TagSizeECC-1:0]        ic_tag_wdata_local;
-    logic [IC_NUM_WAYS-1:0]       ic_data_req_local;
-    logic                         ic_data_write_local;
-    logic [IC_INDEX_W-1:0]        ic_data_addr_local;
-    logic [LineSizeECC-1:0]       ic_data_wdata_local;
-    logic                         scramble_key_valid_local;
-
     logic                         irq_software_local;
     logic                         irq_timer_local;
     logic                         irq_external_local;
@@ -679,7 +478,6 @@ module cve2_top import cve2_pkg::*; #(
     logic                         double_fault_seen_local;
     fetch_enable_t                fetch_enable_local;
 
-    logic                         icache_inval_local;
     logic                         core_busy_local;
 
     assign buf_in = {
@@ -710,15 +508,6 @@ module cve2_top import cve2_pkg::*; #(
       rf_wdata_wb_ecc,
       rf_rdata_a_ecc,
       rf_rdata_b_ecc,
-      ic_tag_req,
-      ic_tag_write,
-      ic_tag_addr,
-      ic_tag_wdata,
-      ic_data_req,
-      ic_data_write,
-      ic_data_addr,
-      ic_data_wdata,
-      scramble_key_valid_q,
       irq_software_i,
       irq_timer_i,
       irq_external_i,
@@ -729,7 +518,6 @@ module cve2_top import cve2_pkg::*; #(
       crash_dump_o,
       double_fault_seen_o,
       fetch_enable_i,
-      icache_inval,
       core_busy_d
     };
 
@@ -761,15 +549,6 @@ module cve2_top import cve2_pkg::*; #(
       rf_wdata_wb_ecc_local,
       rf_rdata_a_ecc_local,
       rf_rdata_b_ecc_local,
-      ic_tag_req_local,
-      ic_tag_write_local,
-      ic_tag_addr_local,
-      ic_tag_wdata_local,
-      ic_data_req_local,
-      ic_data_write_local,
-      ic_data_addr_local,
-      ic_data_wdata_local,
-      scramble_key_valid_local,
       irq_software_local,
       irq_timer_local,
       irq_external_local,
@@ -780,7 +559,6 @@ module cve2_top import cve2_pkg::*; #(
       crash_dump_local,
       double_fault_seen_local,
       fetch_enable_local,
-      icache_inval_local,
       core_busy_local
     } = buf_out;
 
@@ -789,19 +567,6 @@ module cve2_top import cve2_pkg::*; #(
       .in_i(buf_in),
       .out_o(buf_out)
     );
-
-    logic [TagSizeECC-1:0]  ic_tag_rdata_local [IC_NUM_WAYS];
-    logic [LineSizeECC-1:0] ic_data_rdata_local [IC_NUM_WAYS];
-    for (genvar k = 0; k < IC_NUM_WAYS; k++) begin : gen_ways
-      prim_buf #(.Width(TagSizeECC)) u_tag_prim_buf (
-        .in_i(ic_tag_rdata[k]),
-        .out_o(ic_tag_rdata_local[k])
-      );
-      prim_buf #(.Width(LineSizeECC)) u_data_prim_buf (
-        .in_i(ic_data_rdata[k]),
-        .out_o(ic_data_rdata_local[k])
-      );
-    end
 
     logic lockstep_alert_minor_local, lockstep_alert_major_internal_local;
     logic lockstep_alert_major_bus_local;
@@ -815,11 +580,6 @@ module cve2_top import cve2_pkg::*; #(
       .RV32E            (RV32E),
       .RV32M            (RV32M),
       .RV32B            (RV32B),
-      .ICache           (ICache),
-      .ICacheECC        (ICacheECC),
-      .BusSizeECC       (BusSizeECC),
-      .TagSizeECC       (TagSizeECC),
-      .LineSizeECC      (LineSizeECC),
       .BranchPredictor  (BranchPredictor),
       .DbgTriggerEn     (DbgTriggerEn),
       .DbgHwBreakNum    (DbgHwBreakNum),
@@ -867,18 +627,6 @@ module cve2_top import cve2_pkg::*; #(
       .rf_rdata_a_ecc_i       (rf_rdata_a_ecc_local),
       .rf_rdata_b_ecc_i       (rf_rdata_b_ecc_local),
 
-      .ic_tag_req_i           (ic_tag_req_local),
-      .ic_tag_write_i         (ic_tag_write_local),
-      .ic_tag_addr_i          (ic_tag_addr_local),
-      .ic_tag_wdata_i         (ic_tag_wdata_local),
-      .ic_tag_rdata_i         (ic_tag_rdata_local),
-      .ic_data_req_i          (ic_data_req_local),
-      .ic_data_write_i        (ic_data_write_local),
-      .ic_data_addr_i         (ic_data_addr_local),
-      .ic_data_wdata_i        (ic_data_wdata_local),
-      .ic_data_rdata_i        (ic_data_rdata_local),
-      .ic_scr_key_valid_i     (scramble_key_valid_local),
-
       .irq_software_i         (irq_software_local),
       .irq_timer_i            (irq_timer_local),
       .irq_external_i         (irq_external_local),
@@ -894,7 +642,6 @@ module cve2_top import cve2_pkg::*; #(
       .alert_minor_o          (lockstep_alert_minor_local),
       .alert_major_internal_o (lockstep_alert_major_internal_local),
       .alert_major_bus_o      (lockstep_alert_major_bus_local),
-      .icache_inval_i         (icache_inval_local),
       .core_busy_i            (core_busy_local),
       .test_en_i              (test_en_i),
       .scan_rst_ni            (scan_rst_ni)
@@ -943,7 +690,6 @@ module cve2_top import cve2_pkg::*; #(
   `ASSERT_KNOWN_IF(IbexDataReqPayloadX,
     {data_we_o, data_be_o, data_addr_o, data_wdata_o, data_wdata_intg_o}, data_req_o)
 
-  `ASSERT_KNOWN(IbexScrambleReqX, scramble_req_o)
   `ASSERT_KNOWN(IbexDoubleFaultSeenX, double_fault_seen_o)
   `ASSERT_KNOWN(IbexAlertMinorX, alert_minor_o)
   `ASSERT_KNOWN(IbexAlertMajorInternalX, alert_major_internal_o)
@@ -966,9 +712,6 @@ module cve2_top import cve2_pkg::*; #(
   `ASSERT_KNOWN_IF(IbexDataRPayloadX, {data_rdata_i, data_rdata_intg_i, data_err_i}, data_rvalid_i)
 
   `ASSERT_KNOWN(IbexIrqX, {irq_software_i, irq_timer_i, irq_external_i, irq_fast_i, irq_nm_i})
-
-  `ASSERT_KNOWN(IbexScrambleKeyValidX, scramble_key_valid_i)
-  `ASSERT_KNOWN_IF(IbexScramblePayloadX, {scramble_key_i, scramble_nonce_i}, scramble_key_valid_i)
 
   `ASSERT_KNOWN(IbexDebugReqX, debug_req_i)
   `ASSERT_KNOWN(IbexFetchEnableX, fetch_enable_i)

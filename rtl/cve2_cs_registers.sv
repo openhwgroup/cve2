@@ -18,7 +18,6 @@ module cve2_cs_registers #(
   parameter bit               DataIndTiming     = 1'b0,
   parameter bit               DummyInstructions = 1'b0,
   parameter bit               ShadowCSR         = 1'b0,
-  parameter bit               ICache            = 1'b0,
   parameter int unsigned      MHPMCounterNum    = 10,
   parameter int unsigned      MHPMCounterWidth  = 40,
   parameter bit               PMPEnable         = 0,
@@ -89,7 +88,6 @@ module cve2_cs_registers #(
   output logic [2:0]           dummy_instr_mask_o,
   output logic                 dummy_instr_seed_en_o,
   output logic [31:0]          dummy_instr_seed_o,
-  output logic                 icache_enable_o,
   output logic                 csr_shadow_err_o,
 
   // Exception save/restore
@@ -181,7 +179,6 @@ module cve2_cs_registers #(
     logic [2:0]  dummy_instr_mask;
     logic        dummy_instr_en;
     logic        data_ind_timing;
-    logic        icache_enable;
   } cpu_ctrl_t;
 
   // Interrupt and exception control signals
@@ -1547,22 +1544,8 @@ module cve2_cs_registers #(
   assign dummy_instr_en_o   = cpuctrl_q.dummy_instr_en;
   assign dummy_instr_mask_o = cpuctrl_q.dummy_instr_mask;
 
-  // Generate icache enable bit
-  if (ICache) begin : gen_icache_enable
-    assign cpuctrl_wdata.icache_enable = cpuctrl_wdata_raw.icache_enable;
-  end else begin : gen_no_icache
-    // tieoff for the unused icen bit
-    logic unused_icen;
-    assign unused_icen = cpuctrl_wdata_raw.icache_enable;
-
-    // icen field will always read as zero if ICache not configured
-    assign cpuctrl_wdata.icache_enable = 1'b0;
-  end
-
   assign cpuctrl_wdata.double_fault_seen = cpuctrl_wdata_raw.double_fault_seen;
   assign cpuctrl_wdata.sync_exc_seen     = cpuctrl_wdata_raw.sync_exc_seen;
-
-  assign icache_enable_o = cpuctrl_q.icache_enable;
 
   cve2_csr #(
     .Width     ($bits(cpu_ctrl_t)),

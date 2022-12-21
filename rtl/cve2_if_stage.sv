@@ -16,11 +16,6 @@ module cve2_if_stage import cve2_pkg::*; #(
   parameter int unsigned DmHaltAddr        = 32'h1A110800,
   parameter int unsigned DmExceptionAddr   = 32'h1A110808,
   parameter bit          DummyInstructions = 1'b0,
-  parameter bit          ICache            = 1'b0,
-  parameter bit          ICacheECC         = 1'b0,
-  parameter int unsigned BusSizeECC        = BUS_SIZE,
-  parameter int unsigned TagSizeECC        = IC_TAG_SIZE,
-  parameter int unsigned LineSizeECC       = IC_LINE_SIZE,
   parameter bit          PCIncrCheck       = 1'b0,
   parameter lfsr_seed_t  RndCnstLfsrSeed   = RndCnstLfsrSeedDefault,
   parameter lfsr_perm_t  RndCnstLfsrPerm   = RndCnstLfsrPermDefault,
@@ -39,19 +34,6 @@ module cve2_if_stage import cve2_pkg::*; #(
   input  logic                        instr_rvalid_i,
   input  logic [31:0]                 instr_rdata_i,
   input  logic                        instr_err_i,
-
-  // ICache RAM IO
-  output logic [IC_NUM_WAYS-1:0]      ic_tag_req_o,
-  output logic                        ic_tag_write_o,
-  output logic [IC_INDEX_W-1:0]       ic_tag_addr_o,
-  output logic [TagSizeECC-1:0]       ic_tag_wdata_o,
-  input  logic [TagSizeECC-1:0]       ic_tag_rdata_i [IC_NUM_WAYS],
-  output logic [IC_NUM_WAYS-1:0]      ic_data_req_o,
-  output logic                        ic_data_write_o,
-  output logic [IC_INDEX_W-1:0]       ic_data_addr_o,
-  output logic [LineSizeECC-1:0]      ic_data_wdata_o,
-  input  logic [LineSizeECC-1:0]      ic_data_rdata_i [IC_NUM_WAYS],
-  input  logic                        ic_scr_key_valid_i,
 
   // output of ID stage
   output logic                        instr_valid_id_o,         // instr in IF-ID is valid
@@ -90,9 +72,6 @@ module cve2_if_stage import cve2_pkg::*; #(
   input  logic [2:0]                  dummy_instr_mask_i,
   input  logic                        dummy_instr_seed_en_i,
   input  logic [31:0]                 dummy_instr_seed_i,
-  input  logic                        icache_enable_i,
-  input  logic                        icache_inval_i,
-  output logic                        icache_ecc_error_o,
 
   // jump and branch target
   input  logic [31:0]                 branch_target_ex_i,       // branch/jump target address
@@ -204,56 +183,7 @@ module cve2_if_stage import cve2_pkg::*; #(
   // tell CS register file to initialize mtvec on boot
   assign csr_mtvec_init_o = (pc_mux_i == PC_BOOT) & pc_set_i;
 
-  if (ICache) begin : gen_icache
-    // Full I-Cache option
-    cve2_icache #(
-      .ICacheECC       (ICacheECC),
-      .BusSizeECC      (BusSizeECC),
-      .TagSizeECC      (TagSizeECC),
-      .LineSizeECC     (LineSizeECC)
-    ) icache_i (
-        .clk_i               ( clk_i                      ),
-        .rst_ni              ( rst_ni                     ),
-
-        .req_i               ( req_i                      ),
-
-        .branch_i            ( branch_req                 ),
-        .branch_mispredict_i ( nt_branch_mispredict_i     ),
-        .mispredict_addr_i   ( nt_branch_addr_i           ),
-        .addr_i              ( {fetch_addr_n[31:1], 1'b0} ),
-
-        .ready_i             ( fetch_ready                ),
-        .valid_o             ( fetch_valid                ),
-        .rdata_o             ( fetch_rdata                ),
-        .addr_o              ( fetch_addr                 ),
-        .err_o               ( fetch_err                  ),
-        .err_plus2_o         ( fetch_err_plus2            ),
-
-        .instr_req_o         ( instr_req_o                ),
-        .instr_addr_o        ( instr_addr_o               ),
-        .instr_gnt_i         ( instr_gnt_i                ),
-        .instr_rvalid_i      ( instr_rvalid_i             ),
-        .instr_rdata_i       ( instr_rdata_i              ),
-        .instr_err_i         ( instr_err_i                ),
-
-        .ic_tag_req_o        ( ic_tag_req_o               ),
-        .ic_tag_write_o      ( ic_tag_write_o             ),
-        .ic_tag_addr_o       ( ic_tag_addr_o              ),
-        .ic_tag_wdata_o      ( ic_tag_wdata_o             ),
-        .ic_tag_rdata_i      ( ic_tag_rdata_i             ),
-        .ic_data_req_o       ( ic_data_req_o              ),
-        .ic_data_write_o     ( ic_data_write_o            ),
-        .ic_data_addr_o      ( ic_data_addr_o             ),
-        .ic_data_wdata_o     ( ic_data_wdata_o            ),
-        .ic_data_rdata_i     ( ic_data_rdata_i            ),
-        .ic_scr_key_valid_i  ( ic_scr_key_valid_i         ),
-
-        .icache_enable_i     ( icache_enable_i            ),
-        .icache_inval_i      ( icache_inval_i             ),
-        .busy_o              ( prefetch_busy              ),
-        .ecc_error_o         ( icache_ecc_error_o         )
-    );
-  end else begin : gen_prefetch_buffer
+  begin : gen_prefetch_buffer
     // prefetch buffer, caches a fixed number of instructions
     cve2_prefetch_buffer #(
     ) prefetch_buffer_i (
@@ -283,40 +213,6 @@ module cve2_if_stage import cve2_pkg::*; #(
 
         .busy_o              ( prefetch_busy              )
     );
-    // ICache tieoffs
-    logic                   unused_icen, unused_icinv, unused_scr_key_valid;
-    logic [TagSizeECC-1:0]  unused_tag_ram_input [IC_NUM_WAYS];
-    logic [LineSizeECC-1:0] unused_data_ram_input [IC_NUM_WAYS];
-    assign unused_icen           = icache_enable_i;
-    assign unused_icinv          = icache_inval_i;
-    assign unused_tag_ram_input  = ic_tag_rdata_i;
-    assign unused_data_ram_input = ic_data_rdata_i;
-    assign unused_scr_key_valid  = ic_scr_key_valid_i;
-    assign ic_tag_req_o          = 'b0;
-    assign ic_tag_write_o        = 'b0;
-    assign ic_tag_addr_o         = 'b0;
-    assign ic_tag_wdata_o        = 'b0;
-    assign ic_data_req_o         = 'b0;
-    assign ic_data_write_o       = 'b0;
-    assign ic_data_addr_o        = 'b0;
-    assign ic_data_wdata_o       = 'b0;
-    assign icache_ecc_error_o    = 'b0;
-
-`ifndef SYNTHESIS
-    // If we don't instantiate an icache and this is a simulation then we have a problem because the
-    // simulator might discard the icache module entirely, including some DPI exports that it
-    // implies. This then causes problems for linking against C++ testbench code that expected them.
-    // As a slightly ugly hack, let's define the DPI functions here (the real versions are defined
-    // in prim_util_get_scramble_params.svh)
-    export "DPI-C" function simutil_get_scramble_key;
-    export "DPI-C" function simutil_get_scramble_nonce;
-    function automatic int simutil_get_scramble_key(output bit [127:0] val);
-      return 0;
-    endfunction
-    function automatic int simutil_get_scramble_nonce(output bit [319:0] nonce);
-      return 0;
-    endfunction
-`endif
   end
 
   assign unused_fetch_addr_n0 = fetch_addr_n[0];
