@@ -21,7 +21,6 @@ module cve2_id_stage #(
   parameter bit               RV32E           = 0,
   parameter cve2_pkg::rv32m_e RV32M           = cve2_pkg::RV32MFast,
   parameter cve2_pkg::rv32b_e RV32B           = cve2_pkg::RV32BNone,
-  parameter bit               WritebackStage  = 0,
   parameter bit               BranchPredictor = 0
 ) (
   input  logic                      clk_i,
@@ -473,7 +472,6 @@ module cve2_id_stage #(
   assign illegal_insn_o = instr_valid_i & (illegal_insn_dec | illegal_csr_insn_i);
 
   cve2_controller #(
-    .WritebackStage (WritebackStage),
     .BranchPredictor(BranchPredictor)
   ) controller_i (
     .clk_i (clk_i),
@@ -690,13 +688,9 @@ module cve2_id_stage #(
         FIRST_CYCLE: begin
           unique case (1'b1)
             lsu_req_dec: begin
-              if (!WritebackStage) begin
+              begin
                 // LSU operation
                 id_fsm_d    = MULTI_CYCLE;
-              end else begin
-                if(~lsu_req_done_i) begin
-                  id_fsm_d  = MULTI_CYCLE;
-                end
               end
             end
             multdiv_en_dec: begin
@@ -789,118 +783,7 @@ module cve2_id_stage #(
   // Used by ALU to access RS3 if ternary instruction.
   assign instr_first_cycle_id_o = instr_first_cycle;
 
-  if (WritebackStage) begin : gen_stall_mem
-    // Register read address matches write address in WB
-    logic rf_rd_a_wb_match;
-    logic rf_rd_b_wb_match;
-    // Hazard between registers being read and written
-    logic rf_rd_a_hz;
-    logic rf_rd_b_hz;
-
-    logic outstanding_memory_access;
-
-    logic instr_kill;
-
-    assign multicycle_done = lsu_req_dec ? ~stall_mem : ex_valid_i;
-
-    // Is a memory access ongoing that isn't finishing this cycle
-    assign outstanding_memory_access = (outstanding_load_wb_i | outstanding_store_wb_i) &
-                                       ~lsu_resp_valid_i;
-
-    // Can start a new memory access if any previous one has finished or is finishing
-    assign data_req_allowed = ~outstanding_memory_access;
-
-    // Instruction won't execute because:
-    // - There is a pending exception in writeback
-    //   The instruction in ID/EX will be flushed and the core will jump to an exception handler
-    // - The controller isn't running instructions
-    //   This either happens in preparation for a flush and jump to an exception handler e.g. in
-    //   response to an IRQ or debug request or whilst the core is sleeping or resetting/fetching
-    //   first instruction in which case any valid instruction in ID/EX should be ignored.
-    // - There was an error on instruction fetch
-    assign instr_kill = instr_fetch_err_i |
-                        wb_exception      |
-                        id_exception      |
-                        ~controller_run;
-
-    // With writeback stage instructions must be prevented from executing if there is:
-    // - A load hazard
-    // - A pending memory access
-    //   If it receives an error response this results in a precise exception from WB so ID/EX
-    //   instruction must not execute until error response is known).
-    // - A load/store error
-    //   This will cause a precise exception for the instruction in WB so ID/EX instruction must not
-    //   execute
-    //
-    // instr_executing_spec is a speculative signal. It indicates an instruction can execute
-    // assuming there are no exceptions from writeback and any outstanding memory access won't
-    // receive an error. It is required so branch and jump requests don't factor in an incoming dmem
-    // error (that in turn would factor directly into imem requests leading to a feedthrough path).
-    //
-    // instr_executing is the full signal, it will only allow execution once any potential
-    // exceptions from writeback have been resolved.
-    assign instr_executing_spec = instr_valid_i      &
-                                  ~instr_fetch_err_i &
-                                  controller_run     &
-                                  ~stall_ld_hz;
-
-    assign instr_executing = instr_valid_i              &
-                             ~instr_kill                &
-                             ~stall_ld_hz               &
-                             ~outstanding_memory_access;
-
-    `ASSERT(IbexExecutingSpecIfExecuting, instr_executing |-> instr_executing_spec)
-
-    `ASSERT(IbexStallIfValidInstrNotExecuting,
-      instr_valid_i & ~instr_kill & ~instr_executing |-> stall_id)
-
-    `ASSERT(IbexCannotRetireWithPendingExceptions,
-      instr_done |-> ~(wb_exception | outstanding_memory_access))
-
-    // Stall for reasons related to memory:
-    // * There is an outstanding memory access that won't resolve this cycle (need to wait to allow
-    //   precise exceptions)
-    // * There is a load/store request not being granted or which is unaligned and waiting to issue
-    //   a second request (needs to stay in ID for the address calculation)
-    assign stall_mem = instr_valid_i &
-                       (outstanding_memory_access | (lsu_req_dec & ~lsu_req_done_i));
-
-    // If we stall a load in ID for any reason, it must not make an LSU request
-    // (otherwide we might issue two requests for the same instruction)
-    `ASSERT(IbexStallMemNoRequest,
-      instr_valid_i & lsu_req_dec & ~instr_done |-> ~lsu_req_done_i)
-
-    assign rf_rd_a_wb_match = (rf_waddr_wb_i == rf_raddr_a_o) & |rf_raddr_a_o;
-    assign rf_rd_b_wb_match = (rf_waddr_wb_i == rf_raddr_b_o) & |rf_raddr_b_o;
-
-    assign rf_rd_a_wb_match_o = rf_rd_a_wb_match;
-    assign rf_rd_b_wb_match_o = rf_rd_b_wb_match;
-
-    // If instruction is reading register that load will be writing stall in
-    // ID until load is complete. No need to stall when reading zero register.
-    assign rf_rd_a_hz = rf_rd_a_wb_match & rf_ren_a;
-    assign rf_rd_b_hz = rf_rd_b_wb_match & rf_ren_b;
-
-    // If instruction is read register that writeback is writing forward writeback data to read
-    // data. Note this doesn't factor in load data as it arrives too late, such hazards are
-    // resolved via a stall (see above).
-    assign rf_rdata_a_fwd = rf_rd_a_wb_match & rf_write_wb_i ? rf_wdata_fwd_wb_i : rf_rdata_a_i;
-    assign rf_rdata_b_fwd = rf_rd_b_wb_match & rf_write_wb_i ? rf_wdata_fwd_wb_i : rf_rdata_b_i;
-
-    assign stall_ld_hz = outstanding_load_wb_i & (rf_rd_a_hz | rf_rd_b_hz);
-
-    assign instr_type_wb_o = ~lsu_req_dec ? WB_INSTR_OTHER :
-                              lsu_we      ? WB_INSTR_STORE :
-                                            WB_INSTR_LOAD;
-
-    assign instr_id_done_o = en_wb_o & ready_wb_i;
-
-    // Stall ID/EX as instruction in ID/EX cannot proceed to writeback yet
-    assign stall_wb = en_wb_o & ~ready_wb_i;
-
-    assign perf_dside_wait_o = instr_valid_i & ~instr_kill &
-                               (outstanding_memory_access | stall_ld_hz);
-  end else begin : gen_no_stall_mem
+  begin : gen_no_stall_mem
 
     assign multicycle_done = lsu_req_dec ? lsu_resp_valid_i : ex_valid_i;
 
@@ -973,8 +856,8 @@ module cve2_id_stage #(
   // FCOV //
   //////////
 
-  `DV_FCOV_SIGNAL_GEN_IF(logic, rf_rd_wb_hz,
-    (gen_stall_mem.rf_rd_a_hz | gen_stall_mem.rf_rd_b_hz) & instr_valid_i, WritebackStage)
+  `DV_FCOV_SIGNAL(logic, branch_taken,
+    instr_executing & (id_fsm_q == FIRST_CYCLE) & branch_decision_i)
   `DV_FCOV_SIGNAL(logic, branch_not_taken,
     instr_executing & (id_fsm_q == FIRST_CYCLE) & ~branch_decision_i)
 

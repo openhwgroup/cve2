@@ -11,7 +11,6 @@
 `include "dv_fcov_macros.svh"
 
 module cve2_controller #(
-  parameter bit WritebackStage  = 0,
   parameter bit BranchPredictor = 0
  ) (
   input  logic                  clk_i,
@@ -240,36 +239,7 @@ module cve2_controller #(
   assign id_wb_pending = instr_valid_i | ~ready_wb_i;
 
   // Exception/fault prioritisation is taken from Table 3.7 of Priviledged Spec v1.11
-  if (WritebackStage) begin : g_wb_exceptions
-    always_comb begin
-      instr_fetch_err_prio = 0;
-      illegal_insn_prio    = 0;
-      ecall_insn_prio      = 0;
-      ebrk_insn_prio       = 0;
-      store_err_prio       = 0;
-      load_err_prio        = 0;
-
-      // Note that with the writeback stage store/load errors occur on the instruction in writeback,
-      // all other exception/faults occur on the instruction in ID/EX. The faults from writeback
-      // must take priority as that instruction is architecurally ordered before the one in ID/EX.
-      if (store_err_q) begin
-        store_err_prio = 1'b1;
-      end else if (load_err_q) begin
-        load_err_prio  = 1'b1;
-      end else if (instr_fetch_err) begin
-        instr_fetch_err_prio = 1'b1;
-      end else if (illegal_insn_q) begin
-        illegal_insn_prio = 1'b1;
-      end else if (ecall_insn) begin
-        ecall_insn_prio = 1'b1;
-      end else if (ebrk_insn) begin
-        ebrk_insn_prio = 1'b1;
-      end
-    end
-
-    // Instruction in writeback is generating an exception so instruction in ID must not execute
-    assign wb_exception_o = load_err_q | store_err_q | load_err_i | store_err_i;
-  end else begin : g_no_wb_exceptions
+  begin : g_no_wb_exceptions
     always_comb begin
       instr_fetch_err_prio = 0;
       illegal_insn_prio    = 0;
@@ -654,13 +624,7 @@ module cve2_controller #(
           pc_mux_o         = PC_EXC;
           exc_pc_mux_o     = debug_mode_q ? EXC_PC_DBG_EXC : EXC_PC_EXC;
 
-          if (WritebackStage) begin : g_writeback_mepc_save
-            // With the writeback stage present whether an instruction accessing memory will cause
-            // an exception is only known when it is in writeback. So when taking such an exception
-            // epc must come from writeback.
-            csr_save_id_o  = ~(store_err_q | load_err_q);
-            csr_save_wb_o  = store_err_q | load_err_q;
-          end else begin : g_no_writeback_mepc_save
+          begin : g_no_writeback_mepc_save
             csr_save_id_o  = 1'b0;
           end
 

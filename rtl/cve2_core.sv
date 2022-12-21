@@ -21,7 +21,6 @@ module cve2_core import cve2_pkg::*; #(
   parameter bit          RV32E             = 1'b0,
   parameter rv32m_e      RV32M             = RV32MFast,
   parameter rv32b_e      RV32B             = RV32BNone,
-  parameter bit          WritebackStage    = 1'b0,
   parameter bit          BranchPredictor   = 1'b0,
   parameter bit          DbgTriggerEn      = 1'b0,
   parameter int unsigned DbgHwBreakNum     = 1,
@@ -375,7 +374,6 @@ module cve2_core import cve2_pkg::*; #(
     .RV32E          (RV32E),
     .RV32M          (RV32M),
     .RV32B          (RV32B),
-    .WritebackStage (WritebackStage),
     .BranchPredictor(BranchPredictor)
   ) id_stage_i (
     .clk_i (clk_i),
@@ -615,7 +613,6 @@ module cve2_core import cve2_pkg::*; #(
   );
 
   cve2_wb_stage #(
-    .WritebackStage(WritebackStage)
   ) wb_stage_i (
     .clk_i                   (clk_i),
     .rst_ni                  (rst_ni),
@@ -678,19 +675,7 @@ module cve2_core import cve2_pkg::*; #(
   assign outstanding_store_id = id_stage_i.instr_executing & id_stage_i.lsu_req_dec &
                                 id_stage_i.lsu_we;
 
-  if (WritebackStage) begin : gen_wb_stage
-    // When the writeback stage is present a load/store could be in ID or WB. A Load/store in ID can
-    // see a response before it moves to WB when it is unaligned otherwise we should only see
-    // a response when load/store is in WB.
-    assign outstanding_load_resp  = outstanding_load_wb |
-      (outstanding_load_id  & load_store_unit_i.split_misaligned_access);
-
-    assign outstanding_store_resp = outstanding_store_wb |
-      (outstanding_store_id & load_store_unit_i.split_misaligned_access);
-
-    // When writing back the result of a load, the load must have made it to writeback
-    `ASSERT(NoMemRFWriteWithoutPendingLoad, rf_we_lsu |-> outstanding_load_wb, clk_i, !rst_ni)
-  end else begin : gen_no_wb_stage
+  begin : gen_no_wb_stage
     // Without writeback stage only look into whether load or store is in ID to determine if
     // a response is expected.
     assign outstanding_load_resp  = outstanding_load_id;
@@ -888,7 +873,7 @@ module cve2_core import cve2_pkg::*; #(
   // second stage. RVFI outputs are all straight from flops. So 2 stage pipeline requires a single
   // set of flops (instr_info => RVFI_out), 3 stage pipeline requires two sets (instr_info => wb
   // => RVFI_out)
-  localparam int RVFI_STAGES = WritebackStage ? 2 : 1;
+  localparam int RVFI_STAGES = 1;
 
   logic        rvfi_stage_valid     [RVFI_STAGES];
   logic [63:0] rvfi_stage_order     [RVFI_STAGES];
@@ -1021,41 +1006,7 @@ module cve2_core import cve2_pkg::*; #(
   assign rvfi_id_done = instr_id_done | (id_stage_i.controller_i.rvfi_flush_next &
                                          id_stage_i.controller_i.id_exception_o);
 
-  if (WritebackStage) begin : gen_rvfi_wb_stage
-    logic unused_instr_new_id;
-
-    assign unused_instr_new_id = instr_new_id;
-
-    // With writeback stage first RVFI stage buffers instruction information captured in ID/EX
-    // awaiting instruction retirement and RF Write data/Mem read data whilst instruction is in WB
-    // So first stage becomes valid when instruction leaves ID/EX stage and remains valid until
-    // instruction leaves WB
-    assign rvfi_stage_valid_d[0] = rvfi_id_done |
-                                   (rvfi_stage_valid[0] & ~rvfi_wb_done);
-    // Second stage is output stage so simple valid cycle after instruction leaves WB (and so has
-    // retired)
-    assign rvfi_stage_valid_d[1] = rvfi_wb_done;
-
-    // Signal new instruction in WB cycle after instruction leaves ID/EX (to enter WB)
-    logic rvfi_instr_new_wb_q;
-
-    // Signal new instruction in WB either when one has just entered or when a trap is progressing
-    // through the tracking pipeline
-    assign rvfi_instr_new_wb = rvfi_instr_new_wb_q | (rvfi_stage_valid[0] & rvfi_stage_trap[0]);
-
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        rvfi_instr_new_wb_q <= 0;
-      end else begin
-        rvfi_instr_new_wb_q <= rvfi_id_done;
-      end
-    end
-
-    assign rvfi_trap_id = id_stage_i.controller_i.id_exception_o;
-    assign rvfi_trap_wb = id_stage_i.controller_i.exc_req_lsu;
-    // WB is instantly done in the tracking pipeline when a trap is progress through the pipeline
-    assign rvfi_wb_done = instr_done_wb | (rvfi_stage_valid[0] & rvfi_stage_trap[0]);
-  end else begin : gen_rvfi_no_wb_stage
+  begin : gen_rvfi_no_wb_stage
     // Without writeback stage first RVFI stage is output stage so simply valid the cycle after
     // instruction leaves ID/EX (and so has retired)
     assign rvfi_stage_valid_d[0] = rvfi_id_done;
