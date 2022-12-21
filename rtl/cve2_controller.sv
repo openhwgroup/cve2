@@ -11,7 +11,6 @@
 `include "dv_fcov_macros.svh"
 
 module cve2_controller #(
-  parameter bit BranchPredictor = 0
  ) (
   input  logic                  clk_i,
   input  logic                  rst_ni,
@@ -458,19 +457,10 @@ module cve2_controller #(
         end
 
         if (branch_set_i || jump_set_i) begin
-          // Only set the PC if the branch predictor hasn't already done the branch for us
-          pc_set_o       = BranchPredictor ? ~instr_bp_taken_i : 1'b1;
+          pc_set_o       = 1'b1;
 
           perf_tbranch_o = branch_set_i;
           perf_jump_o    = jump_set_i;
-        end
-
-        if (BranchPredictor) begin
-          if (instr_bp_taken_i & branch_not_set_i) begin
-            // If the instruction is a branch that was predicted to be taken but was not taken
-            // signal a mispredict.
-            nt_branch_mispredict_o = 1'b1;
-          end
         end
 
         // If entering debug mode or handling an IRQ the core needs to wait until any instruction in

@@ -20,8 +20,7 @@
 module cve2_id_stage #(
   parameter bit               RV32E           = 0,
   parameter cve2_pkg::rv32m_e RV32M           = cve2_pkg::RV32MFast,
-  parameter cve2_pkg::rv32b_e RV32B           = cve2_pkg::RV32BNone,
-  parameter bit               BranchPredictor = 0
+  parameter cve2_pkg::rv32b_e RV32B           = cve2_pkg::RV32BNone
 ) (
   input  logic                      clk_i,
   input  logic                      rst_ni,
@@ -450,7 +449,6 @@ module cve2_id_stage #(
   assign illegal_insn_o = instr_valid_i & (illegal_insn_dec | illegal_csr_insn_i);
 
   cve2_controller #(
-    .BranchPredictor(BranchPredictor)
   ) controller_i (
     .clk_i (clk_i),
     .rst_ni(rst_ni),
@@ -614,16 +612,6 @@ module cve2_id_stage #(
   `ASSERT(NeverDoubleBranch, branch_set & ~instr_bp_taken_i |=> ~branch_set)
   `ASSERT(NeverDoubleJump, jump_set & ~instr_bp_taken_i |=> ~jump_set)
 
-  //////////////////////////////
-  // Branch not-taken address //
-  //////////////////////////////
-
-  if (BranchPredictor) begin : g_calc_nt_addr
-    assign nt_branch_addr_o = pc_id_i + (instr_is_compressed_i ? 32'd2 : 32'd4);
-  end else begin : g_n_calc_nt_addr
-    assign nt_branch_addr_o = 32'd0;
-  end
-
   ///////////////
   // ID-EX FSM //
   ///////////////
@@ -685,10 +673,6 @@ module cve2_id_stage #(
                                      MULTI_CYCLE : FIRST_CYCLE;
               stall_branch     = branch_decision_i;
               branch_set_raw_d = branch_decision_i;
-
-              if (BranchPredictor) begin
-                branch_not_set = 1'b1;
-              end
 
               perf_branch_o = 1'b1;
             end

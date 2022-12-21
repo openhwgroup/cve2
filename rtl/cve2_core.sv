@@ -21,7 +21,6 @@ module cve2_core import cve2_pkg::*; #(
   parameter bit          RV32E             = 1'b0,
   parameter rv32m_e      RV32M             = RV32MFast,
   parameter rv32b_e      RV32B             = RV32BNone,
-  parameter bit          BranchPredictor   = 1'b0,
   parameter bit          DbgTriggerEn      = 1'b0,
   parameter int unsigned DbgHwBreakNum     = 1,
   parameter int unsigned DmHaltAddr        = 32'h1A110800,
@@ -290,8 +289,7 @@ module cve2_core import cve2_pkg::*; #(
 
   cve2_if_stage #(
     .DmHaltAddr       (DmHaltAddr),
-    .DmExceptionAddr  (DmExceptionAddr),
-    .BranchPredictor  (BranchPredictor)
+    .DmExceptionAddr  (DmExceptionAddr)
   ) if_stage_i (
     .clk_i (clk_i),
     .rst_ni(rst_ni),
@@ -361,8 +359,7 @@ module cve2_core import cve2_pkg::*; #(
   cve2_id_stage #(
     .RV32E          (RV32E),
     .RV32M          (RV32M),
-    .RV32B          (RV32B),
-    .BranchPredictor(BranchPredictor)
+    .RV32B          (RV32B)
   ) id_stage_i (
     .clk_i (clk_i),
     .rst_ni(rst_ni),

@@ -14,8 +14,7 @@
 
 module cve2_if_stage import cve2_pkg::*; #(
   parameter int unsigned DmHaltAddr        = 32'h1A110800,
-  parameter int unsigned DmExceptionAddr   = 32'h1A110808,
-  parameter bit          BranchPredictor   = 1'b0
+  parameter int unsigned DmExceptionAddr   = 32'h1A110808
 ) (
   input  logic                         clk_i,
   input  logic                         rst_ni,
@@ -142,10 +141,8 @@ module cve2_if_stage import cve2_pkg::*; #(
     endcase
   end
 
-  // The Branch predictor can provide a new PC which is internal to if_stage. Only override the mux
-  // select to choose this if the core isn't already trying to set a PC.
   assign pc_mux_internal =
-    (BranchPredictor && predict_branch_taken && !pc_set_i) ? PC_BP : pc_mux_i;
+    pc_mux_i;
 
   // fetch address selection mux
   always_comb begin : fetch_addr_mux
@@ -155,9 +152,6 @@ module cve2_if_stage import cve2_pkg::*; #(
       PC_EXC:  fetch_addr_n = exc_pc;                       // set PC to exception handler
       PC_ERET: fetch_addr_n = csr_mepc_i;                   // restore PC when returning from EXC
       PC_DRET: fetch_addr_n = csr_depc_i;
-      // Without branch predictor will never get pc_mux_internal == PC_BP. We still handle no branch
-      // predictor case here to ensure redundant mux logic isn't synthesised.
-      PC_BP:   fetch_addr_n = BranchPredictor ? predict_branch_pc : { boot_addr_i[31:8], 8'h00 };
       default: fetch_addr_n = { boot_addr_i[31:8], 8'h00 };
     endcase
   end
@@ -277,93 +271,7 @@ module cve2_if_stage import cve2_pkg::*; #(
     end
   end
 
-  if (BranchPredictor) begin : g_branch_predictor
-    logic [31:0] instr_skid_data_q;
-    logic [31:0] instr_skid_addr_q;
-    logic        instr_skid_bp_taken_q;
-    logic        instr_skid_valid_q, instr_skid_valid_d;
-    logic        instr_skid_en;
-    logic        instr_bp_taken_q, instr_bp_taken_d;
-
-    logic        predict_branch_taken_raw;
-
-    // ID stages needs to know if branch was predicted taken so it can signal mispredicts
-    begin : g_bp_taken
-      always_ff @(posedge clk_i or negedge rst_ni) begin
-        if (!rst_ni) begin
-          instr_bp_taken_q <= '0;
-        end else if (if_id_pipe_reg_we) begin
-          instr_bp_taken_q <= instr_bp_taken_d;
-        end
-      end
-    end
-
-    // When branch prediction is enabled a skid buffer between the IF and ID/EX stage is introduced.
-    // If an instruction in IF is predicted to be a taken branch and ID/EX is not ready the
-    // instruction in IF is moved to the skid buffer which becomes the output of the IF stage until
-    // the ID/EX stage accepts the instruction. The skid buffer is required as otherwise the ID/EX
-    // ready signal is coupled to the instr_req_o output which produces a feedthrough path from
-    // data_gnt_i -> instr_req_o (which needs to be avoided as for some interconnects this will
-    // result in a combinational loop).
-
-    assign instr_skid_en = predict_branch_taken & ~pc_set_i & ~id_in_ready_i & ~instr_skid_valid_q;
-
-    assign instr_skid_valid_d = (instr_skid_valid_q & ~id_in_ready_i) |
-                                instr_skid_en;
-
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        instr_skid_valid_q <= 1'b0;
-      end else begin
-        instr_skid_valid_q <= instr_skid_valid_d;
-      end
-    end
-
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        instr_skid_bp_taken_q <= '0;
-        instr_skid_data_q     <= '0;
-        instr_skid_addr_q     <= '0;
-      end else if (instr_skid_en) begin
-        instr_skid_bp_taken_q <= predict_branch_taken;
-        instr_skid_data_q     <= fetch_rdata;
-        instr_skid_addr_q     <= fetch_addr;
-      end
-    end
-
-    cve2_branch_predict branch_predict_i (
-      .clk_i        (clk_i),
-      .rst_ni       (rst_ni),
-      .fetch_rdata_i(fetch_rdata),
-      .fetch_pc_i   (fetch_addr),
-      .fetch_valid_i(fetch_valid),
-
-      .predict_branch_taken_o(predict_branch_taken_raw),
-      .predict_branch_pc_o   (predict_branch_pc)
-    );
-
-    // If there is an instruction in the skid buffer there must be no branch prediction.
-    // Instructions are only placed in the skid after they have been predicted to be a taken branch
-    // so with the skid valid any prediction has already occurred.
-    // Do not branch predict on instruction errors.
-    assign predict_branch_taken = predict_branch_taken_raw & ~instr_skid_valid_q & ~fetch_err;
-
-    assign if_instr_valid   = fetch_valid | (instr_skid_valid_q & ~nt_branch_mispredict_i);
-    assign if_instr_rdata   = instr_skid_valid_q ? instr_skid_data_q : fetch_rdata;
-    assign if_instr_addr    = instr_skid_valid_q ? instr_skid_addr_q : fetch_addr;
-
-    // Don't branch predict on instruction error so only instructions without errors end up in the
-    // skid buffer.
-    assign if_instr_bus_err = ~instr_skid_valid_q & fetch_err;
-    assign instr_bp_taken_d = instr_skid_valid_q ? instr_skid_bp_taken_q : predict_branch_taken;
-
-    assign fetch_ready = id_in_ready_i & ~instr_skid_valid_q;
-
-    assign instr_bp_taken_o = instr_bp_taken_q;
-
-    `ASSERT(NoPredictSkid, instr_skid_valid_q |-> ~predict_branch_taken)
-    `ASSERT(NoPredictIllegal, predict_branch_taken |-> ~illegal_c_insn)
-  end else begin : g_no_branch_predictor
+  begin : g_no_branch_predictor
     assign instr_bp_taken_o     = 1'b0;
     assign predict_branch_taken = 1'b0;
     assign predict_branch_pc    = 32'b0;
@@ -382,100 +290,7 @@ module cve2_if_stage import cve2_pkg::*; #(
   // Selectors must be known/valid.
   `ASSERT_KNOWN(IbexExcPcMuxKnown, exc_pc_mux_i)
 
-  if (BranchPredictor) begin : g_branch_predictor_asserts
-    `ASSERT_IF(IbexPcMuxValid, pc_mux_internal inside {
-        PC_BOOT,
-        PC_JUMP,
-        PC_EXC,
-        PC_ERET,
-        PC_DRET,
-        PC_BP},
-      pc_set_i)
-
-`ifdef INC_ASSERT
-    /**
-     * Checks for branch prediction interface to fetch_fifo/icache
-     *
-     * The interface has two signals:
-     * - predicted_branch_i: When set with a branch (branch_i) indicates the branch is a predicted
-     *   one, it should be ignored when a branch_i isn't set.
-     * - branch_mispredict_i: Indicates the previously predicted branch was mis-predicted and
-     *   execution should resume with the not-taken side of the branch (i.e. continue with the PC
-     *   that followed the predicted branch). This must be raised before the instruction that is
-     *   made available following a predicted branch is accepted (Following a cycle with branch_i
-     *   & predicted_branch_i, branch_mispredict_i can only be asserted before or on the same cycle
-     *   as seeing fetch_valid & fetch_ready). When branch_mispredict_i is asserted, fetch_valid may
-     *   be asserted in response. If fetch_valid is asserted on the same cycle as
-     *   branch_mispredict_i this indicates the fetch_fifo/icache has the not-taken side of the
-     *   branch immediately ready for use
-     */
-    logic        predicted_branch_live_q, predicted_branch_live_d;
-    logic [31:0] predicted_branch_nt_pc_q, predicted_branch_nt_pc_d;
-    logic [31:0] awaiting_instr_after_mispredict_q, awaiting_instr_after_mispredict_d;
-    logic [31:0] next_pc;
-
-    logic mispredicted, mispredicted_d, mispredicted_q;
-
-    assign next_pc = fetch_addr + (instr_is_compressed ? 32'd2 : 32'd4);
-
-    logic predicted_branch;
-
-    // pc_set_i takes precendence over branch prediction
-    assign predicted_branch = predict_branch_taken & ~pc_set_i;
-
-    always_comb begin
-      predicted_branch_live_d = predicted_branch_live_q;
-      mispredicted_d          = mispredicted_q;
-
-      if (branch_req & predicted_branch) begin
-        predicted_branch_live_d = 1'b1;
-        mispredicted_d          = 1'b0;
-      end else if (predicted_branch_live_q) begin
-        if (fetch_valid & fetch_ready) begin
-          predicted_branch_live_d = 1'b0;
-        end else if (nt_branch_mispredict_i) begin
-          mispredicted_d = 1'b1;
-        end
-      end
-    end
-
-    always @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        predicted_branch_live_q <= 1'b0;
-        mispredicted_q          <= 1'b0;
-      end else begin
-        predicted_branch_live_q <= predicted_branch_live_d;
-        mispredicted_q          <= mispredicted_d;
-      end
-    end
-
-    always @(posedge clk_i) begin
-      if (branch_req & predicted_branch) begin
-        predicted_branch_nt_pc_q <= next_pc;
-      end
-    end
-
-    // Must only see mispredict after we've performed a predicted branch but before we've accepted
-    // any instruction (with fetch_ready & fetch_valid) that follows that predicted branch.
-    `ASSERT(MispredictOnlyImmediatelyAfterPredictedBranch,
-      nt_branch_mispredict_i |-> predicted_branch_live_q)
-    // Check that on mispredict we get the correct PC for the non-taken side of the branch when
-    // prefetch buffer/icache makes that PC available.
-    `ASSERT(CorrectPCOnMispredict,
-      predicted_branch_live_q & mispredicted_d & fetch_valid |->
-      fetch_addr == predicted_branch_nt_pc_q)
-    // Must not signal mispredict over multiple cycles but it's possible to have back to back
-    // mispredicts for different branches (core signals mispredict, prefetch buffer/icache immediate
-    // has not-taken side of the mispredicted branch ready, which itself is a predicted branch,
-    // following cycle core signal that that branch has mispredicted).
-    `ASSERT(MispredictSingleCycle,
-      nt_branch_mispredict_i & ~(fetch_valid & fetch_ready) |=> ~nt_branch_mispredict_i)
-    // Note that we should never see a mispredict and an incoming branch on the same cycle.
-    // The mispredict also cancels any predicted branch so overall branch_req must be low.
-    `ASSERT(NoMispredBranch, nt_branch_mispredict_i |-> ~branch_req)
-`endif
-
-  end else begin : g_no_branch_predictor_asserts
+  begin : g_no_branch_predictor_asserts
     `ASSERT_IF(IbexPcMuxValid, pc_mux_internal inside {
         PC_BOOT,
         PC_JUMP,
