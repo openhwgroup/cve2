@@ -17,9 +17,6 @@ module cve2_top_tracing import cve2_pkg::*; #(
   parameter bit          BranchPredictor  = 1'b0,
   parameter bit          DbgTriggerEn     = 1'b0,
   parameter int unsigned DbgHwBreakNum    = 1,
-  parameter bit          SecureIbex       = 1'b0,
-  parameter lfsr_seed_t  RndCnstLfsrSeed  = RndCnstLfsrSeedDefault,
-  parameter lfsr_perm_t  RndCnstLfsrPerm  = RndCnstLfsrPermDefault,
   parameter int unsigned DmHaltAddr       = 32'h1A110800,
   parameter int unsigned DmExceptionAddr  = 32'h1A110808
 ) (
@@ -134,9 +131,6 @@ module cve2_top_tracing import cve2_pkg::*; #(
     .DbgTriggerEn     ( DbgTriggerEn     ),
     .DbgHwBreakNum    ( DbgHwBreakNum    ),
     .WritebackStage   ( WritebackStage   ),
-    .SecureIbex       ( SecureIbex       ),
-    .RndCnstLfsrSeed  ( RndCnstLfsrSeed  ),
-    .RndCnstLfsrPerm  ( RndCnstLfsrPerm  ),
     .DmHaltAddr       ( DmHaltAddr       ),
     .DmExceptionAddr  ( DmExceptionAddr  )
   ) u_cve2_top (

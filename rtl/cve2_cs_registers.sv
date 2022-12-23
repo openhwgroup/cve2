@@ -16,7 +16,6 @@ module cve2_cs_registers #(
   parameter bit               DbgTriggerEn      = 0,
   parameter int unsigned      DbgHwBreakNum     = 1,
   parameter bit               DataIndTiming     = 1'b0,
-  parameter bit               DummyInstructions = 1'b0,
   parameter bit               ShadowCSR         = 1'b0,
   parameter int unsigned      MHPMCounterNum    = 10,
   parameter int unsigned      MHPMCounterWidth  = 40,
@@ -1518,16 +1517,7 @@ module cve2_cs_registers #(
   assign data_ind_timing_o = cpuctrl_q.data_ind_timing;
 
   // Generate dummy instruction signals
-  if (DummyInstructions) begin : gen_dummy
-    // SEC_CM: CTRL_FLOW.UNPREDICTABLE
-    assign cpuctrl_wdata.dummy_instr_en   = cpuctrl_wdata_raw.dummy_instr_en;
-    assign cpuctrl_wdata.dummy_instr_mask = cpuctrl_wdata_raw.dummy_instr_mask;
-
-    // Signal a write to the seed register
-    assign dummy_instr_seed_en_o = csr_we_int && (csr_addr == CSR_SECURESEED);
-    assign dummy_instr_seed_o    = csr_wdata_int;
-
-  end else begin : gen_no_dummy
+  begin : gen_no_dummy
     // tieoff for the unused bit
     logic       unused_dummy_en;
     logic [2:0] unused_dummy_mask;

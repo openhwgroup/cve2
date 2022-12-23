@@ -14,7 +14,6 @@
 module cve2_register_file_latch #(
   parameter bit                   RV32E             = 0,
   parameter int unsigned          DataWidth         = 32,
-  parameter bit                   DummyInstructions = 0,
   parameter logic [DataWidth-1:0] WordZeroVal       = '0
 ) (
   // Clock and Reset
@@ -119,35 +118,7 @@ module cve2_register_file_latch #(
     end
   end
 
-  // With dummy instructions enabled, R0 behaves as a real register but will always return 0 for
-  // real instructions.
-  if (DummyInstructions) begin : g_dummy_r0
-    // SEC_CM: CTRL_FLOW.UNPREDICTABLE
-    logic                 we_r0_dummy;
-    logic                 r0_clock;
-    logic [DataWidth-1:0] mem_r0;
-
-    // Write enable for dummy R0 register (waddr_a_i will always be 0 for dummy instructions)
-    assign we_r0_dummy = we_a_i & dummy_instr_id_i;
-
-    // R0 clock gate
-    prim_clock_gating cg_i (
-        .clk_i     ( clk_int     ),
-        .en_i      ( we_r0_dummy ),
-        .test_en_i ( test_en_i   ),
-        .clk_o     ( r0_clock    )
-    );
-
-    always_latch begin : latch_wdata
-      if (r0_clock) begin
-        mem_r0 = wdata_a_q;
-      end
-    end
-
-    // Output the dummy data for dummy instructions, otherwise R0 reads as zero
-    assign mem[0] = dummy_instr_id_i ? mem_r0 : WordZeroVal;
-
-  end else begin : g_normal_r0
+  begin : g_normal_r0
     logic unused_dummy_instr_id;
     assign unused_dummy_instr_id = dummy_instr_id_i;
 

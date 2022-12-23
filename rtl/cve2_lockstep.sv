@@ -22,11 +22,6 @@ module cve2_lockstep import cve2_pkg::*; #(
   parameter bit          BranchPredictor   = 1'b0,
   parameter bit          DbgTriggerEn      = 1'b0,
   parameter int unsigned DbgHwBreakNum     = 1,
-  parameter lfsr_seed_t  RndCnstLfsrSeed   = RndCnstLfsrSeedDefault,
-  parameter lfsr_perm_t  RndCnstLfsrPerm   = RndCnstLfsrPermDefault,
-  parameter bit          SecureIbex        = 1'b0,
-  parameter bit          DummyInstructions = 1'b0,
-  parameter bit          RegFileECC        = 1'b0,
   parameter int unsigned DmHaltAddr        = 32'h1A110800,
   parameter int unsigned DmExceptionAddr   = 32'h1A110808
 ) (
@@ -313,11 +308,6 @@ module cve2_lockstep import cve2_pkg::*; #(
     .DbgTriggerEn      ( DbgTriggerEn      ),
     .DbgHwBreakNum     ( DbgHwBreakNum     ),
     .WritebackStage    ( WritebackStage    ),
-    .RndCnstLfsrSeed   ( RndCnstLfsrSeed   ),
-    .RndCnstLfsrPerm   ( RndCnstLfsrPerm   ),
-    .SecureIbex        ( SecureIbex        ),
-    .DummyInstructions ( DummyInstructions ),
-    .RegFileECC        ( RegFileECC        ),
     .DmHaltAddr        ( DmHaltAddr        ),
     .DmExceptionAddr   ( DmExceptionAddr   )
   ) u_shadow_core (

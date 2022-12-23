@@ -13,7 +13,6 @@
 module cve2_register_file_ff #(
   parameter bit                   RV32E             = 0,
   parameter int unsigned          DataWidth         = 32,
-  parameter bit                   DummyInstructions = 0,
   parameter logic [DataWidth-1:0] WordZeroVal       = '0
 ) (
   // Clock and Reset
@@ -63,28 +62,7 @@ module cve2_register_file_ff #(
     end
   end
 
-  // With dummy instructions enabled, R0 behaves as a real register but will always return 0 for
-  // real instructions.
-  if (DummyInstructions) begin : g_dummy_r0
-    // SEC_CM: CTRL_FLOW.UNPREDICTABLE
-    logic                 we_r0_dummy;
-    logic [DataWidth-1:0] rf_r0_q;
-
-    // Write enable for dummy R0 register (waddr_a_i will always be 0 for dummy instructions)
-    assign we_r0_dummy = we_a_i & dummy_instr_id_i;
-
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        rf_r0_q <= WordZeroVal;
-      end else if (we_r0_dummy) begin
-        rf_r0_q <= wdata_a_i;
-      end
-    end
-
-    // Output the dummy data for dummy instructions, otherwise R0 reads as zero
-    assign rf_reg[0] = dummy_instr_id_i ? rf_r0_q : WordZeroVal;
-
-  end else begin : g_normal_r0
+  begin : g_normal_r0
     logic unused_dummy_instr_id;
     assign unused_dummy_instr_id = dummy_instr_id_i;
 

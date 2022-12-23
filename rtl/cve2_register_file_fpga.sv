@@ -14,7 +14,6 @@
 module cve2_register_file_fpga #(
     parameter bit                   RV32E             = 0,
     parameter int unsigned          DataWidth         = 32,
-    parameter bit                   DummyInstructions = 0,
     parameter logic [DataWidth-1:0] WordZeroVal       = '0
 ) (
   // Clock and Reset

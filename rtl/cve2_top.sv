@@ -20,14 +20,8 @@ module cve2_top import cve2_pkg::*; #(
   parameter regfile_e    RegFile          = RegFileFF,
   parameter bit          WritebackStage   = 1'b0,
   parameter bit          BranchPredictor  = 1'b0,
-  parameter bit          SecureIbex       = 1'b0,
-  parameter lfsr_seed_t  RndCnstLfsrSeed  = RndCnstLfsrSeedDefault,
-  parameter lfsr_perm_t  RndCnstLfsrPerm  = RndCnstLfsrPermDefault,
   parameter int unsigned DmHaltAddr       = 32'h1A110800,
-  parameter int unsigned DmExceptionAddr  = 32'h1A110808,
-  // Default seed and nonce for scrambling
-  parameter logic [127:0]   RndCnstIbexKey   = RndCnstIbexKeyDefault,
-  parameter logic [63:0] RndCnstIbexNonce = RndCnstIbexNonceDefault
+  parameter int unsigned DmExceptionAddr  = 32'h1A110808
 ) (
   // Clock and Reset
   input  logic                         clk_i,
@@ -117,9 +111,6 @@ module cve2_top import cve2_pkg::*; #(
   input logic                          scan_rst_ni
 );
 
-  localparam bit          Lockstep          = SecureIbex;
-  localparam bit          DummyInstructions = SecureIbex;
-  localparam bit          RegFileECC        = SecureIbex;
   // Scrambling Parameter
   localparam int unsigned NumAddrScrRounds  = 0;
   localparam int unsigned NumDiffRounds     = NumAddrScrRounds;
@@ -212,11 +203,6 @@ module cve2_top import cve2_pkg::*; #(
     .DbgTriggerEn     (DbgTriggerEn),
     .DbgHwBreakNum    (DbgHwBreakNum),
     .WritebackStage   (WritebackStage),
-    .RndCnstLfsrSeed  (RndCnstLfsrSeed),
-    .RndCnstLfsrPerm  (RndCnstLfsrPerm),
-    .SecureIbex       (SecureIbex),
-    .DummyInstructions(DummyInstructions),
-    .RegFileECC       (RegFileECC),
     .DmHaltAddr       (DmHaltAddr),
     .DmExceptionAddr  (DmExceptionAddr)
   ) u_cve2_core (
@@ -307,7 +293,6 @@ module cve2_top import cve2_pkg::*; #(
     cve2_register_file_ff #(
       .RV32E            (RV32E),
       .DataWidth        (32),
-      .DummyInstructions(DummyInstructions),
       .WordZeroVal      (32'(prim_secded_pkg::SecdedInv3932ZeroWord))
     ) register_file_i (
       .clk_i (clk),
@@ -328,7 +313,6 @@ module cve2_top import cve2_pkg::*; #(
     cve2_register_file_fpga #(
       .RV32E            (RV32E),
       .DataWidth        (32),
-      .DummyInstructions(DummyInstructions),
       .WordZeroVal      (32'(prim_secded_pkg::SecdedInv3932ZeroWord))
     ) register_file_i (
       .clk_i (clk),
@@ -349,7 +333,6 @@ module cve2_top import cve2_pkg::*; #(
     cve2_register_file_latch #(
       .RV32E            (RV32E),
       .DataWidth        (32),
-      .DummyInstructions(DummyInstructions),
       .WordZeroVal      (32'(prim_secded_pkg::SecdedInv3932ZeroWord))
     ) register_file_i (
       .clk_i (clk),
@@ -584,11 +567,6 @@ module cve2_top import cve2_pkg::*; #(
       .DbgTriggerEn     (DbgTriggerEn),
       .DbgHwBreakNum    (DbgHwBreakNum),
       .WritebackStage   (WritebackStage),
-      .RndCnstLfsrSeed  (RndCnstLfsrSeed),
-      .RndCnstLfsrPerm  (RndCnstLfsrPerm),
-      .SecureIbex       (SecureIbex),
-      .DummyInstructions(DummyInstructions),
-      .RegFileECC       (RegFileECC),
       .DmHaltAddr       (DmHaltAddr),
       .DmExceptionAddr  (DmExceptionAddr)
     ) u_cve2_lockstep (

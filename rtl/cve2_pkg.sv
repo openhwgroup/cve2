@@ -572,20 +572,6 @@ package cve2_pkg;
   // commit).
   localparam logic [31:0] CSR_MIMPID_VALUE = 32'b0;
 
-  // These LFSR parameters have been generated with
-  // $ opentitan/util/design/gen-lfsr-seed.py --width 32 --seed 2480124384 --prefix ""
-  parameter int LfsrWidth = 32;
-  typedef logic [LfsrWidth-1:0] lfsr_seed_t;
-  typedef logic [LfsrWidth-1:0][$clog2(LfsrWidth)-1:0] lfsr_perm_t;
-  parameter lfsr_seed_t RndCnstLfsrSeedDefault = 32'hac533bf4;
-  parameter lfsr_perm_t RndCnstLfsrPermDefault = {
-    160'h1e35ecba467fd1b12e958152c04fa43878a8daed
-  };
-  parameter logic [127:0]   RndCnstIbexKeyDefault =
-      128'h14e8cecae3040d5e12286bb3cc113298;
-  parameter logic [63:0] RndCnstIbexNonceDefault =
-      64'hf79780bc735f3843;
-
   // Fetch enable. Mult-bit signal used for security hardening. For non-secure implementation all
   // bits other than the bottom bit are ignored.
   typedef logic [3:0] fetch_enable_t;

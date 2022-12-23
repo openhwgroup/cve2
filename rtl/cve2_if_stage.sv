@@ -15,10 +15,7 @@
 module cve2_if_stage import cve2_pkg::*; #(
   parameter int unsigned DmHaltAddr        = 32'h1A110800,
   parameter int unsigned DmExceptionAddr   = 32'h1A110808,
-  parameter bit          DummyInstructions = 1'b0,
   parameter bit          PCIncrCheck       = 1'b0,
-  parameter lfsr_seed_t  RndCnstLfsrSeed   = RndCnstLfsrSeedDefault,
-  parameter lfsr_perm_t  RndCnstLfsrPerm   = RndCnstLfsrPermDefault,
   parameter bit          BranchPredictor   = 1'b0
 ) (
   input  logic                         clk_i,
@@ -251,48 +248,7 @@ module cve2_if_stage import cve2_pkg::*; #(
   );
 
   // Dummy instruction insertion
-  if (DummyInstructions) begin : gen_dummy_instr
-    // SEC_CM: CTRL_FLOW.UNPREDICTABLE
-    logic        insert_dummy_instr;
-    logic [31:0] dummy_instr_data;
-
-    cve2_dummy_instr #(
-      .RndCnstLfsrSeed (RndCnstLfsrSeed),
-      .RndCnstLfsrPerm (RndCnstLfsrPerm)
-    ) dummy_instr_i (
-      .clk_i                (clk_i),
-      .rst_ni               (rst_ni),
-      .dummy_instr_en_i     (dummy_instr_en_i),
-      .dummy_instr_mask_i   (dummy_instr_mask_i),
-      .dummy_instr_seed_en_i(dummy_instr_seed_en_i),
-      .dummy_instr_seed_i   (dummy_instr_seed_i),
-      .fetch_valid_i        (fetch_valid),
-      .id_in_ready_i        (id_in_ready_i),
-      .insert_dummy_instr_o (insert_dummy_instr),
-      .dummy_instr_data_o   (dummy_instr_data)
-    );
-
-    // Mux between actual instructions and dummy instructions
-    assign instr_out               = insert_dummy_instr ? dummy_instr_data : instr_decompressed;
-    assign instr_is_compressed_out = insert_dummy_instr ? 1'b0 : instr_is_compressed;
-    assign illegal_c_instr_out     = insert_dummy_instr ? 1'b0 : illegal_c_insn;
-    assign instr_err_out           = insert_dummy_instr ? 1'b0 : if_instr_err;
-
-    // Stall the IF stage if we insert a dummy instruction. The dummy will execute between whatever
-    // is currently in the ID stage and whatever is valid from the prefetch buffer this cycle. The
-    // PC of the dummy instruction will match whatever is next from the prefetch buffer.
-    assign stall_dummy_instr = insert_dummy_instr;
-
-    // Register the dummy instruction indication into the ID stage
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        dummy_instr_id_o <= 1'b0;
-      end else if (if_id_pipe_reg_we) begin
-        dummy_instr_id_o <= insert_dummy_instr;
-      end
-    end
-
-  end else begin : gen_no_dummy_instr
+  begin : gen_no_dummy_instr
     logic        unused_dummy_en;
     logic [2:0]  unused_dummy_mask;
     logic        unused_dummy_seed_en;

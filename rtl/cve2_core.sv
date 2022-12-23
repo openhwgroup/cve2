@@ -25,11 +25,6 @@ module cve2_core import cve2_pkg::*; #(
   parameter bit          BranchPredictor   = 1'b0,
   parameter bit          DbgTriggerEn      = 1'b0,
   parameter int unsigned DbgHwBreakNum     = 1,
-  parameter lfsr_seed_t  RndCnstLfsrSeed   = RndCnstLfsrSeedDefault,
-  parameter lfsr_perm_t  RndCnstLfsrPerm   = RndCnstLfsrPermDefault,
-  parameter bit          SecureIbex        = 1'b0,
-  parameter bit          DummyInstructions = 1'b0,
-  parameter bit          RegFileECC        = 1'b0,
   parameter int unsigned DmHaltAddr        = 32'h1A110800,
   parameter int unsigned DmExceptionAddr   = 32'h1A110808
 ) (
@@ -127,8 +122,8 @@ module cve2_core import cve2_pkg::*; #(
 
   localparam int unsigned PMP_NUM_CHAN      = 3;
   // SEC_CM: CORE.DATA_REG_SW.SCA
-  localparam bit          DataIndTiming     = SecureIbex;
-  localparam bit          PCIncrCheck       = SecureIbex;
+  localparam bit          DataIndTiming     = 1'b0;
+  localparam bit          PCIncrCheck       = 1'b0;
   localparam bit          ShadowCSR         = 1'b0;
 
   // IF/ID signals
@@ -337,10 +332,7 @@ module cve2_core import cve2_pkg::*; #(
   cve2_if_stage #(
     .DmHaltAddr       (DmHaltAddr),
     .DmExceptionAddr  (DmExceptionAddr),
-    .DummyInstructions(DummyInstructions),
     .PCIncrCheck      (PCIncrCheck),
-    .RndCnstLfsrSeed   ( RndCnstLfsrSeed   ),
-    .RndCnstLfsrPerm   ( RndCnstLfsrPerm   ),
     .BranchPredictor  (BranchPredictor)
   ) if_stage_i (
     .clk_i (clk_i),
@@ -407,20 +399,7 @@ module cve2_core import cve2_pkg::*; #(
   // available
   assign perf_iside_wait = id_in_ready & ~instr_valid_id;
 
-  // Multi-bit fetch enable used when SecureIbex == 1. When SecureIbex == 0 only use the bottom-bit
-  // of fetch_enable_i. Ensure the multi-bit encoding has the bottom bit set for on and unset for
-  // off so FetchEnableOn/FetchEnableOff can be used without needing to know the value of
-  // SecureIbex.
-  `ASSERT_INIT(FetchEnableSecureOnBottomBitSet,    FetchEnableOn[0] == 1'b1)
-  `ASSERT_INIT(FetchEnableSecureOffBottomBitClear, FetchEnableOff[0] == 1'b0)
-
-  // fetch_enable_i can be used to stop the core fetching new instructions
-  if (SecureIbex) begin : g_instr_req_gated_secure
-    // For secure Ibex fetch_enable_i must be a specific multi-bit pattern to enable instruction
-    // fetch
-    // SEC_CM: FETCH.CTRL.LC_GATED
-    assign instr_req_gated = instr_req_int & (fetch_enable_i == FetchEnableOn);
-  end else begin : g_instr_req_gated_non_secure
+  begin : g_instr_req_gated_non_secure
     // For non secure Ibex only the bottom bit of fetch enable is considered
     logic unused_fetch_enable;
     assign unused_fetch_enable = ^fetch_enable_i[$bits(fetch_enable_t)-1:1];
@@ -728,44 +707,7 @@ module cve2_core import cve2_pkg::*; #(
   assign rf_we_wb_o       = rf_we_wb;
   assign rf_raddr_b_o     = rf_raddr_b;
 
-  if (RegFileECC) begin : gen_regfile_ecc
-
-    // SEC_CM: DATA_REG_SW.INTEGRITY
-    logic [1:0] rf_ecc_err_a, rf_ecc_err_b;
-    logic       rf_ecc_err_a_id, rf_ecc_err_b_id;
-
-    // ECC checkbit generation for regiter file wdata
-    prim_secded_inv_39_32_enc regfile_ecc_enc (
-      .data_i(rf_wdata_wb),
-      .data_o(rf_wdata_wb_ecc_o)
-    );
-
-    // ECC checking on register file rdata
-    prim_secded_inv_39_32_dec regfile_ecc_dec_a (
-      .data_i    (rf_rdata_a_ecc_i),
-      .data_o    (),
-      .syndrome_o(),
-      .err_o     (rf_ecc_err_a)
-    );
-    prim_secded_inv_39_32_dec regfile_ecc_dec_b (
-      .data_i    (rf_rdata_b_ecc_i),
-      .data_o    (),
-      .syndrome_o(),
-      .err_o     (rf_ecc_err_b)
-    );
-
-    // Assign read outputs - no error correction, just trigger an alert
-    assign rf_rdata_a = rf_rdata_a_ecc_i[31:0];
-    assign rf_rdata_b = rf_rdata_b_ecc_i[31:0];
-
-    // Calculate errors - qualify with WB forwarding to avoid xprop into the alert signal
-    assign rf_ecc_err_a_id = |rf_ecc_err_a & rf_ren_a & ~rf_rd_a_wb_match;
-    assign rf_ecc_err_b_id = |rf_ecc_err_b & rf_ren_b & ~rf_rd_b_wb_match;
-
-    // Combined error
-    assign rf_ecc_err_comb = instr_valid_id & (rf_ecc_err_a_id | rf_ecc_err_b_id);
-
-  end else begin : gen_no_regfile_ecc
+  begin : gen_no_regfile_ecc
     logic unused_rf_ren_a, unused_rf_ren_b;
     logic unused_rf_rd_a_wb_match, unused_rf_rd_b_wb_match;
 
@@ -855,7 +797,6 @@ module cve2_core import cve2_pkg::*; #(
     .DbgTriggerEn     (DbgTriggerEn),
     .DbgHwBreakNum    (DbgHwBreakNum),
     .DataIndTiming    (DataIndTiming),
-    .DummyInstructions(DummyInstructions),
     .ShadowCSR        (ShadowCSR),
     .MHPMCounterNum   (MHPMCounterNum),
     .MHPMCounterWidth (MHPMCounterWidth),
@@ -1523,8 +1464,5 @@ module cve2_core import cve2_pkg::*; #(
   assign unused_instr_new_id = instr_new_id;
   assign unused_instr_done_wb = instr_done_wb;
 `endif
-
-  // Certain parameter combinations are not supported
-  `ASSERT_INIT(IllegalParamSecure, !(SecureIbex && (RV32M == RV32MNone)))
 
 endmodule
