@@ -46,7 +46,6 @@ module cve2_simple_system (
   parameter cve2_pkg::regfile_e RegFile                  = `RegFile;
   parameter bit                 ICache                   = 1'b0;
   parameter bit                 ICacheECC                = 1'b0;
-  parameter bit                 BranchPredictor          = 1'b0;
   parameter                     SRAMInitFile             = "";
 
   logic clk_sys = 1'b0, rst_sys_n;
@@ -173,7 +172,6 @@ module cve2_simple_system (
       .RegFile         ( RegFile         ),
       .ICache          ( ICache          ),
       .ICacheECC       ( ICacheECC       ),
-      .BranchPredictor ( BranchPredictor ),
       .DmHaltAddr      ( 32'h00100000    ),
       .DmExceptionAddr ( 32'h00100000    )
     ) u_top (
