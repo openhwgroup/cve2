@@ -54,12 +54,6 @@ parameters:
     paramtype: vlogparam
     description: "Path to a vmem file to initialize the RAM with"
 
-  BranchTargetALU:
-    datatype: int
-    paramtype: vlogparam
-    default: 0
-    description: "Enables separate branch target ALU (increasing branch performance EXPERIMENTAL)"
-
   WritebackStage:
     datatype: int
     paramtype: vlogparam
@@ -115,7 +109,6 @@ targets:
       - ICache
       - ICacheScramble
       - ICacheECC
-      - BranchTargetALU
       - WritebackStage
       - SecureIbex
       - BranchPredictor

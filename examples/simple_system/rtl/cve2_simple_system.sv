@@ -44,7 +44,6 @@ module cve2_simple_system (
   parameter cve2_pkg::rv32m_e   RV32M                    = `RV32M;
   parameter cve2_pkg::rv32b_e   RV32B                    = `RV32B;
   parameter cve2_pkg::regfile_e RegFile                  = `RegFile;
-  parameter bit                 BranchTargetALU          = 1'b0;
   parameter bit                 WritebackStage           = 1'b0;
   parameter bit                 ICache                   = 1'b0;
   parameter bit                 ICacheECC                = 1'b0;
@@ -173,7 +172,6 @@ module cve2_simple_system (
       .RV32M           ( RV32M           ),
       .RV32B           ( RV32B           ),
       .RegFile         ( RegFile         ),
-      .BranchTargetALU ( BranchTargetALU ),
       .ICache          ( ICache          ),
       .ICacheECC       ( ICacheECC       ),
       .WritebackStage  ( WritebackStage  ),
