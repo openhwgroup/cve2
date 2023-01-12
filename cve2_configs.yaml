@@ -12,7 +12,6 @@ small:
   RV32M                    : "cve2_pkg::RV32MFast"
   RV32B                    : "cve2_pkg::RV32BNone"
   RegFile                  : "cve2_pkg::RegFileFF"
-  BranchTargetALU          : 0
   WritebackStage           : 0
   ICache                   : 0
   ICacheECC                : 0
@@ -29,7 +28,6 @@ opentitan:
   RV32M                    : "cve2_pkg::RV32MSingleCycle"
   RV32B                    : "cve2_pkg::RV32BOTEarlGrey"
   RegFile                  : "cve2_pkg::RegFileFF"
-  BranchTargetALU          : 1
   WritebackStage           : 1
   ICache                   : 1
   ICacheECC                : 1
@@ -52,7 +50,6 @@ experimental-maxperf:
   RV32M                    : "cve2_pkg::RV32MSingleCycle"
   RV32B                    : "cve2_pkg::RV32BNone"
   RegFile                  : "cve2_pkg::RegFileFF"
-  BranchTargetALU          : 1
   WritebackStage           : 1
   ICache                   : 0
   ICacheECC                : 0
@@ -69,7 +66,6 @@ experimental-maxperf-pmp:
   RV32M                    : "cve2_pkg::RV32MSingleCycle"
   RV32B                    : "cve2_pkg::RV32BNone"
   RegFile                  : "cve2_pkg::RegFileFF"
-  BranchTargetALU          : 1
   WritebackStage           : 1
   ICache                   : 0
   ICacheECC                : 0
@@ -86,7 +82,6 @@ experimental-maxperf-pmp-bmbalanced:
   RV32M                    : "cve2_pkg::RV32MSingleCycle"
   RV32B                    : "cve2_pkg::RV32BBalanced"
   RegFile                  : "cve2_pkg::RegFileFF"
-  BranchTargetALU          : 1
   WritebackStage           : 1
   ICache                   : 0
   ICacheECC                : 0
@@ -103,7 +98,6 @@ experimental-maxperf-pmp-bmfull:
   RV32M                    : "cve2_pkg::RV32MSingleCycle"
   RV32B                    : "cve2_pkg::RV32BFull"
   RegFile                  : "cve2_pkg::RegFileFF"
-  BranchTargetALU          : 1
   WritebackStage           : 1
   ICache                   : 0
   ICacheECC                : 0
@@ -120,7 +114,6 @@ experimental-maxperf-pmp-bmfull-icache:
   RV32M                    : "cve2_pkg::RV32MSingleCycle"
   RV32B                    : "cve2_pkg::RV32BFull"
   RegFile                  : "cve2_pkg::RegFileFF"
-  BranchTargetALU          : 1
   WritebackStage           : 1
   ICache                   : 1
   ICacheECC                : 1
@@ -140,7 +133,6 @@ experimental-branch-predictor:
   RV32M                    : "cve2_pkg::RV32MSingleCycle"
   RV32B                    : "cve2_pkg::RV32BNone"
   RegFile                  : "cve2_pkg::RegFileFF"
-  BranchTargetALU          : 1
   WritebackStage           : 1
   ICache                   : 0
   ICacheECC                : 0
