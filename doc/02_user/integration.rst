@@ -112,9 +112,6 @@ Parameters
 |                              |                     |            | "cve2_pkg::RegFileFPGA": Register file for FPGA targets               |
 |                              |                     |            | "cve2_pkg::RegFileLatch": Latch-based register file for ASIC targets  |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``BranchTargetALU``          | bit                 | 0          | *EXPERIMENTAL* - Enables branch target ALU removing a stall           |
-|                              |                     |            | cycle from taken branches                                             |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``WritebackStage``           | bit                 | 0          | *EXPERIMENTAL* - Enables third pipeline stage (writeback)             |
 |                              |                     |            | improving performance of loads and stores                             |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
