@@ -59,12 +59,6 @@ parameters:
     paramtype: vlogparam
     description: "Enable ECC protection in instruction cache"
 
-  BranchTargetALU:
-    datatype: int
-    default: 0
-    paramtype: vlogparam
-    description: "Enables separate branch target ALU (increasing branch performance EXPERIMENTAL) [0/1]"
-
   WritebackStage:
     datatype: int
     default: 0
@@ -126,7 +120,6 @@ targets:
       - RegFile
       - ICache
       - ICacheECC
-      - BranchTargetALU
       - WritebackStage
       - BranchPredictor
       - SecureCVE2
