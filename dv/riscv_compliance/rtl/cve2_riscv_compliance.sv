@@ -24,7 +24,6 @@ module cve2_riscv_compliance (
   parameter cve2_pkg::regfile_e RegFile = cve2_pkg::RegFileFF;
   parameter bit ICache                  = 1'b0;
   parameter bit ICacheECC               = 1'b0;
-  parameter bit BranchPredictor         = 1'b0;
   parameter bit SecureIbex              = 1'b0;
   parameter bit ICacheScramble          = 1'b0;
 
@@ -121,7 +120,6 @@ module cve2_riscv_compliance (
       .RegFile         (RegFile         ),
       .ICache          (ICache          ),
       .ICacheECC       (ICacheECC       ),
-      .BranchPredictor (BranchPredictor ),
       .SecureIbex      (SecureIbex      ),
       .ICacheScramble  (ICacheScramble  ),
       .DmHaltAddr      (32'h00000000    ),
