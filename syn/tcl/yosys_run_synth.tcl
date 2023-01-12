@@ -16,10 +16,6 @@ if { $lr_synth_timing_run } {
 
 yosys "read_verilog -defer -sv ./rtl/prim_clock_gating.v $lr_synth_out_dir/generated/*.v"
 
-if { $lr_synth_cve2_branch_target_alu } {
-  yosys "chparam -set BranchTargetALU 1 $lr_synth_top_module"
-}
-
 if { $lr_synth_cve2_writeback_stage } {
   yosys "chparam -set WritebackStage 1 $lr_synth_top_module"
 }
