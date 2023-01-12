@@ -22,7 +22,6 @@ module cve2_riscv_compliance (
   parameter cve2_pkg::rv32m_e RV32M     = cve2_pkg::RV32MFast;
   parameter cve2_pkg::rv32b_e RV32B     = cve2_pkg::RV32BNone;
   parameter cve2_pkg::regfile_e RegFile = cve2_pkg::RegFileFF;
-  parameter bit BranchTargetALU         = 1'b0;
   parameter bit WritebackStage          = 1'b0;
   parameter bit ICache                  = 1'b0;
   parameter bit ICacheECC               = 1'b0;
@@ -121,7 +120,6 @@ module cve2_riscv_compliance (
       .RV32M           (RV32M           ),
       .RV32B           (RV32B           ),
       .RegFile         (RegFile         ),
-      .BranchTargetALU (BranchTargetALU ),
       .WritebackStage  (WritebackStage  ),
       .ICache          (ICache          ),
       .ICacheECC       (ICacheECC       ),
