@@ -54,12 +54,6 @@ parameters:
     paramtype: vlogparam
     description: "Path to a vmem file to initialize the RAM with"
 
-  WritebackStage:
-    datatype: int
-    paramtype: vlogparam
-    default: 0
-    description: "Enables third pipeline stage (EXPERIMENTAL)"
-
   SecureIbex:
     datatype: int
     default: 0
@@ -109,7 +103,6 @@ targets:
       - ICache
       - ICacheScramble
       - ICacheECC
-      - WritebackStage
       - SecureIbex
       - BranchPredictor
       - PMPEnable

@@ -44,7 +44,6 @@ module cve2_simple_system (
   parameter cve2_pkg::rv32m_e   RV32M                    = `RV32M;
   parameter cve2_pkg::rv32b_e   RV32B                    = `RV32B;
   parameter cve2_pkg::regfile_e RegFile                  = `RegFile;
-  parameter bit                 WritebackStage           = 1'b0;
   parameter bit                 ICache                   = 1'b0;
   parameter bit                 ICacheECC                = 1'b0;
   parameter bit                 BranchPredictor          = 1'b0;
@@ -174,7 +173,6 @@ module cve2_simple_system (
       .RegFile         ( RegFile         ),
       .ICache          ( ICache          ),
       .ICacheECC       ( ICacheECC       ),
-      .WritebackStage  ( WritebackStage  ),
       .BranchPredictor ( BranchPredictor ),
       .DmHaltAddr      ( 32'h00100000    ),
       .DmExceptionAddr ( 32'h00100000    )
