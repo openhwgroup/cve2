@@ -17,7 +17,6 @@ It describes the design in detail, discusses the verification approach and the r
    performance_counters
    exception_interrupts
    pmp
-   security
    debug
    tracer
    verification
