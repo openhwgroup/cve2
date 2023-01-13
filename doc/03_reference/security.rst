@@ -31,11 +31,6 @@ Note that data memory operations to unaligned addresses might result in multiple
 This in turn could expose information about the address as a timing side-channel.
 It is therefore recommended to stick to aligned memory accesses when using this feature for critical code regions.
 
-When Ibex is configured to use an instruction cache, stalls on instruction fetch can see variable latency (depending on whether or not they hit in the cache).
-Software that has need of data independent timing may wish to disable the instruction cache to avoid this or to carefully analyse execution to determine if variable latency introduced by the cache causes unacceptable leakage.
-The instruction cache is controlled by the **icache_enable** bit in the **cpuctrl** register.
-Precise details of fetch timing will depend upon the memory system Ibex is connected to.
-
 Dummy Instruction Insertion
 ---------------------------
 
@@ -81,13 +76,6 @@ When Ibex is configured with the SecureIbex parameter, ECC checking is added to 
 This can be useful to detect fault injection attacks since the register file covers a reasonably large area.
 No attempt is made to correct detected errors, but an internal major alert is signaled for the system to take action.
 
-ICache ECC
-----------
-
-The ICache can be configured with ECC protection.
-When an ECC error is detected a minor alert is signaled.
-See :ref:`icache-ecc` for more information.
-
 Hardened PC
 -----------
 
@@ -112,4 +100,4 @@ The shadow core executes using a delayed version of all inputs supplied to the m
 All outputs of the shadow core are compared against a delayed version of the outputs of the main core.
 Any mismatch between the two sets of outputs will trigger an internal major alert.
 
-Note that the register file and icache RAMs are not duplicated since these units are covered by ECC protection.
+Note that the register file is not duplicated since that unit is covered by ECC protection.

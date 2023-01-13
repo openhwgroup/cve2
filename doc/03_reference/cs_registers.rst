@@ -562,10 +562,6 @@ Other bit fields read as zero.
 |       |      | security features (SecureIbex parameter == 0), this field will   |
 |       |      | always read as zero.                                             |
 +-------+------+------------------------------------------------------------------+
-| 0     | WARL | **icache_enable:** Enable (1) or disable (0) the instruction     |
-|       |      | cache. If the instruction cache has not been configured (ICache  |
-|       |      | parameter == 0), this field will always read as zero.            |
-+-------+------+------------------------------------------------------------------+
 
 Security Feature Seed Register (secureseed)
 -------------------------------------------

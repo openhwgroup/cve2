@@ -9,7 +9,6 @@ It describes the design in detail, discusses the verification approach and the r
    :caption: In this section
 
    pipeline_details
-   icache
    instruction_fetch
    instruction_decode_execute
    load_store_unit

@@ -20,9 +20,6 @@ Instantiation Template
       .RV32E            ( 0                                ),
       .RV32M            ( cve2_pkg::RV32MFast              ),
       .RegFile          ( cve2_pkg::RegFileFF              ),
-      .ICache           ( 0                                ),
-      .ICacheECC        ( 0                                ),
-      .ICacheScramble   ( 0                                ),
       .BranchPrediction ( 0                                ),
       .SecureIbex       ( 0                                ),
       .RndCnstLfsrSeed  ( cve2_pkg::RndCnstLfsrSeedDefault ),
@@ -108,15 +105,6 @@ Parameters
 | ``WritebackStage``           | bit                 | 0          | *EXPERIMENTAL* - Enables third pipeline stage (writeback)             |
 |                              |                     |            | improving performance of loads and stores                             |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``ICache``                   | bit                 | 0          | *EXPERIMENTAL* Enable instruction cache instead of prefetch           |
-|                              |                     |            | buffer                                                                |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``ICacheECC``                | bit                 | 0          | *EXPERIMENTAL* Enable SECDED ECC protection in ICache (if             |
-|                              |                     |            | ICache == 1)                                                          |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``ICacheScramble``           | bit                 | 0          | *EXPERIMENTAL* Enabling this parameter replaces tag and data RAMs of  |
-|                              |                     |            |  ICache with scrambling RAM primitives.                               |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``BranchPrediction``         | bit                 | 0          | *EXPERIMENTAL* Enable Static branch prediction                        |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``SecureIbex``               | bit                 | 0          | *EXPERIMENTAL* Enable various additional features targeting           |
@@ -162,9 +150,6 @@ Interfaces
 | ``scan_rst_ni``            | 1                       | in  | Test controlled reset.  If DFT not     |
 |                            |                         |     | used, tie off to 1.                    |
 +----------------------------+-------------------------+-----+----------------------------------------+
-| ``ram_cfg_i``              | 10                      | in  | RAM configuration inputs, routed to    |
-|                            |                         |     | the icache RAMs                        |
-+----------------------------+-------------------------+-----+----------------------------------------+
 | ``hart_id_i``              | 32                      | in  | Hart ID, usually static, can be read   |
 |                            |                         |     | from :ref:`csr-mhartid` CSR            |
 +----------------------------+-------------------------+-----+----------------------------------------+
@@ -178,8 +163,6 @@ Interfaces
 +----------------------------+------------------------------------------------------------------------+
 | ``irq_*``                  | Interrupt inputs, see :ref:`exceptions-interrupts`                     |
 +----------------------------+-------------------------+-----+----------------------------------------+
-| ``scramble_*``             | Scrambling key interface, see :ref:`icache`                            |
-+----------------------------+------------------------------------------------------------------------+
 | ``debug_*``                | Debug interface, see :ref:`debug-support`                              |
 +----------------------------+------------------------------------------------------------------------+
 | ``crash_dump_o``           | A set of signals that can be captured on reset to aid crash debugging. |
