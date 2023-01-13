@@ -43,7 +43,7 @@ SRCS_SV ?=                              \
   $(SRC_DIR)/cve2_prefetch_buffer.sv    \
   $(SRC_DIR)/cve2_pmp.sv                \
   $(SRC_DIR)/cve2_register_file_ff.sv   \
-  $(SRC_DIR)/cve2_wb_stage.sv           \
+  $(SRC_DIR)/cve2_wb.sv                 \
   $(SRC_DIR)/cve2_core.sv               \
   $(SRC_DIR)/cve2_top.sv
 

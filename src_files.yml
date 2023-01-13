@@ -14,7 +14,7 @@ cve2:
     rtl/cve2_ex_block.sv,
     rtl/cve2_id_stage.sv,
     rtl/cve2_if_stage.sv,
-    rtl/cve2_wb_stage.sv,
+    rtl/cve2_wb.sv,
     rtl/cve2_load_store_unit.sv,
     rtl/cve2_multdiv_slow.sv,
     rtl/cve2_multdiv_fast.sv,

@@ -612,8 +612,8 @@ module cve2_core import cve2_pkg::*; #(
     .perf_store_o(perf_store)
   );
 
-  cve2_wb_stage #(
-  ) wb_stage_i (
+  cve2_wb #(
+  ) wb_i (
     .clk_i                   (clk_i),
     .rst_ni                  (rst_ni),
     .en_wb_i                 (en_wb),

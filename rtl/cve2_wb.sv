@@ -3,18 +3,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * Writeback Stage
+ * Writeback passthrough
  *
- * Writeback is an optional third pipeline stage. It writes data back to the register file that was
- * produced in the ID/EX stage or awaits a response to a load/store (LSU writes direct to register
- * file for load data). The writeback stage is not present therefore this acts as
+ * The writeback stage is not present therefore this module acts as
  * a simple passthrough to write data direct to the register file.
  */
 
 `include "prim_assert.sv"
 `include "dv_fcov_macros.svh"
 
-module cve2_wb_stage #(
+module cve2_wb #(
 ) (
   input  logic                     clk_i,
   input  logic                     rst_ni,
