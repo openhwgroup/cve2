@@ -5,8 +5,6 @@
 # Provide a convenient way to create a Verilog source of Ibex.
 # This is used by riscv-formal. See README.md for more details.
 
-CVE2_ENABLE_WB ?= 0
-
 # Name of the output file
 IBEX_OUT := ibex.v
 # Build folder name
@@ -74,7 +72,6 @@ $(GEN_V): $(OUTDIR)%.v: $(SRC_DIR)%.sv $(PKGS) | $(OUTDIR)
 $(IBEX_OUT): $(GEN_V) $(PRIM_CLOCK)
 	yosys -p "read_verilog $(PRIM_CLOCK) $(GEN_V)"                     \
 	      -p "chparam -set RV32M 0 cve2_top"                           \
-	      -p "chparam -set WritebackStage $(CVE2_ENABLE_WB) cve2_top"  \
 	      -p "synth -top cve2_top"                                     \
 	      -p "write_verilog $(IBEX_OUT)"
 
