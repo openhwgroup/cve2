@@ -15,7 +15,6 @@
 `include "dv_fcov_macros.svh"
 
 module cve2_wb_stage #(
-  parameter bit ResetAll       = 1'b0,
   parameter bit WritebackStage = 1'b0
 ) (
   input  logic                     clk_i,
@@ -95,7 +94,7 @@ module cve2_wb_stage #(
       end
     end
 
-    if (ResetAll) begin : g_wb_regs_ra
+    begin : g_wb_regs
       always_ff @(posedge clk_i or negedge rst_ni) begin
         if (!rst_ni) begin
           rf_we_wb_q      <= '0;
@@ -106,18 +105,6 @@ module cve2_wb_stage #(
           wb_compressed_q <= '0;
           wb_count_q      <= '0;
         end else if (en_wb_i) begin
-          rf_we_wb_q      <= rf_we_id_i;
-          rf_waddr_wb_q   <= rf_waddr_id_i;
-          rf_wdata_wb_q   <= rf_wdata_id_i;
-          wb_instr_type_q <= instr_type_wb_i;
-          wb_pc_q         <= pc_id_i;
-          wb_compressed_q <= instr_is_compressed_id_i;
-          wb_count_q      <= instr_perf_count_id_i;
-        end
-      end
-    end else begin : g_wb_regs_nr
-      always_ff @(posedge clk_i) begin
-        if (en_wb_i) begin
           rf_we_wb_q      <= rf_we_id_i;
           rf_waddr_wb_q   <= rf_waddr_id_i;
           rf_wdata_wb_q   <= rf_wdata_id_i;

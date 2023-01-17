@@ -127,7 +127,6 @@ module cve2_top import cve2_pkg::*; #(
 );
 
   localparam bit          Lockstep          = SecureIbex;
-  localparam bit          ResetAll          = Lockstep;
   localparam bit          DummyInstructions = SecureIbex;
   localparam bit          RegFileECC        = SecureIbex;
   // Icache parameters
@@ -248,7 +247,6 @@ module cve2_top import cve2_pkg::*; #(
     .DbgTriggerEn     (DbgTriggerEn),
     .DbgHwBreakNum    (DbgHwBreakNum),
     .WritebackStage   (WritebackStage),
-    .ResetAll         (ResetAll),
     .RndCnstLfsrSeed  (RndCnstLfsrSeed),
     .RndCnstLfsrPerm  (RndCnstLfsrPerm),
     .SecureIbex       (SecureIbex),
@@ -826,7 +824,6 @@ module cve2_top import cve2_pkg::*; #(
       .DbgTriggerEn     (DbgTriggerEn),
       .DbgHwBreakNum    (DbgHwBreakNum),
       .WritebackStage   (WritebackStage),
-      .ResetAll         (ResetAll),
       .RndCnstLfsrSeed  (RndCnstLfsrSeed),
       .RndCnstLfsrPerm  (RndCnstLfsrPerm),
       .SecureIbex       (SecureIbex),

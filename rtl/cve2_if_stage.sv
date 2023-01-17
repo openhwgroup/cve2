@@ -22,7 +22,6 @@ module cve2_if_stage import cve2_pkg::*; #(
   parameter int unsigned TagSizeECC        = IC_TAG_SIZE,
   parameter int unsigned LineSizeECC       = IC_LINE_SIZE,
   parameter bit          PCIncrCheck       = 1'b0,
-  parameter bit          ResetAll          = 1'b0,
   parameter lfsr_seed_t  RndCnstLfsrSeed   = RndCnstLfsrSeedDefault,
   parameter lfsr_perm_t  RndCnstLfsrPerm   = RndCnstLfsrPermDefault,
   parameter bit          BranchPredictor   = 1'b0
@@ -209,7 +208,6 @@ module cve2_if_stage import cve2_pkg::*; #(
     // Full I-Cache option
     cve2_icache #(
       .ICacheECC       (ICacheECC),
-      .ResetAll        (ResetAll),
       .BusSizeECC      (BusSizeECC),
       .TagSizeECC      (TagSizeECC),
       .LineSizeECC     (LineSizeECC)
@@ -258,7 +256,6 @@ module cve2_if_stage import cve2_pkg::*; #(
   end else begin : gen_prefetch_buffer
     // prefetch buffer, caches a fixed number of instructions
     cve2_prefetch_buffer #(
-      .ResetAll        (ResetAll)
     ) prefetch_buffer_i (
         .clk_i               ( clk_i                      ),
         .rst_ni              ( rst_ni                     ),
@@ -441,7 +438,7 @@ module cve2_if_stage import cve2_pkg::*; #(
   // IF-ID pipeline registers, frozen when the ID stage is stalled
   assign if_id_pipe_reg_we = instr_new_id_d;
 
-  if (ResetAll) begin : g_instr_rdata_ra
+  begin : g_instr_rdata
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (!rst_ni) begin
         instr_rdata_id_o         <= '0;
@@ -453,20 +450,6 @@ module cve2_if_stage import cve2_pkg::*; #(
         illegal_c_insn_id_o      <= '0;
         pc_id_o                  <= '0;
       end else if (if_id_pipe_reg_we) begin
-        instr_rdata_id_o         <= instr_out;
-        // To reduce fan-out and help timing from the instr_rdata_id flops they are replicated.
-        instr_rdata_alu_id_o     <= instr_out;
-        instr_fetch_err_o        <= instr_err_out;
-        instr_fetch_err_plus2_o  <= if_instr_err_plus2;
-        instr_rdata_c_id_o       <= if_instr_rdata[15:0];
-        instr_is_compressed_id_o <= instr_is_compressed_out;
-        illegal_c_insn_id_o      <= illegal_c_instr_out;
-        pc_id_o                  <= pc_if_o;
-      end
-    end
-  end else begin : g_instr_rdata_nr
-    always_ff @(posedge clk_i) begin
-      if (if_id_pipe_reg_we) begin
         instr_rdata_id_o         <= instr_out;
         // To reduce fan-out and help timing from the instr_rdata_id flops they are replicated.
         instr_rdata_alu_id_o     <= instr_out;
@@ -525,17 +508,11 @@ module cve2_if_stage import cve2_pkg::*; #(
     logic        predict_branch_taken_raw;
 
     // ID stages needs to know if branch was predicted taken so it can signal mispredicts
-    if (ResetAll) begin : g_bp_taken_ra
+    begin : g_bp_taken
       always_ff @(posedge clk_i or negedge rst_ni) begin
         if (!rst_ni) begin
           instr_bp_taken_q <= '0;
         end else if (if_id_pipe_reg_we) begin
-          instr_bp_taken_q <= instr_bp_taken_d;
-        end
-      end
-    end else begin : g_bp_taken_nr
-      always_ff @(posedge clk_i) begin
-        if (if_id_pipe_reg_we) begin
           instr_bp_taken_q <= instr_bp_taken_d;
         end
       end
@@ -562,21 +539,13 @@ module cve2_if_stage import cve2_pkg::*; #(
       end
     end
 
-    if (ResetAll) begin : g_instr_skid_ra
+    begin : g_instr_skid
       always_ff @(posedge clk_i or negedge rst_ni) begin
         if (!rst_ni) begin
           instr_skid_bp_taken_q <= '0;
           instr_skid_data_q     <= '0;
           instr_skid_addr_q     <= '0;
         end else if (instr_skid_en) begin
-          instr_skid_bp_taken_q <= predict_branch_taken;
-          instr_skid_data_q     <= fetch_rdata;
-          instr_skid_addr_q     <= fetch_addr;
-        end
-      end
-    end else begin : g_instr_skid_nr
-      always_ff @(posedge clk_i) begin
-        if (instr_skid_en) begin
           instr_skid_bp_taken_q <= predict_branch_taken;
           instr_skid_data_q     <= fetch_rdata;
           instr_skid_addr_q     <= fetch_addr;

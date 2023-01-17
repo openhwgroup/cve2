@@ -12,7 +12,6 @@
 
 module cve2_icache import cve2_pkg::*; #(
   parameter bit          ICacheECC       = 1'b0,
-  parameter bit          ResetAll        = 1'b0,
   parameter int unsigned BusSizeECC      = BUS_SIZE,
   parameter int unsigned TagSizeECC      = IC_TAG_SIZE,
   parameter int unsigned LineSizeECC     = IC_LINE_SIZE,
@@ -213,17 +212,11 @@ module cve2_icache import cve2_pkg::*; #(
 
   assign prefetch_addr_en    = branch_or_mispredict | lookup_grant_ic0;
 
-  if (ResetAll) begin : g_prefetch_addr_ra
+  begin : g_prefetch_addr
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (!rst_ni) begin
         prefetch_addr_q <= '0;
       end else if (prefetch_addr_en) begin
-        prefetch_addr_q <= prefetch_addr_d;
-      end
-    end
-  end else begin : g_prefetch_addr_nr
-    always_ff @(posedge clk_i) begin
-      if (prefetch_addr_en) begin
         prefetch_addr_q <= prefetch_addr_d;
       end
     end
@@ -337,19 +330,12 @@ module cve2_icache import cve2_pkg::*; #(
     end
   end
 
-  if (ResetAll) begin : g_lookup_addr_ra
+  begin : g_lookup_addr
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (!rst_ni) begin
         lookup_addr_ic1 <= '0;
         fill_in_ic1     <= '0;
       end else if (lookup_grant_ic0) begin
-        lookup_addr_ic1 <= lookup_addr_ic0[ADDR_W-1:IC_INDEX_HI+1];
-        fill_in_ic1     <= fill_alloc_sel;
-      end
-    end
-  end else begin : g_lookup_addr_nr
-    always_ff @(posedge clk_i) begin
-      if (lookup_grant_ic0) begin
         lookup_addr_ic1 <= lookup_addr_ic0[ADDR_W-1:IC_INDEX_HI+1];
         fill_in_ic1     <= fill_alloc_sel;
       end
@@ -467,7 +453,7 @@ module cve2_icache import cve2_pkg::*; #(
     end
 
     // The index is required in IC1 only when ECC is configured so is registered here
-    if (ResetAll) begin : g_lookup_ind_ra
+    begin : g_lookup_ind
       always_ff @(posedge clk_i or negedge rst_ni) begin
         if (!rst_ni) begin
           lookup_index_ic1 <= '0;
@@ -475,28 +461,15 @@ module cve2_icache import cve2_pkg::*; #(
           lookup_index_ic1 <= lookup_addr_ic0[IC_INDEX_HI-:IC_INDEX_W];
         end
       end
-    end else begin : g_lookup_ind_nr
-      always_ff @(posedge clk_i) begin
-        if (lookup_grant_ic0) begin
-          lookup_index_ic1 <= lookup_addr_ic0[IC_INDEX_HI-:IC_INDEX_W];
-        end
-      end
     end
 
     // Store the ways with errors to be invalidated
-    if (ResetAll) begin : g_ecc_correction_ra
+    begin : g_ecc_correction
       always_ff @(posedge clk_i or negedge rst_ni) begin
         if (!rst_ni) begin
           ecc_correction_ways_q  <= '0;
           ecc_correction_index_q <= '0;
         end else if (ecc_err_ic1) begin
-          ecc_correction_ways_q  <= ecc_correction_ways_d;
-          ecc_correction_index_q <= lookup_index_ic1;
-        end
-      end
-    end else begin : g_ecc_correction_nr
-      always_ff @(posedge clk_i) begin
-        if (ecc_err_ic1) begin
           ecc_correction_ways_q  <= ecc_correction_ways_d;
           ecc_correction_index_q <= lookup_index_ic1;
         end
@@ -781,17 +754,11 @@ module cve2_icache import cve2_pkg::*; #(
     assign fill_addr_en[fb]    = fill_alloc[fb];
     assign fill_way_en[fb]     = (lookup_valid_ic1 & fill_in_ic1[fb]);
 
-    if (ResetAll) begin : g_fill_addr_ra
+    begin : g_fill_addr
       always_ff @(posedge clk_i or negedge rst_ni) begin
         if (!rst_ni) begin
           fill_addr_q[fb] <= '0;
         end else if (fill_addr_en[fb]) begin
-          fill_addr_q[fb] <= lookup_addr_ic0;
-        end
-      end
-    end else begin : g_fill_addr_nr
-      always_ff @(posedge clk_i) begin
-        if (fill_addr_en[fb]) begin
           fill_addr_q[fb] <= lookup_addr_ic0;
         end
       end
@@ -831,17 +798,11 @@ module cve2_icache import cve2_pkg::*; #(
                                    (fill_rvd_arb[fb] & ~fill_hit_q[fb] &
                                     (fill_rvd_off[fb] == b[IC_LINE_BEATS_W-1:0]));
 
-      if (ResetAll) begin : g_fill_data_ra
+      begin : g_fill_data
         always_ff @(posedge clk_i or negedge rst_ni) begin
           if (!rst_ni) begin
             fill_data_q[fb][b*BUS_SIZE+:BUS_SIZE] <= '0;
           end else if (fill_data_en[fb][b]) begin
-            fill_data_q[fb][b*BUS_SIZE+:BUS_SIZE] <= fill_data_d[fb][b*BUS_SIZE+:BUS_SIZE];
-          end
-        end
-      end else begin : g_fill_data_nr
-        always_ff @(posedge clk_i) begin
-          if (fill_data_en[fb][b]) begin
             fill_data_q[fb][b*BUS_SIZE+:BUS_SIZE] <= fill_data_d[fb][b*BUS_SIZE+:BUS_SIZE];
           end
         end
@@ -940,19 +901,12 @@ module cve2_icache import cve2_pkg::*; #(
 
   assign skid_en     = data_valid & (ready_i | skid_ready);
 
-  if (ResetAll) begin : g_skid_data_ra
+  begin : g_skid_data
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (!rst_ni) begin
         skid_data_q <= '0;
         skid_err_q  <= '0;
       end else if (skid_en) begin
-        skid_data_q <= skid_data_d;
-        skid_err_q  <= output_err;
-      end
-    end
-  end else begin : g_skid_data_nr
-    always_ff @(posedge clk_i) begin
-      if (skid_en) begin
         skid_data_q <= skid_data_d;
         skid_err_q  <= output_err;
       end
@@ -1016,17 +970,11 @@ module cve2_icache import cve2_pkg::*; #(
                          branch_mispredict_i ? mispredict_addr_i[31:1] :
                                                output_addr_incr;
 
-  if (ResetAll) begin : g_output_addr_ra
+  begin : g_output_addr
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (!rst_ni) begin
         output_addr_q <= '0;
       end else if (output_addr_en) begin
-        output_addr_q <= output_addr_d;
-      end
-    end
-  end else begin : g_output_addr_nr
-    always_ff @(posedge clk_i) begin
-      if (output_addr_en) begin
         output_addr_q <= output_addr_d;
       end
     end
@@ -1106,17 +1054,11 @@ module cve2_icache import cve2_pkg::*; #(
     end
   end
 
-  if (ResetAll) begin : g_inval_index_ra
+  begin : g_inval_index
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (!rst_ni) begin
         inval_index_q <= '0;
       end else if (inval_prog_d) begin
-        inval_index_q <= inval_index_d;
-      end
-    end
-  end else begin : g_inval_index_nr
-    always_ff @(posedge clk_i) begin
-      if (inval_prog_d) begin
         inval_index_q <= inval_index_d;
       end
     end
