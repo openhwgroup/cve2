@@ -37,7 +37,6 @@ module cve2_core import cve2_pkg::*; #(
   parameter bit          SecureIbex        = 1'b0,
   parameter bit          DummyInstructions = 1'b0,
   parameter bit          RegFileECC        = 1'b0,
-  parameter int unsigned RegFileDataWidth  = 32,
   parameter int unsigned DmHaltAddr        = 32'h1A110800,
   parameter int unsigned DmExceptionAddr   = 32'h1A110808
 ) (
@@ -73,9 +72,9 @@ module cve2_core import cve2_pkg::*; #(
   output logic [4:0]                   rf_raddr_b_o,
   output logic [4:0]                   rf_waddr_wb_o,
   output logic                         rf_we_wb_o,
-  output logic [RegFileDataWidth-1:0]  rf_wdata_wb_ecc_o,
-  input  logic [RegFileDataWidth-1:0]  rf_rdata_a_ecc_i,
-  input  logic [RegFileDataWidth-1:0]  rf_rdata_b_ecc_i,
+  output logic [31:0]  rf_wdata_wb_ecc_o,
+  input  logic [31:0]  rf_rdata_a_ecc_i,
+  input  logic [31:0]  rf_rdata_b_ecc_i,
 
   // RAMs interface
   output logic [IC_NUM_WAYS-1:0]       ic_tag_req_o,

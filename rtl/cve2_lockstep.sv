@@ -34,7 +34,6 @@ module cve2_lockstep import cve2_pkg::*; #(
   parameter bit          SecureIbex        = 1'b0,
   parameter bit          DummyInstructions = 1'b0,
   parameter bit          RegFileECC        = 1'b0,
-  parameter int unsigned RegFileDataWidth  = 32,
   parameter int unsigned DmHaltAddr        = 32'h1A110800,
   parameter int unsigned DmExceptionAddr   = 32'h1A110808
 ) (
@@ -69,9 +68,9 @@ module cve2_lockstep import cve2_pkg::*; #(
   input  logic [4:0]                   rf_raddr_b_i,
   input  logic [4:0]                   rf_waddr_wb_i,
   input  logic                         rf_we_wb_i,
-  input  logic [RegFileDataWidth-1:0]  rf_wdata_wb_ecc_i,
-  input  logic [RegFileDataWidth-1:0]  rf_rdata_a_ecc_i,
-  input  logic [RegFileDataWidth-1:0]  rf_rdata_b_ecc_i,
+  input  logic [31:0]  rf_wdata_wb_ecc_i,
+  input  logic [31:0]  rf_rdata_a_ecc_i,
+  input  logic [31:0]  rf_rdata_b_ecc_i,
 
   input  logic [IC_NUM_WAYS-1:0]       ic_tag_req_i,
   input  logic                         ic_tag_write_i,
@@ -176,8 +175,8 @@ module cve2_lockstep import cve2_pkg::*; #(
     logic                        data_rvalid;
     logic [31:0]                 data_rdata;
     logic                        data_err;
-    logic [RegFileDataWidth-1:0] rf_rdata_a_ecc;
-    logic [RegFileDataWidth-1:0] rf_rdata_b_ecc;
+    logic [31:0] rf_rdata_a_ecc;
+    logic [31:0] rf_rdata_b_ecc;
     logic                        irq_software;
     logic                        irq_timer;
     logic                        irq_external;
@@ -289,7 +288,7 @@ module cve2_lockstep import cve2_pkg::*; #(
     logic [4:0]                  rf_raddr_b;
     logic [4:0]                  rf_waddr_wb;
     logic                        rf_we_wb;
-    logic [RegFileDataWidth-1:0] rf_wdata_wb_ecc;
+    logic [31:0] rf_wdata_wb_ecc;
     logic [IC_NUM_WAYS-1:0]      ic_tag_req;
     logic                        ic_tag_write;
     logic [IC_INDEX_W-1:0]       ic_tag_addr;
@@ -376,7 +375,6 @@ module cve2_lockstep import cve2_pkg::*; #(
     .SecureIbex        ( SecureIbex        ),
     .DummyInstructions ( DummyInstructions ),
     .RegFileECC        ( RegFileECC        ),
-    .RegFileDataWidth  ( RegFileDataWidth  ),
     .DmHaltAddr        ( DmHaltAddr        ),
     .DmExceptionAddr   ( DmExceptionAddr   )
   ) u_shadow_core (

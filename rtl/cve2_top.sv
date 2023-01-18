@@ -137,7 +137,6 @@ module cve2_top import cve2_pkg::*; #(
   localparam bit          ResetAll          = Lockstep;
   localparam bit          DummyInstructions = SecureIbex;
   localparam bit          RegFileECC        = SecureIbex;
-  localparam int unsigned RegFileDataWidth  = RegFileECC ? 32 + 7 : 32;
   // Icache parameters
   localparam int unsigned BusSizeECC        = ICacheECC ? (BUS_SIZE + 7) : BUS_SIZE;
   localparam int unsigned LineSizeECC       = BusSizeECC * IC_LINE_BEATS;
@@ -157,9 +156,9 @@ module cve2_top import cve2_pkg::*; #(
   logic [4:0]                  rf_raddr_b;
   logic [4:0]                  rf_waddr_wb;
   logic                        rf_we_wb;
-  logic [RegFileDataWidth-1:0] rf_wdata_wb_ecc;
-  logic [RegFileDataWidth-1:0] rf_rdata_a_ecc, rf_rdata_a_ecc_buf;
-  logic [RegFileDataWidth-1:0] rf_rdata_b_ecc, rf_rdata_b_ecc_buf;
+  logic [31:0] rf_wdata_wb_ecc;
+  logic [31:0] rf_rdata_a_ecc, rf_rdata_a_ecc_buf;
+  logic [31:0] rf_rdata_b_ecc, rf_rdata_b_ecc_buf;
   // Core <-> RAMs signals
   logic [IC_NUM_WAYS-1:0]      ic_tag_req;
   logic                        ic_tag_write;
@@ -216,12 +215,12 @@ module cve2_top import cve2_pkg::*; #(
     .out_o(fetch_enable_buf)
   );
 
-  prim_buf #(.Width(RegFileDataWidth)) u_rf_rdata_a_ecc_buf (
+  prim_buf #(.Width(32)) u_rf_rdata_a_ecc_buf (
     .in_i (rf_rdata_a_ecc),
     .out_o(rf_rdata_a_ecc_buf)
   );
 
-  prim_buf #(.Width(RegFileDataWidth)) u_rf_rdata_b_ecc_buf (
+  prim_buf #(.Width(32)) u_rf_rdata_b_ecc_buf (
     .in_i (rf_rdata_b_ecc),
     .out_o(rf_rdata_b_ecc_buf)
   );
@@ -251,7 +250,6 @@ module cve2_top import cve2_pkg::*; #(
     .SecureIbex       (SecureIbex),
     .DummyInstructions(DummyInstructions),
     .RegFileECC       (RegFileECC),
-    .RegFileDataWidth (RegFileDataWidth),
     .DmHaltAddr       (DmHaltAddr),
     .DmExceptionAddr  (DmExceptionAddr)
   ) u_cve2_core (
@@ -354,9 +352,9 @@ module cve2_top import cve2_pkg::*; #(
   if (RegFile == RegFileFF) begin : gen_regfile_ff
     cve2_register_file_ff #(
       .RV32E            (RV32E),
-      .DataWidth        (RegFileDataWidth),
+      .DataWidth        (32),
       .DummyInstructions(DummyInstructions),
-      .WordZeroVal      (RegFileDataWidth'(prim_secded_pkg::SecdedInv3932ZeroWord))
+      .WordZeroVal      (32'(prim_secded_pkg::SecdedInv3932ZeroWord))
     ) register_file_i (
       .clk_i (clk),
       .rst_ni(rst_ni),
@@ -375,9 +373,9 @@ module cve2_top import cve2_pkg::*; #(
   end else if (RegFile == RegFileFPGA) begin : gen_regfile_fpga
     cve2_register_file_fpga #(
       .RV32E            (RV32E),
-      .DataWidth        (RegFileDataWidth),
+      .DataWidth        (32),
       .DummyInstructions(DummyInstructions),
-      .WordZeroVal      (RegFileDataWidth'(prim_secded_pkg::SecdedInv3932ZeroWord))
+      .WordZeroVal      (32'(prim_secded_pkg::SecdedInv3932ZeroWord))
     ) register_file_i (
       .clk_i (clk),
       .rst_ni(rst_ni),
@@ -396,9 +394,9 @@ module cve2_top import cve2_pkg::*; #(
   end else if (RegFile == RegFileLatch) begin : gen_regfile_latch
     cve2_register_file_latch #(
       .RV32E            (RV32E),
-      .DataWidth        (RegFileDataWidth),
+      .DataWidth        (32),
       .DummyInstructions(DummyInstructions),
-      .WordZeroVal      (RegFileDataWidth'(prim_secded_pkg::SecdedInv3932ZeroWord))
+      .WordZeroVal      (32'(prim_secded_pkg::SecdedInv3932ZeroWord))
     ) register_file_i (
       .clk_i (clk),
       .rst_ni(rst_ni),
@@ -653,9 +651,9 @@ module cve2_top import cve2_pkg::*; #(
     logic [4:0]                   rf_raddr_b_local;
     logic [4:0]                   rf_waddr_wb_local;
     logic                         rf_we_wb_local;
-    logic [RegFileDataWidth-1:0]  rf_wdata_wb_ecc_local;
-    logic [RegFileDataWidth-1:0]  rf_rdata_a_ecc_local;
-    logic [RegFileDataWidth-1:0]  rf_rdata_b_ecc_local;
+    logic [31:0]  rf_wdata_wb_ecc_local;
+    logic [31:0]  rf_rdata_a_ecc_local;
+    logic [31:0]  rf_rdata_b_ecc_local;
 
     logic [IC_NUM_WAYS-1:0]       ic_tag_req_local;
     logic                         ic_tag_write_local;
@@ -831,7 +829,6 @@ module cve2_top import cve2_pkg::*; #(
       .SecureIbex       (SecureIbex),
       .DummyInstructions(DummyInstructions),
       .RegFileECC       (RegFileECC),
-      .RegFileDataWidth (RegFileDataWidth),
       .DmHaltAddr       (DmHaltAddr),
       .DmExceptionAddr  (DmExceptionAddr)
     ) u_cve2_lockstep (
