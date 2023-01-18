@@ -66,15 +66,16 @@ Other blocks use the ALU for the following tasks:
 
 Bit-Manipulation Extension
   Support for the `RISC-V Bit-Manipulation Extension version 1.0.0 <https://github.com/riscv/riscv-bitmanip/releases/download/1.0.0/bitmanip-1.0.0-38-g865e7a7.pdf>`_ and `draft version 0.93 from January 10, 2021 <https://github.com/riscv/riscv-bitmanip/blob/master/bitmanip-0.93.pdf>`_ is optional. [#B_draft]_
-  It can be enabled via the enumerated parameter ``RV32B`` defined in :file:`rtl/cve2_pkg.sv`.
+  It can be enabled via the enumerated local parameter ``RV32B`` defined in :file:`rtl/cve2_pkg.sv`.
   By default, this parameter is set to "cve2_pkg::RV32BNone" to disable the bit-manipulation extension.
+  RVB is currently not maintained and activation should be done at the users responsibility.
 
   There are three versions of the bit-manipulation extension available:
   The balanced version comprises a set of sub-extensions aiming for good benefits at a reasonable area overhead.
-  It can be selected by setting the ``RV32B`` parameter to "cve2_pkg::RV32BBalanced".
+  It can be selected by setting the ``RV32B`` local parameter to "cve2_pkg::RV32BBalanced".
   The OTEarlGrey version comprises all sub-extensions except for the Zbe.
-  This version can be selected by setting the ``RV32B`` parameter to "cve2_pkg::RV32BOTEarlGrey".
-  The full version comprises all sub-extensions and can be selected by setting the ``RV32B`` parameter to "cve2_pkg::RV32BFull".
+  This version can be selected by setting the ``RV32B`` local parameter to "cve2_pkg::RV32BOTEarlGrey".
+  The full version comprises all sub-extensions and can be selected by setting the ``RV32B`` local parameter to "cve2_pkg::RV32BFull".
   The following table gives an overview of which sub-extensions are implemented in each version and of which instructions are implemented as multi-cycle instructions.
   Multi-cycle instructions are completed in 2 cycles.
   All remaining instructions complete in a single cycle.

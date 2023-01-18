@@ -17,7 +17,6 @@ module cve2_top import cve2_pkg::*; #(
   parameter int unsigned MHPMCounterWidth = 40,
   parameter bit          RV32E            = 1'b0,
   parameter rv32m_e      RV32M            = RV32MFast,
-  parameter rv32b_e      RV32B            = RV32BNone,
   parameter regfile_e    RegFile          = RegFileFF,
   parameter bit          WritebackStage   = 1'b0,
   parameter bit          ICache           = 1'b0,
@@ -147,6 +146,9 @@ module cve2_top import cve2_pkg::*; #(
   // Trigger support
   localparam bit          DbgTriggerEn     = 1'b1;
   localparam int unsigned DbgHwBreakNum    = 1;
+
+  // Bit manipulation extension
+  localparam rv32b_e      RV32B            = RV32BNone;
 
   // Clock signals
   logic                        clk;

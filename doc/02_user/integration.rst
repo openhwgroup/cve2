@@ -19,7 +19,6 @@ Instantiation Template
       .MHPMCounterWidth ( 40                               ),
       .RV32E            ( 0                                ),
       .RV32M            ( cve2_pkg::RV32MFast              ),
-      .RV32B            ( cve2_pkg::RV32BNone              ),
       .RegFile          ( cve2_pkg::RegFileFF              ),
       .ICache           ( 0                                ),
       .ICacheECC        ( 0                                ),
@@ -101,12 +100,6 @@ Parameters
 |                              |                     |            | "cve2_pkg::RV32MFast": 3-4 cycle multiplier, iterative divider        |
 |                              |                     |            | "cve2_pkg::RV32MSingleCycle": 1-2 cycle multiplier, iterative divider |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``RV32B``                    | cve2_pkg::rv32b_e   | RV32BNone  | B(itmanipulation) extension select:                                   |
-|                              |                     |            | "cve2_pkg::RV32BNone": No B-extension                                 |
-|                              |                     |            | "cve2_pkg::RV32BBalanced": Sub-extensions Zba, Zbb, Zbs, Zbf and Zbt  |
-|                              |                     |            | "cve2_pkg::RV32BOTEarlGrey": All sub-extensions except Zbe            |
-|                              |                     |            | "cve2_pkg::RV32BFull": All sub-extensions                             |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``RegFile``                  | cve2_pkg::regfile_e | RegFileFF  | Register file implementation select:                                  |
 |                              |                     |            | "cve2_pkg::RegFileFF": Generic flip-flop-based register file          |
 |                              |                     |            | "cve2_pkg::RegFileFPGA": Register file for FPGA targets               |
@@ -143,7 +136,7 @@ Parameters
 
 Any parameter marked *EXPERIMENTAL* when enabled is not verified to the same standard as the rest of the Ibex core.
 
-Note that Ibex uses SystemVerilog enum parameters e.g. for ``RV32M`` and ``RV32B``.
+Note that Ibex uses SystemVerilog enum parameters e.g. for ``RV32M``.
 This is well supported by most tools but some care is needed when overriding these parameters at the top level:
 
 * Synopsys VCS does not support overriding enum and string parameters at the top level via command line.
