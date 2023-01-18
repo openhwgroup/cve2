@@ -24,8 +24,6 @@ module cve2_top import cve2_pkg::*; #(
   parameter bit          ICache           = 1'b0,
   parameter bit          ICacheECC        = 1'b0,
   parameter bit          BranchPredictor  = 1'b0,
-  parameter bit          DbgTriggerEn     = 1'b0,
-  parameter int unsigned DbgHwBreakNum    = 1,
   parameter bit          SecureIbex       = 1'b0,
   parameter bit          ICacheScramble   = 1'b0,
   parameter lfsr_seed_t  RndCnstLfsrSeed  = RndCnstLfsrSeedDefault,
@@ -147,6 +145,10 @@ module cve2_top import cve2_pkg::*; #(
   localparam bit          PMPEnable        = 1'b0;
   localparam int unsigned PMPGranularity   = 0;
   localparam int unsigned PMPNumRegions    = 4;
+
+  // Trigger support
+  localparam bit          DbgTriggerEn     = 1'b1;
+  localparam int unsigned DbgHwBreakNum    = 1;
 
   // Clock signals
   logic                        clk;

@@ -28,7 +28,6 @@ Instantiation Template
       .SecureIbex       ( 0                                ),
       .RndCnstLfsrSeed  ( cve2_pkg::RndCnstLfsrSeedDefault ),
       .RndCnstLfsrPerm  ( cve2_pkg::RndCnstLfsrPermDefault ),
-      .DbgTriggerEn     ( 0                                ),
       .DmHaltAddr       ( 32'h1A110800                     ),
       .DmExceptionAddr  ( 32'h1A110808                     )
   ) u_top (
@@ -139,8 +138,6 @@ Parameters
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``RndCnstLfsrPerm``          | lfsr_perm_t         | see above  | Set the permutation applied to the output of the LFSR used to         |
 |                              |                     |            | generate dummy instructions (only relevant when SecureIbex == 1'b1)   |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``DbgTriggerEn``             | bit                 | 0          | Enable debug trigger support (one trigger only)                       |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``DmHaltAddr``               | int                 | 0x1A110800 | Address to jump to when entering Debug Mode                           |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
