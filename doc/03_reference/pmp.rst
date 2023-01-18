@@ -4,10 +4,10 @@ Physical Memory Protection (PMP)
 ================================
 
 The Physical Memory Protection (PMP) unit implements region-based memory access checking in-accordance with the RISC-V Privileged Specification, version 1.11 and includes the Trusted Execution Environment (TEE) working group proposal `PMP Enhancements for memory access and execution prevention on Machine mode (Smepmp) version 0.9.3 <https://github.com/riscv/riscv-tee/blob/61455747230a26002d741f64879dd78cc9689323/Smepmp/Smepmp.pdf>`_.
-The following configuration parameters are available to control PMP checking:
+The following local parameters are available to control PMP checking:
 
 +----------------+---------------+----------------------------------------------------------+
-| Parameter      | Default value | Description                                              |
+| localparam     | Default value | Description                                              |
 +================+===============+==========================================================+
 | PMPEnable      | 0             | PMP support enabled                                      |
 +----------------+---------------+----------------------------------------------------------+

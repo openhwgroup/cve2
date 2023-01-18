@@ -7,9 +7,6 @@
  */
 
 module cve2_top_tracing import cve2_pkg::*; #(
-  parameter bit          PMPEnable        = 1'b0,
-  parameter int unsigned PMPGranularity   = 0,
-  parameter int unsigned PMPNumRegions    = 4,
   parameter int unsigned MHPMCounterNum   = 0,
   parameter int unsigned MHPMCounterWidth = 40,
   parameter bit          RV32E            = 1'b0,
@@ -137,9 +134,6 @@ module cve2_top_tracing import cve2_pkg::*; #(
   assign unused_rvfi_ext_mcycle = rvfi_ext_mcycle;
 
   cve2_top #(
-    .PMPEnable        ( PMPEnable        ),
-    .PMPGranularity   ( PMPGranularity   ),
-    .PMPNumRegions    ( PMPNumRegions    ),
     .MHPMCounterNum   ( MHPMCounterNum   ),
     .MHPMCounterWidth ( MHPMCounterWidth ),
     .RV32E            ( RV32E            ),

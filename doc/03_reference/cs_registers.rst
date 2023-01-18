@@ -329,7 +329,7 @@ Reset Value: ``0x0000_0000_0000_0000``
 Note that the reset value means PMP behavior out of reset matches the RISC-V Privileged Architecture.
 A write to ``mseccfg`` is required to change it.
 Note ``mseccfgh`` reads as all 0s and ignores all writes.
-Any access to ``mseccfg`` or ``mseccfgh`` when using an Ibex configuration without PMP (``PMPEnable`` is 0) will trigger an illegal instruction exception.
+Any access to ``mseccfg`` or ``mseccfgh`` when using an Ibex configuration without PMP (localparam ``PMPEnable`` set to 0) will trigger an illegal instruction exception.
 
 .. _csr-tselect:
 

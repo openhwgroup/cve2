@@ -13,9 +13,6 @@
  * Top level module of the ibex RISC-V core
  */
 module cve2_top import cve2_pkg::*; #(
-  parameter bit          PMPEnable        = 1'b0,
-  parameter int unsigned PMPGranularity   = 0,
-  parameter int unsigned PMPNumRegions    = 4,
   parameter int unsigned MHPMCounterNum   = 0,
   parameter int unsigned MHPMCounterWidth = 40,
   parameter bit          RV32E            = 1'b0,
@@ -145,6 +142,11 @@ module cve2_top import cve2_pkg::*; #(
   // Scrambling Parameter
   localparam int unsigned NumAddrScrRounds  = ICacheScramble ? 2 : 0;
   localparam int unsigned NumDiffRounds     = NumAddrScrRounds;
+
+  // Physical Memory Protection
+  localparam bit          PMPEnable        = 1'b0;
+  localparam int unsigned PMPGranularity   = 0;
+  localparam int unsigned PMPNumRegions    = 4;
 
   // Clock signals
   logic                        clk;
