@@ -17,7 +17,6 @@ module cve2_top import cve2_pkg::*; #(
   parameter int unsigned MHPMCounterWidth = 40,
   parameter bit          RV32E            = 1'b0,
   parameter rv32m_e      RV32M            = RV32MFast,
-  parameter regfile_e    RegFile          = RegFileFF,
   parameter bit          WritebackStage   = 1'b0,
   parameter bit          BranchPredictor  = 1'b0,
   parameter int unsigned DmHaltAddr       = 32'h1A110800,
@@ -130,14 +129,6 @@ module cve2_top import cve2_pkg::*; #(
   logic                        core_busy_d, core_busy_q;
   logic                        clock_en;
   logic                        irq_pending;
-  // Core <-> Register file signals
-  logic [4:0]                  rf_raddr_a;
-  logic [4:0]                  rf_raddr_b;
-  logic [4:0]                  rf_waddr_wb;
-  logic                        rf_we_wb;
-  logic [31:0] rf_wdata_wb_ecc;
-  logic [31:0] rf_rdata_a_ecc, rf_rdata_a_ecc_buf;
-  logic [31:0] rf_rdata_b_ecc, rf_rdata_b_ecc_buf;
   // Alert signals
   logic                        core_alert_major, core_alert_minor;
 
@@ -166,16 +157,6 @@ module cve2_top import cve2_pkg::*; #(
   ////////////////////////
   // Core instantiation //
   ////////////////////////
-
-  prim_buf #(.Width(32)) u_rf_rdata_a_ecc_buf (
-    .in_i (rf_rdata_a_ecc),
-    .out_o(rf_rdata_a_ecc_buf)
-  );
-
-  prim_buf #(.Width(32)) u_rf_rdata_b_ecc_buf (
-    .in_i (rf_rdata_b_ecc),
-    .out_o(rf_rdata_b_ecc_buf)
-  );
 
   cve2_core #(
     .PMPEnable        (PMPEnable),
@@ -215,14 +196,6 @@ module cve2_top import cve2_pkg::*; #(
     .data_wdata_o,
     .data_rdata_i,
     .data_err_i,
-
-    .rf_raddr_a_o     (rf_raddr_a),
-    .rf_raddr_b_o     (rf_raddr_b),
-    .rf_waddr_wb_o    (rf_waddr_wb),
-    .rf_we_wb_o       (rf_we_wb),
-    .rf_wdata_wb_ecc_o(rf_wdata_wb_ecc),
-    .rf_rdata_a_ecc_i (rf_rdata_a_ecc), //_buf),
-    .rf_rdata_b_ecc_i (rf_rdata_b_ecc), //_buf),
 
     .irq_software_i,
     .irq_timer_i,
@@ -269,69 +242,6 @@ module cve2_top import cve2_pkg::*; #(
     .core_busy_o   (core_busy_d)
   );
 
-  /////////////////////////////////
-  // Register file Instantiation //
-  /////////////////////////////////
-
-  if (RegFile == RegFileFF) begin : gen_regfile_ff
-    cve2_register_file_ff #(
-      .RV32E            (RV32E),
-      .DataWidth        (32),
-      .WordZeroVal      (32'(prim_secded_pkg::SecdedInv3932ZeroWord))
-    ) register_file_i (
-      .clk_i (clk),
-      .rst_ni(rst_ni),
-
-      .test_en_i       (test_en_i),
-
-      .raddr_a_i(rf_raddr_a),
-      .rdata_a_o(rf_rdata_a_ecc),
-      .raddr_b_i(rf_raddr_b),
-      .rdata_b_o(rf_rdata_b_ecc),
-      .waddr_a_i(rf_waddr_wb),
-      .wdata_a_i(rf_wdata_wb_ecc),
-      .we_a_i   (rf_we_wb)
-    );
-  end else if (RegFile == RegFileFPGA) begin : gen_regfile_fpga
-    cve2_register_file_fpga #(
-      .RV32E            (RV32E),
-      .DataWidth        (32),
-      .WordZeroVal      (32'(prim_secded_pkg::SecdedInv3932ZeroWord))
-    ) register_file_i (
-      .clk_i (clk),
-      .rst_ni(rst_ni),
-
-      .test_en_i       (test_en_i),
-
-      .raddr_a_i(rf_raddr_a),
-      .rdata_a_o(rf_rdata_a_ecc),
-      .raddr_b_i(rf_raddr_b),
-      .rdata_b_o(rf_rdata_b_ecc),
-      .waddr_a_i(rf_waddr_wb),
-      .wdata_a_i(rf_wdata_wb_ecc),
-      .we_a_i   (rf_we_wb)
-    );
-  end else if (RegFile == RegFileLatch) begin : gen_regfile_latch
-    cve2_register_file_latch #(
-      .RV32E            (RV32E),
-      .DataWidth        (32),
-      .WordZeroVal      (32'(prim_secded_pkg::SecdedInv3932ZeroWord))
-    ) register_file_i (
-      .clk_i (clk),
-      .rst_ni(rst_ni),
-
-      .test_en_i       (test_en_i),
-
-      .raddr_a_i(rf_raddr_a),
-      .rdata_a_o(rf_rdata_a_ecc),
-      .raddr_b_i(rf_raddr_b),
-      .rdata_b_o(rf_rdata_b_ecc),
-      .waddr_a_i(rf_waddr_wb),
-      .wdata_a_i(rf_wdata_wb_ecc),
-      .we_a_i   (rf_we_wb)
-    );
-  end
-
   ////////////////////////
   // Rams Instantiation //
   ////////////////////////
@@ -345,10 +255,6 @@ module cve2_top import cve2_pkg::*; #(
     assign unused_ram_inputs = (|NumAddrScrRounds);
 
   end
-
-  assign alert_major_internal_o = core_alert_major;
-  assign alert_major_bus_o      = 1'b0;
-  assign alert_minor_o          = core_alert_minor;
 
   // X checks for top-level outputs
   `ASSERT_KNOWN(IbexInstrReqX, instr_req_o)

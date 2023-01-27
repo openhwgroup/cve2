@@ -54,15 +54,6 @@ module cve2_core import cve2_pkg::*; #(
   input  logic [31:0]                  data_rdata_i,
   input  logic                         data_err_i,
 
-  // Register file interface
-  output logic [4:0]                   rf_raddr_a_o,
-  output logic [4:0]                   rf_raddr_b_o,
-  output logic [4:0]                   rf_waddr_wb_o,
-  output logic                         rf_we_wb_o,
-  output logic [31:0]  rf_wdata_wb_ecc_o,
-  input  logic [31:0]  rf_rdata_a_ecc_i,
-  input  logic [31:0]  rf_rdata_b_ecc_i,
-
   // Interrupt inputs
   input  logic                         irq_software_i,
   input  logic                         irq_timer_i,
@@ -180,7 +171,6 @@ module cve2_core import cve2_pkg::*; #(
   logic [31:0] rf_wdata_lsu;
   logic        rf_we_wb;
   logic        rf_we_lsu;
-  logic        rf_ecc_err_comb;
 
   logic [4:0]  rf_waddr_id;
   logic [31:0] rf_wdata_id;
@@ -678,20 +668,6 @@ module cve2_core import cve2_pkg::*; #(
   assign rf_we_wb_o       = rf_we_wb;
   assign rf_raddr_b_o     = rf_raddr_b;
 
-  begin : gen_no_regfile_ecc
-    logic unused_rf_ren_a, unused_rf_ren_b;
-    logic unused_rf_rd_a_wb_match, unused_rf_rd_b_wb_match;
-
-    assign unused_rf_ren_a         = rf_ren_a;
-    assign unused_rf_ren_b         = rf_ren_b;
-    assign unused_rf_rd_a_wb_match = rf_rd_a_wb_match;
-    assign unused_rf_rd_b_wb_match = rf_rd_b_wb_match;
-    assign rf_wdata_wb_ecc_o       = rf_wdata_wb;
-    assign rf_rdata_a              = rf_rdata_a_ecc_i;
-    assign rf_rdata_b              = rf_rdata_b_ecc_i;
-    assign rf_ecc_err_comb         = 1'b0;
-  end
-
   ///////////////////////
   // Crash dump output //
   ///////////////////////
@@ -707,9 +683,6 @@ module cve2_core import cve2_pkg::*; #(
 
   // Minor alert - core is in a recoverable state
   assign alert_minor_o = 1'b0;
-
-  // Major alert - core is unrecoverable
-  assign alert_major_o = rf_ecc_err_comb;
 
   // Explict INC_ASSERT block to avoid unused signal lint warnings were asserts are not included
   `ifdef INC_ASSERT
@@ -753,8 +726,26 @@ module cve2_core import cve2_pkg::*; #(
   ////////////////////////
   // RF (Register File) //
   ////////////////////////
-`ifdef RVFI
-`endif
+  begin : gen_regfile_ff
+    cve2_register_file_ff #(
+      .RV32E            (RV32E),
+      .DataWidth        (32),
+      .WordZeroVal      (32'(prim_secded_pkg::SecdedInv3932ZeroWord))
+    ) register_file_i (
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
+
+      .test_en_i       (test_en_i),
+
+      .raddr_a_i(rf_raddr_a),
+      .rdata_a_o(rf_rdata_a),
+      .raddr_b_i(rf_raddr_b),
+      .rdata_b_o(rf_rdata_b),
+      .waddr_a_i(rf_waddr_wb),
+      .wdata_a_i(rf_wdata_wb),
+      .we_a_i   (rf_we_wb)
+    );
+  end
 
 
   /////////////////////////////////////////

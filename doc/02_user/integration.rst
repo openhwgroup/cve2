@@ -18,7 +18,6 @@ Instantiation Template
       .MHPMCounterWidth ( 40                               ),
       .RV32E            ( 0                                ),
       .RV32M            ( cve2_pkg::RV32MFast              ),
-      .RegFile          ( cve2_pkg::RegFileFF              ),
       .BranchPrediction ( 0                                ),
       .RndCnstLfsrSeed  ( cve2_pkg::RndCnstLfsrSeedDefault ),
       .RndCnstLfsrPerm  ( cve2_pkg::RndCnstLfsrPermDefault ),
@@ -94,11 +93,6 @@ Parameters
 |                              |                     |            | "cve2_pkg::RV32MSlow": Slow multi-cycle multiplier, iterative divider |
 |                              |                     |            | "cve2_pkg::RV32MFast": 3-4 cycle multiplier, iterative divider        |
 |                              |                     |            | "cve2_pkg::RV32MSingleCycle": 1-2 cycle multiplier, iterative divider |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``RegFile``                  | cve2_pkg::regfile_e | RegFileFF  | Register file implementation select:                                  |
-|                              |                     |            | "cve2_pkg::RegFileFF": Generic flip-flop-based register file          |
-|                              |                     |            | "cve2_pkg::RegFileFPGA": Register file for FPGA targets               |
-|                              |                     |            | "cve2_pkg::RegFileLatch": Latch-based register file for ASIC targets  |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``WritebackStage``           | bit                 | 0          | *EXPERIMENTAL* - Enables third pipeline stage (writeback)             |
 |                              |                     |            | improving performance of loads and stores                             |

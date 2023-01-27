@@ -5,13 +5,6 @@ Getting Started with Ibex
 
 This page discusses initial steps and requirements to start using Ibex in your design.
 
-Register File
--------------
-
-Ibex comes with three different register file implementations that can be selected using the enumerated parameter ``RegFile`` defined in :file:`rtl/cve2_pkg.sv`.
-Depending on the target technology, either the flip-flop-based ("cve2_pkg::RegFileFF", default), the latch-based ("cve2_pkg::RegFileLatch") or an FPGA-targeted ("cve2_pkg::RegFileFPGA") implementation should be selected.
-For more information about the three register file implementations and their trade-offs, check out :ref:`register-file`.
-
 Identification CSRs
 -------------------
 
