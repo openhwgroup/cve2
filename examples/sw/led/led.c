@@ -8,7 +8,7 @@
 /**
  * Delay loop executing within 8 cycles on ibex
  */
-static void delay_loop_ibex(unsigned long loops) {
+static void delay_loop_cve2(unsigned long loops) {
   int out; /* only to notify compiler of modifications to |loops| */
   asm volatile(
       "1: nop             \n" // 1 cycle
@@ -22,16 +22,16 @@ static void delay_loop_ibex(unsigned long loops) {
   );
 }
 
-static int usleep_ibex(unsigned long usec) {
+static int usleep_cve2(unsigned long usec) {
   unsigned long usec_cycles;
   usec_cycles = CLK_FIXED_FREQ_HZ * usec / 1000 / 1000 / 8;
 
-  delay_loop_ibex(usec_cycles);
+  delay_loop_cve2(usec_cycles);
   return 0;
 }
 
 static int usleep(unsigned long usec) {
-  return usleep_ibex(usec);
+  return usleep_cve2(usec);
 }
 
 int main(int argc, char **argv) {

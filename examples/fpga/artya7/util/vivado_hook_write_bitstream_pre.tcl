@@ -1,4 +1,4 @@
-open_project ../../lowrisc_ibex_top_artya7_0.1.xpr
+open_project ../../lowrisc_cve2_top_artya7_0.1.xpr
 set saif_name "detailed_power.saif"
 
 open_run impl_1
@@ -18,7 +18,7 @@ close_saif
 # Reporting power using .saif generated above
 open_run impl_1
 set_operating_conditions -process maximum
-read_saif "../../lowrisc_ibex_top_artya7_0.1.sim/sim_1/impl/func/xsim/$saif_name" 
-read_saif "../../lowrisc_ibex_top_artya7_0.1.sim/sim_1/impl/func/xsim/$saif_name"  -strip_path top_artya7 
+read_saif "../../lowrisc_cve2_top_artya7_0.1.sim/sim_1/impl/func/xsim/$saif_name" 
+read_saif "../../lowrisc_cve2_top_artya7_0.1.sim/sim_1/impl/func/xsim/$saif_name"  -strip_path top_artya7 
 set_units -power uW
 report_power -name {detailed_power_report} -verbose -file post_implementation_power_result.log -hierarchical_depth 20

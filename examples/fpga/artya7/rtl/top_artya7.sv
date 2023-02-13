@@ -35,8 +35,8 @@ module top_artya7 (
   logic [31:0] data_wdata;
   logic [31:0] data_rdata;
 
-  ibex_top #(
-     .RegFile(ibex_pkg::RegFileFPGA),
+  cve2_top #(
+     .RegFile(cve2_pkg::RegFileFPGA),
      .DmHaltAddr(32'h00000000),
      .DmExceptionAddr(32'h00000000)
   ) u_top (

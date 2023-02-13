@@ -31,10 +31,10 @@ Follow the Spike build instructions to build and install Spike.
 The build will install multiple header files and libraries, it is recommended a custom install location (using ``--prefix=<path>`` with ``configure``) is used to avoid cluttering system directories.
 The ``--enable-commitlog`` and ``--enable-misaligned`` options must be passed to ``configure``.
 
-Once built, the ``IBEX_COSIM_ISS_ROOT`` environment variable must be set to the Spike root install directory (as given by ``--prefix=<path>`` to ``configure``) in order to build either the UVM DV environment or Simple System with co-simulation support.
+Once built, the ``CVE2_COSIM_ISS_ROOT`` environment variable must be set to the Spike root install directory (as given by ``--prefix=<path>`` to ``configure``) in order to build either the UVM DV environment or Simple System with co-simulation support.
 
 To build/run the UVM DV environment with the co-simulator add the ``COSIM=1`` argument to the make command.
-To build Simple System with the co-simulator build the ``lowrisc:ibex:ibex_simple_system_cosim`` core.
+To build Simple System with the co-simulator build the ``lowrisc:cve2:cve2_simple_system_cosim`` core.
 
 Quick Build and Run Instructions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -44,7 +44,7 @@ Build and install the co-simulator
 .. code-block:: bash
 
   # Get the Ibex co-simulation spike branch
-  git clone -b ibex_cosim https://github.com/lowRISC/riscv-isa-sim.git riscv-isa-sim-cosim
+  git clone -b cve2_cosim https://github.com/lowRISC/riscv-isa-sim.git riscv-isa-sim-cosim
 
   # Setup build directory
   cd riscv-isa-sim-cosim
@@ -55,15 +55,15 @@ Build and install the co-simulator
   ../configure --enable-commitlog --enable-misaligned --prefix=/opt/spike-cosim
   sudo make -j8 install
 
-  # Setup IBEX_COSIM_ISS_ROOT so build flow can find the co-simulator
-  export IBEX_COSIM_ISS_ROOT=/opt/spike-cosim
+  # Setup CVE2_COSIM_ISS_ROOT so build flow can find the co-simulator
+  export CVE2_COSIM_ISS_ROOT=/opt/spike-cosim
 
 Run the UVM DV regression with co-simulation enabled
 
 .. code-block:: bash
 
   # Run regression with co-simulation enabled
-  cd <ibex_area>/dv/uvm/core_ibex
+  cd <cve2_area>/dv/uvm/core_cve2
   make COSIM=1
 
 Build and run Simple System with the co-simulation enabled
@@ -71,7 +71,7 @@ Build and run Simple System with the co-simulation enabled
 .. code-block:: bash
 
   # Build simulator
-  fusesoc --cores-root=. run --target=sim --setup --build lowrisc:ibex:ibex_simple_system_cosim --RV32E=0 --RV32M=ibex_pkg::RV32MFast
+  fusesoc --cores-root=. run --target=sim --setup --build lowrisc:cve2:cve2_simple_system_cosim --RV32E=0 --RV32M=cve2_pkg::RV32MFast
 
   # Build coremark test binary, with performance counter dump disabled. The
   # co-simulator system doesn't produce matching performance counters in spike so
@@ -82,7 +82,7 @@ Build and run Simple System with the co-simulation enabled
   export LD_LIBRARY_PATH=/opt/spike-cosim/lib:$LD_LIBRARY_PATH
 
   # Run coremark binary with co-simulation checking
-  build/lowrisc_ibex_ibex_simple_system_cosim_0/sim-verilator/Vibex_simple_system --meminit=ram,examples/sw/benchmarks/coremark/coremark.elf
+  build/lowrisc_cve2_cve2_simple_system_cosim_0/sim-verilator/Vcve2_simple_system --meminit=ram,examples/sw/benchmarks/coremark/coremark.elf
 
 Co-simulation details
 ----------------------
@@ -143,7 +143,7 @@ The DV environment is responsible for determining when to call ``set_mip``, ``se
 
 The state of the incoming interrupts and debug request is sampled when an instruction moves from IF to ID/EX.
 The sampled state is tracked with the rest of the RVFI pipeline and used to call ``set_mip``, ``set_debug_req`` and ``set_nmi`` when the instruction is output by the RVFI.
-See the comments in :file:`rtl/ibex_core.sv`, around the ``new_debug_req``, ``new_nmi`` and ``new_irq`` signals for further details.
+See the comments in :file:`rtl/cve2_core.sv`, around the ``new_debug_req``, ``new_nmi`` and ``new_irq`` signals for further details.
 
 Memory Access Checking and Bus Errors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -163,7 +163,7 @@ The co-simulation system will produce an instruction fault trap if it attempts t
 
 Two methods are available for dealing with bus errors on the Iside, they differ in where they probe.
 One probes on the external instr_X memory interface, the other probes internally within the IF stage.
-The probe used is selected by the ``probe_imem_for_err`` field of the ``core_ibex_cosim_cfg`` structure.
+The probe used is selected by the ``probe_imem_for_err`` field of the ``core_cve2_cosim_cfg`` structure.
 When set external probing is used, otherwise internal probing is used.
 
 Both probe points look for addresses that have seen bus errors.

@@ -11,7 +11,7 @@ filesets:
       - lowrisc:dv:dv_utils
       - lowrisc:dv:csr_utils
       - lowrisc:dv:dv_base_reg
-      - lowrisc:ibex:bus_params_pkg
+      - lowrisc:cve2:bus_params_pkg
     files:
       - dv_lib_pkg.sv
 

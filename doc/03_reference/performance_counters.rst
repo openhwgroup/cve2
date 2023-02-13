@@ -41,7 +41,7 @@ The following events can be monitored using the performance counters of Ibex.
 +--------------+------------------+---------------------------------------------------------+
 |           10 | NumInstrRetC     | Number of compressed instructions retired               |
 +--------------+------------------+---------------------------------------------------------+
-|           11 | NumCyclesMulWait | Cycles waiting for multiply to complete                 |
+|           11 | NumCyclesWFI     | Cycles waiting in WFI instruction                       |
 +--------------+------------------+---------------------------------------------------------+
 |           12 | NumCyclesDivWait | Cycles waiting for divide to complete                   |
 +--------------+------------------+---------------------------------------------------------+
@@ -103,7 +103,7 @@ The association of events with the ``mphmcounter`` registers is hardwired as lis
 +----------------------+----------------+--------------+------------------+
 | ``mhpmcounter10(h)`` | 0xB0A (0xB8A)  |           10 | NumInstrRetC     |
 +----------------------+----------------+--------------+------------------+
-| ``mhpmcounter11(h)`` | 0xB0B (0xB8B)  |           11 | NumCyclesMulWait |
+| ``mhpmcounter11(h)`` | 0xB0B (0xB8B)  |           11 | NumCyclesWFI     |
 +----------------------+----------------+--------------+------------------+
 | ``mhpmcounter12(h)`` | 0xB0C (0xB8C)  |           12 | NumCyclesDivWait |
 +----------------------+----------------+--------------+------------------+

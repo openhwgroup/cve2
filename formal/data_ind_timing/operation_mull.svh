@@ -13,7 +13,7 @@ always_comb begin
     // Enable signal must be asserted in order for the state machine to advance
     assume (mult_en_i);
     assume (mult_sel_i);
-    assume (operator_i == ibex_pkg::MD_OP_MULL);
+    assume (operator_i == cve2_pkg::MD_OP_MULL);
   end else begin
     assume (~mult_en_i);
     assume (~mult_sel_i);

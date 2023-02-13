@@ -30,7 +30,7 @@ Testbench Architecture
 Ibex utilises a co-simulation checking approach described in detail in :ref:`cosim`.
 With the co-simulation system all instructions Ibex executes and all external events such as an interrupts or memory errors are fed to a golden model.
 The results of every instruction execution and every memory access are crossed checked against the golden model with any mismatches resulting in a test failure.
-The aim is to check all possible externally observable behaviours of ``ibex_top`` against the golden model.
+The aim is to check all possible externally observable behaviours of ``cve2_top`` against the golden model.
 The golden model used is the `Spike RISC-V ISS <https://github.com/riscv-software-src/riscv-isa-sim>`_.
 
 The testbench uses UVM.
@@ -88,16 +88,16 @@ Tests
 As with stimulus, test sequence development uses a coverage based approach.
 Tests will be added such that all coverage in the :ref:`coverage-plan` can be hit.
 Not all the details of specific tests will be documented here.
-The test list (`dv/uvm/core_ibex/riscv_dv_extension/testlist.yaml <https://github.com/lowRISC/ibex/blob/master/dv/uvm/core_ibex/riscv_dv_extension/testlist.yaml>`_), provides an exhaustive list of all tests along with a brief description of what the test does.
+The test list (`dv/uvm/core_cve2/riscv_dv_extension/testlist.yaml <https://github.com/lowRISC/ibex/blob/master/dv/uvm/core_cve2/riscv_dv_extension/testlist.yaml>`_), provides an exhaustive list of all tests along with a brief description of what the test does.
 
-A test will execute a binary whilst running zero or more sequences that provide stimulus to external interfaces of ``ibex_top``.
+A test will execute a binary whilst running zero or more sequences that provide stimulus to external interfaces of ``cve2_top``.
 As the memory interfaces are all driven by Ibex, with any testbench generated activity in response to a request from Ibex, they do not require explicit sequences run by the test.
 Instead the test can configure the randomisation of memory delays as it wishes.
 Memory errors can be configured to always occur in statically defined areas of the memory map or a sequence can be used to inject them via the memory interface agent.
 
 The following sequences are available for tests to use.
 Each sequence is derived from a base sequence which provides controls to repeat the sequence at fixed or random internals, forever or after a random number of repeats.
-Full details can be found in `dv/uvm/core_ibex/tests/core_ibex_seq_lib.sv <https://github.com/lowRISC/ibex/blob/master/dv/uvm/core_ibex/tests/core_ibex_seq_lib.sv>`_.
+Full details can be found in `dv/uvm/core_cve2/tests/core_cve2_seq_lib.sv <https://github.com/lowRISC/ibex/blob/master/dv/uvm/core_cve2/tests/core_cve2_seq_lib.sv>`_.
 
 * ``irq_raise_seq`` - Raises one or more interrupts.
   The testbench binary can write to a special memory location to acknowledge the interrupt and cause it to drop.

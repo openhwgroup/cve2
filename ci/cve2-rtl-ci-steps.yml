@@ -1,0 +1,87 @@
+parameters:
+  cve2_configs: []
+
+steps:
+  - ${{ each config in parameters.cve2_configs }}:
+    # cve2_config.py will exit with error code 1 on any error which will cause
+    # the CI to fail if there's an issue with the configuration file or an
+    # incorrect configuration name being used
+    - bash: |
+        set -e
+        CVE2_CONFIG_OPTS=`./util/cve2_config.py ${{ config }} fusesoc_opts`
+        echo $CVE2_CONFIG_OPTS
+        echo "##vso[task.setvariable variable=cve2_config_opts]" $CVE2_CONFIG_OPTS
+      displayName: Test and display fusesoc config for ${{ config }}
+
+    - bash: |
+        fusesoc --cores-root . run --target=lint --tool=verilator lowrisc:cve2:cve2_top_tracing $CVE2_CONFIG_OPTS
+        if [ $? != 0 ]; then
+          echo -n "##vso[task.logissue type=error]"
+          echo "Verilog lint failed. Run 'fusesoc --cores-root . run --target=lint --tool=verilator lowrisc:cve2:cve2_top_tracing $CVE2_CONFIG_OPTS' to check and fix all errors."
+          exit 1
+        fi
+      displayName: Lint Verilog source files with Verilator for ${{ config }}
+
+    - bash: |
+        fusesoc --cores-root . run --target=lint --tool=veriblelint lowrisc:cve2:cve2_top_tracing $CVE2_CONFIG_OPTS
+        if [ $? != 0 ]; then
+          echo -n "##vso[task.logissue type=error]"
+          echo "Verilog lint failed. Run 'fusesoc --cores-root . run --target=lint --tool=veriblelint lowrisc:cve2:cve2_top_tracing $CVE2_CONFIG_OPTS' to check and fix all errors."
+          exit 1
+        fi
+      displayName: Lint Verilog source files with Verible Verilog Lint for ${{ config }}
+
+    - bash: |
+        # Build simulation model of Ibex
+        fusesoc --cores-root=. run --target=sim --setup --build lowrisc:cve2:cve2_riscv_compliance $CVE2_CONFIG_OPTS
+        if [ $? != 0 ]; then
+          echo -n "##vso[task.logissue type=error]"
+          echo "Unable to build Verilator model of Ibex for compliance testing."
+          exit 1
+        fi
+
+        # Run compliance test suite
+        export TARGET_SIM=$PWD/build/lowrisc_cve2_cve2_riscv_compliance_0.1/sim-verilator/Vcve2_riscv_compliance
+        export RISCV_PREFIX=riscv32-unknown-elf-
+        export RISCV_TARGET=ibex
+        export RISCV_DEVICE=rv32imc
+        fail=0
+        for isa in rv32i rv32im rv32imc rv32Zicsr rv32Zifencei; do
+          make -C build/riscv-compliance RISCV_ISA=$isa 2>&1 | tee run.log
+          if [ ${PIPESTATUS[0]} != 0 ]; then
+            echo -n "##vso[task.logissue type=error]"
+            echo "The RISC-V compliance test suite failed for $isa"
+
+            # There's no easy way to get the test results in machine-readable
+            # form to properly exclude known-failing tests. Going with an
+            # approximate solution for now.
+            if [ $isa == rv32i ] && grep -q 'FAIL: 4/48' run.log; then
+              echo -n "##vso[task.logissue type=error]"
+              echo "Expected failure for rv32i, see lowrisc/ibex#100 more more information."
+            else
+              fail=1
+            fi
+          fi
+        done
+        exit $fail
+      displayName: Run RISC-V Compliance test for Ibex RV32IMC for ${{ config }}
+
+    - bash: |
+        # Setup environment to use cosim with Simple System
+        export CVE2_COSIM_ISS_ROOT=/opt/spike-cosim
+        export LD_LIBRARY_PATH=/opt/spike-cosim/lib:$LD_LIBRARY_PATH
+
+        # Build simple system with co-simulation
+        fusesoc --cores-root=. run --target=sim --setup --build lowrisc:cve2:cve2_simple_system_cosim $CVE2_CONFIG_OPTS
+
+        if [ $? != 0 ]; then
+          echo -n "##vso[task.logissue type=error]"
+          echo "Build Simple System with co-simulation failed. Run fusesoc --cores-root=. run --target=sim --setup --build lowrisc:cve2:cve2_simple_system_cosim $CVE2_CONFIG_OPTS to check and fix all errors."
+        fi
+
+        build/lowrisc_cve2_cve2_simple_system_cosim_0/sim-verilator/Vcve2_simple_system --meminit=ram,examples/sw/benchmarks/coremark/coremark.elf
+        if [ $? != 0 ]; then
+          echo -n "##vso[task.logissue type=error]"
+          echo "Running CoreMark failed co-simulation testing"
+        fi
+      displayName: Run CoreMark for ${{ config }}

@@ -11,7 +11,7 @@ All of these benchmarks run on Simple System. A verilator simulation suitable
 for running them can be built with:
 
 ```
-fusesoc --cores-root=. run --target=sim --setup --build lowrisc:ibex:ibex_simple_system --RV32E=0 --RV32M=ibex_pkg::RV32MFast
+fusesoc --cores-root=. run --target=sim --setup --build lowrisc:cve2:cve2_simple_system --RV32E=0 --RV32M=cve2_pkg::RV32MFast
 ```
 
 See examples/simple_system/README.md for full details.
@@ -35,13 +35,13 @@ make -C ./examples/sw/benchmarks/coremark/
 To run CoreMark (after building a suitable simulator binary, see above):
 
 ```
-build/lowrisc_ibex_ibex_simple_system_0/sim-verilator/Vibex_simple_system --meminit=ram,examples/sw/benchmarks/coremark/coremark.elf
+build/lowrisc_cve2_cve2_simple_system_0/sim-verilator/Vcve2_simple_system --meminit=ram,examples/sw/benchmarks/coremark/coremark.elf
 ```
 
 The simulator outputs the performance counter values observed for the benchmark
 (the counts do not include anything from pre or post benchmark loops).
 
-CoreMark should output (to `ibex_simple_system.log`) something like the
+CoreMark should output (to `cve2_simple_system.log`) something like the
 following:
 
 ```

@@ -21,7 +21,7 @@
 
 module simulator_ctrl #(
   // passed to simulator via log_name of output_char DPI call
-  parameter string LogName = "ibex_out.log",
+  parameter string LogName = "cve2_out.log",
   // If set flush on every char (useful for monitoring output whilst
   // simulation is running).
   parameter bit    FlushOnChar = 1

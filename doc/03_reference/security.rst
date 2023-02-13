@@ -10,7 +10,7 @@ Outputs
 -------
 
 Ibex has three alert outputs for signalling security issues.
-The internal major alert (**alert_major_internal_o**) indicates a critical security issue from which the core cannot recover which was detected internally in `ibex_top`.
+The internal major alert (**alert_major_internal_o**) indicates a critical security issue from which the core cannot recover which was detected internally in `cve2_top`.
 The bus major alert (**alert_major_internal_o**) indicates a critical security issue from which the core cannot recover which was detected on incoming bus data.
 The minor alert (**alert_minor_o**) indicates potential security issues which can be monitored over time by a system.
 
@@ -65,7 +65,7 @@ Sofware can periodically re-seed this LFSR with true random numbers (if availabl
 This will make the insertion interval of dummy instructions much harder for an attacker to predict.
 
 Note that the dummy instruction feature inserts multiply and divide instructions.
-The core must be configured with a multiplier (`RV32M != ibex_pkg::RV32MNone`) or errors will occur using this feature.
+The core must be configured with a multiplier (`RV32M != cve2_pkg::RV32MNone`) or errors will occur using this feature.
 
 Bus integrity checking
 ----------------------

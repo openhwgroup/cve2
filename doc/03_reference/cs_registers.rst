@@ -329,7 +329,7 @@ Reset Value: ``0x0000_0000_0000_0000``
 Note that the reset value means PMP behavior out of reset matches the RISC-V Privileged Architecture.
 A write to ``mseccfg`` is required to change it.
 Note ``mseccfgh`` reads as all 0s and ignores all writes.
-Any access to ``mseccfg`` or ``mseccfgh`` when using an Ibex configuration without PMP (``PMPEnable`` is 0) will trigger an illegal instruction exception.
+Any access to ``mseccfg`` or ``mseccfgh`` when using an Ibex configuration without PMP (localparam ``PMPEnable`` set to 0) will trigger an illegal instruction exception.
 
 .. _csr-tselect:
 
@@ -340,10 +340,10 @@ CSR Address: ``0x7A0``
 
 Reset Value: ``0x0000_0000``
 
-Accessible in Debug Mode or M-Mode when trigger support is enabled (using the DbgTriggerEn parameter).
+Accessible in Debug Mode or M-Mode.
 
 Number of the currently selected trigger starting at 0.
-The number of triggers is configured by the DbgHwNumLen parameter.
+The number of triggers is 1.
 
 Writing a value larger than or equal to the number of supported triggers will write the highest valid index.
 This allows a debugger to detect the allowed number of triggers by reading back the value.
@@ -357,7 +357,7 @@ CSR Address: ``0x7A1``
 
 Reset Value: ``0x2800_1000``
 
-Accessible in Debug Mode or M-Mode when trigger support is enabled (using the DbgTriggerEn parameter).
+Accessible in Debug Mode or M-Mode.
 Since native triggers are not supported, writes to this register from M-Mode will be ignored.
 
 Ibex only implements one type of trigger, instruction address match.
@@ -413,7 +413,7 @@ CSR Address: ``0x7A2``
 
 Reset Value: ``0x0000_0000``
 
-Accessible in Debug Mode or M-Mode when trigger support is enabled (using the DbgTriggerEn parameter).
+Accessible in Debug Mode or M-Mode.
 Since native triggers are not supported, writes to this register from M-Mode will be ignored.
 
 This register stores the instruction address to match against for a breakpoint trigger.
@@ -425,7 +425,7 @@ CSR Address: ``0x7A3``
 
 Reset Value: ``0x0000_0000``
 
-Accessible in Debug Mode or M-Mode when trigger support is enabled (using the DbgTriggerEn parameter).
+Accessible in Debug Mode or M-Mode.
 
 Ibex does not support the features requiring this register, so writes are ignored and it will always read as zero.
 
@@ -436,7 +436,7 @@ CSR Address: ``0x7A8``
 
 Reset Value: ``0x0000_0000``
 
-Accessible in Debug Mode or M-Mode when trigger support is enabled (using the DbgTriggerEn parameter).
+Accessible in Debug Mode or M-Mode.
 
 Ibex does not support the features requiring this register, so writes are ignored and it will always read as zero.
 
@@ -447,7 +447,7 @@ CSR Address: ``0x7AA``
 
 Reset Value: ``0x0000_0000``
 
-Accessible in Debug Mode or M-Mode when trigger support is enabled (using the DbgTriggerEn parameter).
+Accessible in Debug Mode or M-Mode.
 
 Ibex does not support the features requiring this register, so writes are ignored and it will always read as zero.
 
@@ -597,7 +597,7 @@ CSR Address: ``0xF11``
 
 Reset Value: ``0x0000_0000``
 
-Use the ``CSR_MVENDORID_VALUE`` parameter in :file:`rtl/ibex_pkg.sv` to change the fixed value.
+Use the ``CSR_MVENDORID_VALUE`` parameter in :file:`rtl/cve2_pkg.sv` to change the fixed value.
 Details of what the ID represents can be found in the RISC-V Privileged Specification.
 
 Machine Architecture ID (marchid)
@@ -607,7 +607,7 @@ CSR Address: ``0xF12``
 
 Reset Value: ``0x0000_0016``
 
-Use the ``CSR_MARCHID_VALUE`` parameter in :file:`rtl/ibex_pkg.sv` to change the fixed value.
+Use the ``CSR_MARCHID_VALUE`` parameter in :file:`rtl/cve2_pkg.sv` to change the fixed value.
 The value used is allocated specifically to Ibex.
 If significant changes are made a different ID should be used.
 Details of what the ID represents can be found in the RISC-V Privileged Specification.
@@ -619,7 +619,7 @@ CSR Address: ``0xF13``
 
 Reset Value: ``0x0000_0000``
 
-Use the ``CSR_MIMPID_VALUE`` parameter in :file:`rtl/ibex_pkg.sv` to change the fixed value.
+Use the ``CSR_MIMPID_VALUE`` parameter in :file:`rtl/cve2_pkg.sv` to change the fixed value.
 Details of what the ID represents can be found in the RISC-V Privileged Specification.
 
 .. _csr-mhartid:

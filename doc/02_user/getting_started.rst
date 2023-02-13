@@ -8,8 +8,8 @@ This page discusses initial steps and requirements to start using Ibex in your d
 Register File
 -------------
 
-Ibex comes with three different register file implementations that can be selected using the enumerated parameter ``RegFile`` defined in :file:`rtl/ibex_pkg.sv`.
-Depending on the target technology, either the flip-flop-based ("ibex_pkg::RegFileFF", default), the latch-based ("ibex_pkg::RegFileLatch") or an FPGA-targeted ("ibex_pkg::RegFileFPGA") implementation should be selected.
+Ibex comes with three different register file implementations that can be selected using the enumerated parameter ``RegFile`` defined in :file:`rtl/cve2_pkg.sv`.
+Depending on the target technology, either the flip-flop-based ("cve2_pkg::RegFileFF", default), the latch-based ("cve2_pkg::RegFileLatch") or an FPGA-targeted ("cve2_pkg::RegFileFPGA") implementation should be selected.
 For more information about the three register file implementations and their trade-offs, check out :ref:`register-file`.
 
 Identification CSRs
@@ -17,7 +17,7 @@ Identification CSRs
 
 The RISC-V Privileged Architecture specifies several read-only CSRs that identify the vendor and micro-architecture of a CPU.
 These are ``mvendorid``, ``marchid`` and ``mimpid``.
-The fixed, read-only values for these CSRs are defined in :file:`rtl/ibex_pkg.sv`.
+The fixed, read-only values for these CSRs are defined in :file:`rtl/cve2_pkg.sv`.
 Implementers should carefully consider appropriate values for these registers.
 Ibex, as an open source implementation, has an assigned architecture ID (``marchid``) of 22.
 (Allocations are specified in `marchid.md of the riscv-isa-manual repository <https://github.com/riscv/riscv-isa-manual/blob/master/marchid.md>`_.)

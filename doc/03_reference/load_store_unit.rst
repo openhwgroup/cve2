@@ -2,7 +2,7 @@
 
 Load-Store Unit
 ===============
-:file:`rtl/ibex_load_store_unit.sv`
+:file:`rtl/cve2_load_store_unit.sv`
 
 The Load-Store Unit (LSU) of the core takes care of accessing the data memory.
 Loads and stores of words (32 bit), half words (16 bit) and bytes (8 bit) are supported.

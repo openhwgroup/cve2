@@ -3,8 +3,8 @@
 Tracer
 ======
 
-The module ``ibex_tracer`` can be used to create a log of the executed instructions.
-It is used by ``ibex_top_tracing`` which forwards the `RVFI signals <https://github.com/SymbioticEDA/riscv-formal/blob/master/docs/rvfi.md>`_ to the tracer (see also :ref:`rvfi`).
+The module ``cve2_tracer`` can be used to create a log of the executed instructions.
+It is used by ``cve2_top_tracing`` which forwards the `RVFI signals <https://github.com/SymbioticEDA/riscv-formal/blob/master/docs/rvfi.md>`_ to the tracer (see also :ref:`rvfi`).
 
 Output file
 -----------
@@ -12,8 +12,8 @@ Output file
 All traced instructions are written to a log file.
 By default, the log file is named ``trace_core_<HARTID>.log``, with ``<HARTID>`` being the 8 digit hart ID of the core being traced.
 
-The file name base, defaulting to ``trace_core`` can be set using the ``ibex_tracer_file_base`` plusarg passed to the simulation.
-For example, ``+ibex_tracer_file_base=ibex_my_trace`` will produce log files named ``ibex_my_trace_<HARTID>.log``.
+The file name base, defaulting to ``trace_core`` can be set using the ``cve2_tracer_file_base`` plusarg passed to the simulation.
+For example, ``+cve2_tracer_file_base=cve2_my_trace`` will produce log files named ``cve2_my_trace_<HARTID>.log``.
 The exact syntax of passing plusargs to a simulation depends on the simulator.
 
 Disabling the tracer
@@ -21,9 +21,9 @@ Disabling the tracer
 
 If the instruction log is not needed for a specific simulation run, the tracer can be disabled.
 
-The plusarg ``ibex_tracer_enable`` controls the tracer.
+The plusarg ``cve2_tracer_enable`` controls the tracer.
 The tracer is enabled by default.
-To disable the tracer use ``ibex_tracer_enable=0`` with the correct plusarg syntax of the simulator.
+To disable the tracer use ``cve2_tracer_enable=0`` with the correct plusarg syntax of the simulator.
 
 Trace output format
 -------------------

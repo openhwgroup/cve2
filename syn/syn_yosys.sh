@@ -56,12 +56,12 @@ for file in ../rtl/*.sv; do
 done
 
 # remove tracer (not needed for synthesis)
-rm -f $LR_SYNTH_OUT_DIR/generated/ibex_tracer.v
+rm -f $LR_SYNTH_OUT_DIR/generated/cve2_tracer.v
 
 # remove the FPGA & register-based register file (because we will use the
 # latch-based one instead)
-rm -f $LR_SYNTH_OUT_DIR/generated/ibex_register_file_ff.v
-rm -f $LR_SYNTH_OUT_DIR/generated/ibex_register_file_fpga.v
+rm -f $LR_SYNTH_OUT_DIR/generated/cve2_register_file_ff.v
+rm -f $LR_SYNTH_OUT_DIR/generated/cve2_register_file_fpga.v
 
 yosys -c ./tcl/yosys_run_synth.tcl |& teelog syn || {
     error "Failed to synthesize RTL with Yosys"

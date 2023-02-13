@@ -28,5 +28,5 @@
 // matches when you set a 1-bit value to a literal 1, so it won't hide
 // silly mistakes like setting it to 2.
 //
-lint_off -rule WIDTH -file "*/rtl/ibex_riscv_compliance.sv"
+lint_off -rule WIDTH -file "*/rtl/cve2_riscv_compliance.sv"
          -match "*expects 1 bits*Initial value's CONST '32'h1'*"

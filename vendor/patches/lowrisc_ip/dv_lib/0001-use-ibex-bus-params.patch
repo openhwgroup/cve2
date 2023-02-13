@@ -7,6 +7,6 @@ index e6e3f9e8..ad1b98ff 100644
        - lowrisc:dv:csr_utils
        - lowrisc:dv:dv_base_reg
 -      - lowrisc:opentitan:bus_params_pkg
-+      - lowrisc:ibex:bus_params_pkg
++      - lowrisc:cve2:bus_params_pkg
      files:
        - dv_lib_pkg.sv

@@ -2,13 +2,13 @@ CAPI=2:
 # Copyright lowRISC contributors.
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
-name: "lowrisc:ibex:top_artya7:0.1"
+name: "lowrisc:cve2:top_artya7:0.1"
 description: "Ibex example toplevel for Arty A7 boards (both, -35 and -100)"
 filesets:
   files_rtl_artya7:
     depend:
-      - lowrisc:ibex:ibex_top
-      - lowrisc:ibex:fpga_xilinx_shared
+      - lowrisc:cve2:cve2_top
+      - lowrisc:cve2:fpga_xilinx_shared
     files:
       - rtl/top_artya7.sv
     file_type: systemVerilogSource

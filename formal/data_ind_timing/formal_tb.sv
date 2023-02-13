@@ -14,7 +14,7 @@ module formal_tb (
     input  logic             div_en_i,   // dynamic enable signal, for FSM control
     input  logic             mult_sel_i, // static decoder input, for data muxes
     input  logic             div_sel_i,  // static decoder input, for data muxes
-    input  ibex_pkg::md_op_e operator_i,
+    input  cve2_pkg::md_op_e operator_i,
     input  logic       [1:0] signed_mode_i,
     input  logic      [31:0] op_a_i,
     input  logic      [31:0] op_b_i,
@@ -37,7 +37,7 @@ module formal_tb (
     input logic              valid_o
 );
 
-  import ibex_pkg::*;
+  import cve2_pkg::*;
 
   logic [2:0] f_startup_count = 3'd0;
   always_ff @(posedge clk_i) begin : reset_assertion

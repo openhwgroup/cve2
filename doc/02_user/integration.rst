@@ -3,8 +3,8 @@
 Core Integration
 ================
 
-The main module is named ``ibex_top`` and can be found in ``ibex_top.sv``.
-Note that the core logic is split-out from the register file and RAMs under ``ibex_top``.
+The main module is named ``cve2_top`` and can be found in ``cve2_top.sv``.
+Note that the core logic is split-out from the register file and RAMs under ``cve2_top``.
 This is to facilitate a dual-core lockstep implementation (see :ref:`security`).
 
 Below, the instantiation template is given and the parameters and interfaces are described.
@@ -14,24 +14,20 @@ Instantiation Template
 
 .. code-block:: verilog
 
-  ibex_top #(
-      .PMPEnable        ( 0                                ),
-      .PMPGranularity   ( 0                                ),
-      .PMPNumRegions    ( 4                                ),
+  cve2_top #(
       .MHPMCounterNum   ( 0                                ),
       .MHPMCounterWidth ( 40                               ),
       .RV32E            ( 0                                ),
-      .RV32M            ( ibex_pkg::RV32MFast              ),
-      .RV32B            ( ibex_pkg::RV32BNone              ),
-      .RegFile          ( ibex_pkg::RegFileFF              ),
+      .RV32M            ( cve2_pkg::RV32MFast              ),
+      .RV32B            ( cve2_pkg::RV32BNone              ),
+      .RegFile          ( cve2_pkg::RegFileFF              ),
       .ICache           ( 0                                ),
       .ICacheECC        ( 0                                ),
       .ICacheScramble   ( 0                                ),
       .BranchPrediction ( 0                                ),
       .SecureIbex       ( 0                                ),
-      .RndCnstLfsrSeed  ( ibex_pkg::RndCnstLfsrSeedDefault ),
-      .RndCnstLfsrPerm  ( ibex_pkg::RndCnstLfsrPermDefault ),
-      .DbgTriggerEn     ( 0                                ),
+      .RndCnstLfsrSeed  ( cve2_pkg::RndCnstLfsrSeedDefault ),
+      .RndCnstLfsrPerm  ( cve2_pkg::RndCnstLfsrPermDefault ),
       .DmHaltAddr       ( 32'h1A110800                     ),
       .DmExceptionAddr  ( 32'h1A110808                     )
   ) u_top (
@@ -93,37 +89,28 @@ Parameters
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | Name                         | Type/Range          | Default    | Description                                                           |
 +==============================+=====================+============+=======================================================================+
-| ``PMPEnable``                | bit                 | 0          | Enable PMP support                                                    |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``PMPGranularity``           | int (0..31)         | 0          | Minimum granularity of PMP address matching                           |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``PMPNumRegions``            | int (1..16)         | 4          | Number implemented PMP regions (ignored if PMPEnable == 0)            |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``MHPMCounterNum``           | int (0..10)         | 0          | Number of performance monitor event counters                          |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``MHPMCounterWidth``         | int (64..1)         | 40         | Bit width of performance monitor event counters                       |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``RV32E``                    | bit                 | 0          | RV32E mode enable (16 integer registers only)                         |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``RV32M``                    | ibex_pkg::rv32m_e   | RV32MFast  | M(ultiply) extension select:                                          |
-|                              |                     |            | "ibex_pkg::RV32MNone": No M-extension                                 |
-|                              |                     |            | "ibex_pkg::RV32MSlow": Slow multi-cycle multiplier, iterative divider |
-|                              |                     |            | "ibex_pkg::RV32MFast": 3-4 cycle multiplier, iterative divider        |
-|                              |                     |            | "ibex_pkg::RV32MSingleCycle": 1-2 cycle multiplier, iterative divider |
+| ``RV32M``                    | cve2_pkg::rv32m_e   | RV32MFast  | M(ultiply) extension select:                                          |
+|                              |                     |            | "cve2_pkg::RV32MNone": No M-extension                                 |
+|                              |                     |            | "cve2_pkg::RV32MSlow": Slow multi-cycle multiplier, iterative divider |
+|                              |                     |            | "cve2_pkg::RV32MFast": 3-4 cycle multiplier, iterative divider        |
+|                              |                     |            | "cve2_pkg::RV32MSingleCycle": 1-2 cycle multiplier, iterative divider |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``RV32B``                    | ibex_pkg::rv32b_e   | RV32BNone  | B(itmanipulation) extension select:                                   |
-|                              |                     |            | "ibex_pkg::RV32BNone": No B-extension                                 |
-|                              |                     |            | "ibex_pkg::RV32BBalanced": Sub-extensions Zba, Zbb, Zbs, Zbf and Zbt  |
-|                              |                     |            | "ibex_pkg::RV32BOTEarlGrey": All sub-extensions except Zbe            |
-|                              |                     |            | "ibex_pkg::RV32BFull": All sub-extensions                             |
+| ``RV32B``                    | cve2_pkg::rv32b_e   | RV32BNone  | B(itmanipulation) extension select:                                   |
+|                              |                     |            | "cve2_pkg::RV32BNone": No B-extension                                 |
+|                              |                     |            | "cve2_pkg::RV32BBalanced": Sub-extensions Zba, Zbb, Zbs, Zbf and Zbt  |
+|                              |                     |            | "cve2_pkg::RV32BOTEarlGrey": All sub-extensions except Zbe            |
+|                              |                     |            | "cve2_pkg::RV32BFull": All sub-extensions                             |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``RegFile``                  | ibex_pkg::regfile_e | RegFileFF  | Register file implementation select:                                  |
-|                              |                     |            | "ibex_pkg::RegFileFF": Generic flip-flop-based register file          |
-|                              |                     |            | "ibex_pkg::RegFileFPGA": Register file for FPGA targets               |
-|                              |                     |            | "ibex_pkg::RegFileLatch": Latch-based register file for ASIC targets  |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``BranchTargetALU``          | bit                 | 0          | *EXPERIMENTAL* - Enables branch target ALU removing a stall           |
-|                              |                     |            | cycle from taken branches                                             |
+| ``RegFile``                  | cve2_pkg::regfile_e | RegFileFF  | Register file implementation select:                                  |
+|                              |                     |            | "cve2_pkg::RegFileFF": Generic flip-flop-based register file          |
+|                              |                     |            | "cve2_pkg::RegFileFPGA": Register file for FPGA targets               |
+|                              |                     |            | "cve2_pkg::RegFileLatch": Latch-based register file for ASIC targets  |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``WritebackStage``           | bit                 | 0          | *EXPERIMENTAL* - Enables third pipeline stage (writeback)             |
 |                              |                     |            | improving performance of loads and stores                             |
@@ -141,15 +128,13 @@ Parameters
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``SecureIbex``               | bit                 | 0          | *EXPERIMENTAL* Enable various additional features targeting           |
 |                              |                     |            | secure code execution. Note: SecureIbex == 1'b1 and                   |
-|                              |                     |            | RV32M == ibex_pkg::RV32MNone is an illegal combination.               |
+|                              |                     |            | RV32M == cve2_pkg::RV32MNone is an illegal combination.               |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``RndCnstLfsrSeed``          | lfsr_seed_t         | see above  | Set the starting seed of the LFSR used to generate dummy instructions |
 |                              |                     |            | (only relevant when SecureIbex == 1'b1)                               |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``RndCnstLfsrPerm``          | lfsr_perm_t         | see above  | Set the permutation applied to the output of the LFSR used to         |
 |                              |                     |            | generate dummy instructions (only relevant when SecureIbex == 1'b1)   |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``DbgTriggerEn``             | bit                 | 0          | Enable debug trigger support (one trigger only)                       |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``DmHaltAddr``               | int                 | 0x1A110800 | Address to jump to when entering Debug Mode                           |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
@@ -213,7 +198,7 @@ Interfaces
 |                            |                         |     | pause fetching new instructions. A     |
 |                            |                         |     | multi-bit encoding scheme is used. See |
 |                            |                         |     | `FetchEnableOn` / `FetchEnableOff` in  |
-|                            |                         |     | :file:`rtl/ibex_pkg.sv`                |
+|                            |                         |     | :file:`rtl/cve2_pkg.sv`                |
 +----------------------------+-------------------------+-----+----------------------------------------+
 | ``core_sleep_o``           | 1                       | out | Core in WFI with no outstanding data   |
 |                            |                         |     | or instruction accesses. Deasserts     |
