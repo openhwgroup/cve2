@@ -695,6 +695,7 @@ module cve2_core import cve2_pkg::*; #(
 
   cve2_load_store_unit load_store_unit_i (
     .clk_i (clk),
+    .rst_ni(rst_ni),
 
     // data interface
     .data_req_o    (data_req_out),

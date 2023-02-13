@@ -12,7 +12,6 @@
  */
 
 `include "prim_assert.sv"
-//`include "dv_fcov_macros.svh"
 
 module cve2_load_store_unit
 (
@@ -498,13 +497,6 @@ module cve2_load_store_unit
   assign store_err_o   = data_or_pmp_err &  data_we_q & lsu_resp_valid_o;
 
   assign busy_o = (ls_fsm_cs != IDLE);
-
-  //////////
-  // FCOV //
-  //////////
-
-  //`DV_FCOV_SIGNAL(logic, ls_error_exception, (load_err_o | store_err_o) & ~pmp_err_q)
-  //`DV_FCOV_SIGNAL(logic, ls_pmp_exception, (load_err_o | store_err_o) & pmp_err_q)
 
   ////////////////
   // Assertions //

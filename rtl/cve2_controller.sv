@@ -8,7 +8,6 @@
  */
 
 `include "prim_assert.sv"
-//`include "dv_fcov_macros.svh"
 
 module cve2_controller #(
   parameter bit WritebackStage  = 0,
@@ -822,19 +821,6 @@ module cve2_controller #(
   end
 
   assign wake_from_sleep_o = irq_nm_i || irq_pending_i || debug_req_i || debug_mode_q || debug_single_step_i;
-
-
-  //////////
-  // FCOV //
-  //////////
-
-  //`DV_FCOV_SIGNAL(logic, interrupt_taken, (ctrl_fsm_cs != IRQ_TAKEN) & (ctrl_fsm_ns == IRQ_TAKEN))
-  //`DV_FCOV_SIGNAL(logic, debug_entry_if,
-  //    (ctrl_fsm_cs != DBG_TAKEN_IF) & (ctrl_fsm_ns == DBG_TAKEN_IF))
-  //`DV_FCOV_SIGNAL(logic, debug_entry_id,
-  //    (ctrl_fsm_cs != DBG_TAKEN_ID) & (ctrl_fsm_ns == DBG_TAKEN_ID))
-  //`DV_FCOV_SIGNAL(logic, pipe_flush, (ctrl_fsm_cs != FLUSH) & (ctrl_fsm_ns == FLUSH))
-  //`DV_FCOV_SIGNAL(logic, debug_req, debug_req_i & ~debug_mode_q)
 
   ////////////////
   // Assertions //

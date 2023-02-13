@@ -15,7 +15,6 @@
  */
 
 `include "prim_assert.sv"
-//`include "dv_fcov_macros.svh"
 
 module cve2_id_stage #(
   parameter bit               RV32E           = 0,
@@ -1003,17 +1002,6 @@ module cve2_id_stage #(
 
   assign perf_wfi_wait_o = wfi_insn_dec;
   assign perf_div_wait_o = stall_multdiv & div_en_dec;
-
-  //////////
-  // FCOV //
-  //////////
-
-  //`DV_FCOV_SIGNAL_GEN_IF(logic, rf_rd_wb_hz,
-  //  (gen_stall_mem.rf_rd_a_hz | gen_stall_mem.rf_rd_b_hz) & instr_valid_i, WritebackStage)
-  //`DV_FCOV_SIGNAL(logic, branch_taken,
-  //  instr_executing & (id_fsm_q == FIRST_CYCLE) & branch_decision_i)
-  //`DV_FCOV_SIGNAL(logic, branch_not_taken,
-  //  instr_executing & (id_fsm_q == FIRST_CYCLE) & ~branch_decision_i)
 
   ////////////////
   // Assertions //
