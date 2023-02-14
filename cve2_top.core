@@ -18,7 +18,6 @@ filesets:
       - rtl/cve2_register_file_ff.sv # generic FF-based
       - rtl/cve2_register_file_fpga.sv # FPGA
       - rtl/cve2_register_file_latch.sv # ASIC
-      - rtl/cve2_lockstep.sv
       - rtl/cve2_top.sv
     file_type: systemVerilogSource
 
