@@ -6,9 +6,6 @@ Coverage Plan
 .. note::
   Work to implement the functional coverage described in this plan is on-going and the plan itself is not yet complete.
 
-.. todo::
-  Branch prediction hasn't yet been considered, this will add more coverage points and alter some others
-
 Introduction
 ------------
 Ibex functional coverage is split into two major categories:

@@ -18,7 +18,6 @@ Instantiation Template
       .MHPMCounterWidth ( 40                               ),
       .RV32E            ( 0                                ),
       .RV32M            ( cve2_pkg::RV32MFast              ),
-      .BranchPrediction ( 0                                ),
       .RndCnstLfsrSeed  ( cve2_pkg::RndCnstLfsrSeedDefault ),
       .RndCnstLfsrPerm  ( cve2_pkg::RndCnstLfsrPermDefault ),
       .DmHaltAddr       ( 32'h1A110800                     ),
@@ -93,8 +92,6 @@ Parameters
 |                              |                     |            | "cve2_pkg::RV32MSlow": Slow multi-cycle multiplier, iterative divider |
 |                              |                     |            | "cve2_pkg::RV32MFast": 3-4 cycle multiplier, iterative divider        |
 |                              |                     |            | "cve2_pkg::RV32MSingleCycle": 1-2 cycle multiplier, iterative divider |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``BranchPrediction``         | bit                 | 0          | *EXPERIMENTAL* Enable Static branch prediction                        |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``DmHaltAddr``               | int                 | 0x1A110800 | Address to jump to when entering Debug Mode                           |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+

@@ -21,16 +21,6 @@ A localparam ``DEPTH`` gives a configurable depth which is set to 3 by default.
 The top-level of the instruction fetch controls the prefetch buffer (in particular flushing it on branches/jumps/exception and beginning prefetching from the appropriate new PC) and supplies new instructions to the ID/EX stage along with their PC.
 Compressed instructions are expanded by the IF stage so the decoder can always deal with uncompressed instructions (the ID stage still receives the compressed instruction for placing into ``mtval`` on an illegal instruction exception).
 
-Branch Prediction
------------------
-
-Ibex can be configured to use static branch prediction by setting the ``BranchPrediction`` parameter to 1.
-This improves performance by predicting that any branch with a negative offset is taken and that any branch with a positive offset is not.
-When successful, the prediction removes a stall cycle from a taken branch.
-However, there is a mis-predict penalty if a branch is wrongly predicted to be taken.
-This penalty is at least one cycle, or at least two cycles if the instruction following the branch is uncompressed and not aligned.
-This feature is *EXPERIMENTAL* and its effects are not yet fully documented.
-
 Instruction-Side Memory Interface
 ---------------------------------
 
