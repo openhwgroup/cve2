@@ -118,7 +118,6 @@ module cve2_core import cve2_pkg::*; #(
   logic [15:0] instr_rdata_c_id;               // Compressed instruction sampled inside IF stage
   logic        instr_is_compressed_id;
   logic        instr_perf_count_id;
-  logic        instr_bp_taken_id;
   logic        instr_fetch_err;                // Bus error on instr fetch
   logic        instr_fetch_err_plus2;          // Instruction error is misaligned
   logic        illegal_c_insn_id;              // Illegal compressed instruction sent to ID stage
@@ -131,8 +130,6 @@ module cve2_core import cve2_pkg::*; #(
   logic        instr_first_cycle_id;
   logic        instr_valid_clear;
   logic        pc_set;
-  logic        nt_branch_mispredict;
-  logic [31:0] nt_branch_addr;
   pc_sel_e     pc_mux_id;                      // Mux selector for next PC
   exc_pc_sel_e exc_pc_mux_id;                  // Mux selector for exception PC
   exc_cause_e  exc_cause;                      // Exception cause
@@ -312,7 +309,6 @@ module cve2_core import cve2_pkg::*; #(
     .instr_rdata_alu_id_o    (instr_rdata_alu_id),
     .instr_rdata_c_id_o      (instr_rdata_c_id),
     .instr_is_compressed_id_o(instr_is_compressed_id),
-    .instr_bp_taken_o        (instr_bp_taken_id),
     .instr_fetch_err_o       (instr_fetch_err),
     .instr_fetch_err_plus2_o (instr_fetch_err_plus2),
     .illegal_c_insn_id_o     (illegal_c_insn_id),
@@ -325,13 +321,11 @@ module cve2_core import cve2_pkg::*; #(
     .instr_valid_clear_i   (instr_valid_clear),
     .pc_set_i              (pc_set),
     .pc_mux_i              (pc_mux_id),
-    .nt_branch_mispredict_i(nt_branch_mispredict),
     .exc_pc_mux_i          (exc_pc_mux_id),
     .exc_cause             (exc_cause),
 
     // branch targets
     .branch_target_ex_i(branch_target_ex),
-    .nt_branch_addr_i  (nt_branch_addr),
 
     // CSRs
     .csr_mepc_i      (csr_mepc),  // exception return address
@@ -375,7 +369,6 @@ module cve2_core import cve2_pkg::*; #(
     .instr_rdata_alu_i    (instr_rdata_alu_id),
     .instr_rdata_c_i      (instr_rdata_c_id),
     .instr_is_compressed_i(instr_is_compressed_id),
-    .instr_bp_taken_i     (instr_bp_taken_id),
 
     // Jumps and branches
     .branch_decision_i(branch_decision),
@@ -387,8 +380,6 @@ module cve2_core import cve2_pkg::*; #(
     .instr_req_o           (instr_req_int),
     .pc_set_o              (pc_set),
     .pc_mux_o              (pc_mux_id),
-    .nt_branch_mispredict_o(nt_branch_mispredict),
-    .nt_branch_addr_o      (nt_branch_addr),
     .exc_pc_mux_o          (exc_pc_mux_id),
     .exc_cause_o           (exc_cause),
 

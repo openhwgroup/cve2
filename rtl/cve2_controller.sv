@@ -32,7 +32,6 @@ module cve2_controller #(
   input  logic [31:0]           instr_i,                 // uncompressed instr data for mtval
   input  logic [15:0]           instr_compressed_i,      // instr compressed data for mtval
   input  logic                  instr_is_compressed_i,   // instr is compressed
-  input  logic                  instr_bp_taken_i,        // instr was predicted taken branch
   input  logic                  instr_fetch_err_i,       // instr has error
   input  logic                  instr_fetch_err_plus2_i, // instr error is x32
   input  logic [31:0]           pc_id_i,                 // instr address
@@ -48,8 +47,6 @@ module cve2_controller #(
   output logic                  pc_set_o,                // jump to address set by pc_mux
   output cve2_pkg::pc_sel_e     pc_mux_o,                // IF stage fetch address selector
                                                          // (boot, normal, exception...)
-  output logic                  nt_branch_mispredict_o,  // Not-taken branch in ID/EX was
-                                                         // mispredicted (predicted taken)
   output cve2_pkg::exc_pc_sel_e exc_pc_mux_o,            // IF stage selector for exception PC
   output cve2_pkg::exc_cause_e  exc_cause_o,             // for IF stage, CSRs
 
@@ -61,7 +58,6 @@ module cve2_controller #(
   // jump/branch signals
   input  logic                  branch_set_i,            // branch set signal (branch definitely
                                                          // taken)
-  input  logic                  branch_not_set_i,        // branch is definitely not taken
   input  logic                  jump_set_i,              // jump taken set signal
 
   // interrupt signals
@@ -337,7 +333,6 @@ module cve2_controller #(
     // helping timing.
     pc_mux_o               = PC_BOOT;
     pc_set_o               = 1'b0;
-    nt_branch_mispredict_o = 1'b0;
 
     exc_pc_mux_o           = EXC_PC_IRQ;
     exc_cause_o            = EXC_CAUSE_INSN_ADDR_MISA; // = 6'h00
@@ -765,8 +760,6 @@ module cve2_controller #(
   ////////////////
   // Assertions //
   ////////////////
-
-  `ASSERT(AlwaysInstrClearOnMispredict, nt_branch_mispredict_o |-> instr_valid_clear_o)
 
   // Selectors must be known/valid.
   `ASSERT(IbexCtrlStateValid, ctrl_fsm_cs inside {

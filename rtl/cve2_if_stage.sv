@@ -41,8 +41,6 @@ module cve2_if_stage import cve2_pkg::*; #(
                                                                 // instr_is_compressed_id_o = 1'b1
   output logic                        instr_is_compressed_id_o, // compressed decoder thinks this
                                                                 // is a compressed instr
-  output logic                        instr_bp_taken_o,         // instruction was predicted to be
-                                                                // a taken branch
   output logic                        instr_fetch_err_o,        // bus error on fetch
   output logic                        instr_fetch_err_plus2_o,  // bus error misaligned
   output logic                        illegal_c_insn_id_o,      // compressed decoder thinks this
@@ -56,9 +54,6 @@ module cve2_if_stage import cve2_pkg::*; #(
   input  logic                        instr_valid_clear_i,      // clear instr valid bit in IF-ID
   input  logic                        pc_set_i,                 // set the PC to a new value
   input  pc_sel_e                     pc_mux_i,                 // selector for PC multiplexer
-  input  logic                        nt_branch_mispredict_i,   // Not-taken branch in ID/EX was
-                                                                // mispredicted (predicted taken)
-  input  logic [31:0]                 nt_branch_addr_i,         // Not-taken branch address in ID/EX
   input  exc_pc_sel_e                 exc_pc_mux_i,             // selects ISR address
   input  exc_cause_e                  exc_cause,                // selects ISR address for
                                                                 // vectorized interrupt lines
@@ -100,10 +95,6 @@ module cve2_if_stage import cve2_pkg::*; #(
   logic              illegal_c_insn;
   logic              instr_is_compressed;
 
-  logic              if_instr_valid;
-  logic       [31:0] if_instr_rdata;
-  logic       [31:0] if_instr_addr;
-  logic              if_instr_bus_err;
   logic              if_instr_pmp_err;
   logic              if_instr_err;
   logic              if_instr_err_plus2;
@@ -114,9 +105,6 @@ module cve2_if_stage import cve2_pkg::*; #(
   logic              unused_irq_bit;
 
   logic              if_id_pipe_reg_we; // IF-ID pipeline reg write enable
-
-  logic              predict_branch_taken;
-  logic       [31:0] predict_branch_pc;
 
   cve2_pkg::pc_sel_e pc_mux_internal;
 
@@ -168,8 +156,6 @@ module cve2_if_stage import cve2_pkg::*; #(
       .req_i               ( req_i                      ),
 
       .branch_i            ( branch_req                 ),
-      .branch_mispredict_i ( nt_branch_mispredict_i     ),
-      .mispredict_addr_i   ( nt_branch_addr_i           ),
       .addr_i              ( {fetch_addr_n[31:1], 1'b0} ),
 
       .ready_i             ( fetch_ready                ),
@@ -191,22 +177,22 @@ module cve2_if_stage import cve2_pkg::*; #(
 
   assign unused_fetch_addr_n0 = fetch_addr_n[0];
 
-  assign branch_req  = pc_set_i | predict_branch_taken;
+  assign branch_req  = pc_set_i;
 
-  assign pc_if_o     = if_instr_addr;
+  assign pc_if_o     = fetch_addr;
   assign if_busy_o   = prefetch_busy;
 
   // PMP errors
   // An error can come from the instruction address, or the next instruction address for unaligned,
   // uncompressed instructions.
   assign if_instr_pmp_err = pmp_err_if_i |
-                            (if_instr_addr[2] & ~instr_is_compressed & pmp_err_if_plus2_i);
+                            (fetch_addr[2] & ~instr_is_compressed & pmp_err_if_plus2_i);
 
   // Combine bus errors and pmp errors
-  assign if_instr_err = if_instr_bus_err | if_instr_pmp_err;
+  assign if_instr_err = fetch_err | if_instr_pmp_err;
 
   // Capture the second half of the address for errors on the second part of an instruction
-  assign if_instr_err_plus2 = ((if_instr_addr[2] & ~instr_is_compressed & pmp_err_if_plus2_i) |
+  assign if_instr_err_plus2 = ((fetch_addr[2] & ~instr_is_compressed & pmp_err_if_plus2_i) |
                                fetch_err_plus2) & ~pmp_err_if_i;
 
   // compressed instruction decoding, or more precisely compressed instruction
@@ -218,7 +204,7 @@ module cve2_if_stage import cve2_pkg::*; #(
     .clk_i          (clk_i),
     .rst_ni         (rst_ni),
     .valid_i        (fetch_valid & ~fetch_err),
-    .instr_i        (if_instr_rdata),
+    .instr_i        (fetch_rdata),
     .instr_o        (instr_decompressed),
     .is_compressed_o(instr_is_compressed),
     .illegal_instr_o(illegal_c_insn)
@@ -227,9 +213,9 @@ module cve2_if_stage import cve2_pkg::*; #(
   // The ID stage becomes valid as soon as any instruction is registered in the ID stage flops.
   // Note that the current instruction is squashed by the incoming pc_set_i signal.
   // Valid is held until it is explicitly cleared (due to an instruction completing or an exception)
-  assign instr_valid_id_d = (if_instr_valid & id_in_ready_i & ~pc_set_i) |
+  assign instr_valid_id_d = (fetch_valid & id_in_ready_i & ~pc_set_i) |
                             (instr_valid_id_q & ~instr_valid_clear_i);
-  assign instr_new_id_d   = if_instr_valid & id_in_ready_i;
+  assign instr_new_id_d   = fetch_valid & id_in_ready_i;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
@@ -264,24 +250,14 @@ module cve2_if_stage import cve2_pkg::*; #(
       instr_rdata_alu_id_o     <= instr_decompressed;
       instr_fetch_err_o        <= if_instr_err;
       instr_fetch_err_plus2_o  <= if_instr_err_plus2;
-      instr_rdata_c_id_o       <= if_instr_rdata[15:0];
+      instr_rdata_c_id_o       <= fetch_rdata; //if_instr_rdata[15:0];
       instr_is_compressed_id_o <= instr_is_compressed;
       illegal_c_insn_id_o      <= illegal_c_insn;
       pc_id_o                  <= pc_if_o;
     end
   end
 
-  begin : g_no_branch_predictor
-    assign instr_bp_taken_o     = 1'b0;
-    assign predict_branch_taken = 1'b0;
-    assign predict_branch_pc    = 32'b0;
-
-    assign if_instr_valid = fetch_valid;
-    assign if_instr_rdata = fetch_rdata;
-    assign if_instr_addr  = fetch_addr;
-    assign if_instr_bus_err = fetch_err;
-    assign fetch_ready = id_in_ready_i;
-  end
+  assign fetch_ready = id_in_ready_i;
 
   ////////////////
   // Assertions //
@@ -289,16 +265,6 @@ module cve2_if_stage import cve2_pkg::*; #(
 
   // Selectors must be known/valid.
   `ASSERT_KNOWN(IbexExcPcMuxKnown, exc_pc_mux_i)
-
-  begin : g_no_branch_predictor_asserts
-    `ASSERT_IF(IbexPcMuxValid, pc_mux_internal inside {
-        PC_BOOT,
-        PC_JUMP,
-        PC_EXC,
-        PC_ERET,
-        PC_DRET},
-      pc_set_i)
-  end
 
   // Boot address must be aligned to 256 bytes.
   `ASSERT(IbexBootAddrUnaligned, boot_addr_i[7:0] == 8'h00)
