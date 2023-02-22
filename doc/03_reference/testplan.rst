@@ -1,9 +1,5 @@
 .. _testplan:
 
-.. todo::
-
-  Add detail about security hardening verification.
-
 .. note::
 
   This testplan is a work in progress still being implemented so this document may not match the implemented verification in the repository.
@@ -14,8 +10,7 @@ Test Plan
 Goals
 -----
 
-* Verify compliance with all the RISC-V specifications Ibex supports.
-* Verify Ibex's security hardening features.
+* Verify compliance with all the RISC-V specifications CVE2 supports.
 * Ensure correct functionality is maintained across all possible behaviours of external interfaces (interrupts, memory responses, debug requests etc).
 * Hit all functional coverage points, described in :ref:`coverage-plan`.
 

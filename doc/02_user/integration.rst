@@ -20,7 +20,6 @@ Instantiation Template
       .RV32M            ( cve2_pkg::RV32MFast              ),
       .RegFile          ( cve2_pkg::RegFileFF              ),
       .BranchPrediction ( 0                                ),
-      .SecureIbex       ( 0                                ),
       .RndCnstLfsrSeed  ( cve2_pkg::RndCnstLfsrSeedDefault ),
       .RndCnstLfsrPerm  ( cve2_pkg::RndCnstLfsrPermDefault ),
       .DmHaltAddr       ( 32'h1A110800                     ),
@@ -105,16 +104,6 @@ Parameters
 |                              |                     |            | improving performance of loads and stores                             |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``BranchPrediction``         | bit                 | 0          | *EXPERIMENTAL* Enable Static branch prediction                        |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``SecureIbex``               | bit                 | 0          | *EXPERIMENTAL* Enable various additional features targeting           |
-|                              |                     |            | secure code execution. Note: SecureIbex == 1'b1 and                   |
-|                              |                     |            | RV32M == cve2_pkg::RV32MNone is an illegal combination.               |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``RndCnstLfsrSeed``          | lfsr_seed_t         | see above  | Set the starting seed of the LFSR used to generate dummy instructions |
-|                              |                     |            | (only relevant when SecureIbex == 1'b1)                               |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``RndCnstLfsrPerm``          | lfsr_perm_t         | see above  | Set the permutation applied to the output of the LFSR used to         |
-|                              |                     |            | generate dummy instructions (only relevant when SecureIbex == 1'b1)   |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 | ``DmHaltAddr``               | int                 | 0x1A110800 | Address to jump to when entering Debug Mode                           |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
