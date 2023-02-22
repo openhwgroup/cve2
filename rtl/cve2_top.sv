@@ -133,7 +133,6 @@ module cve2_top import cve2_pkg::*; #(
   logic                        clock_en;
   logic                        irq_pending;
   // Core <-> Register file signals
-  logic                        dummy_instr_id;
   logic [4:0]                  rf_raddr_a;
   logic [4:0]                  rf_raddr_b;
   logic [4:0]                  rf_waddr_wb;
@@ -227,7 +226,6 @@ module cve2_top import cve2_pkg::*; #(
     .data_rdata_i,
     .data_err_i,
 
-    .dummy_instr_id_o (dummy_instr_id),
     .rf_raddr_a_o     (rf_raddr_a),
     .rf_raddr_b_o     (rf_raddr_b),
     .rf_waddr_wb_o    (rf_waddr_wb),
@@ -297,7 +295,6 @@ module cve2_top import cve2_pkg::*; #(
       .rst_ni(rst_ni),
 
       .test_en_i       (test_en_i),
-      .dummy_instr_id_i(dummy_instr_id),
 
       .raddr_a_i(rf_raddr_a),
       .rdata_a_o(rf_rdata_a_ecc),
@@ -317,7 +314,6 @@ module cve2_top import cve2_pkg::*; #(
       .rst_ni(rst_ni),
 
       .test_en_i       (test_en_i),
-      .dummy_instr_id_i(dummy_instr_id),
 
       .raddr_a_i(rf_raddr_a),
       .rdata_a_o(rf_rdata_a_ecc),
@@ -337,7 +333,6 @@ module cve2_top import cve2_pkg::*; #(
       .rst_ni(rst_ni),
 
       .test_en_i       (test_en_i),
-      .dummy_instr_id_i(dummy_instr_id),
 
       .raddr_a_i(rf_raddr_a),
       .rdata_a_o(rf_rdata_a_ecc),

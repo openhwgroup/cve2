@@ -49,7 +49,6 @@ module cve2_if_stage import cve2_pkg::*; #(
   output logic                        instr_fetch_err_plus2_o,  // bus error misaligned
   output logic                        illegal_c_insn_id_o,      // compressed decoder thinks this
                                                                 // is an invalid instr
-  output logic                        dummy_instr_id_o,         // Instruction is a dummy
   output logic [31:0]                 pc_if_o,
   output logic [31:0]                 pc_id_o,
   input  logic                        pmp_err_if_i,
@@ -65,11 +64,6 @@ module cve2_if_stage import cve2_pkg::*; #(
   input  exc_pc_sel_e                 exc_pc_mux_i,             // selects ISR address
   input  exc_cause_e                  exc_cause,                // selects ISR address for
                                                                 // vectorized interrupt lines
-  input  logic                        dummy_instr_en_i,
-  input  logic [2:0]                  dummy_instr_mask_i,
-  input  logic                        dummy_instr_seed_en_i,
-  input  logic [31:0]                 dummy_instr_seed_i,
-
   // jump and branch target
   input  logic [31:0]                 branch_target_ex_i,       // branch/jump target address
 
@@ -123,13 +117,6 @@ module cve2_if_stage import cve2_pkg::*; #(
   logic              unused_irq_bit;
 
   logic              if_id_pipe_reg_we; // IF-ID pipeline reg write enable
-
-  // Dummy instruction signals
-  logic              stall_dummy_instr;
-  logic [31:0]       instr_out;
-  logic              instr_is_compressed_out;
-  logic              illegal_c_instr_out;
-  logic              instr_err_out;
 
   logic              predict_branch_taken;
   logic       [31:0] predict_branch_pc;
@@ -247,25 +234,6 @@ module cve2_if_stage import cve2_pkg::*; #(
     .illegal_instr_o(illegal_c_insn)
   );
 
-  // Dummy instruction insertion
-  begin : gen_no_dummy_instr
-    logic        unused_dummy_en;
-    logic [2:0]  unused_dummy_mask;
-    logic        unused_dummy_seed_en;
-    logic [31:0] unused_dummy_seed;
-
-    assign unused_dummy_en         = dummy_instr_en_i;
-    assign unused_dummy_mask       = dummy_instr_mask_i;
-    assign unused_dummy_seed_en    = dummy_instr_seed_en_i;
-    assign unused_dummy_seed       = dummy_instr_seed_i;
-    assign instr_out               = instr_decompressed;
-    assign instr_is_compressed_out = instr_is_compressed;
-    assign illegal_c_instr_out     = illegal_c_insn;
-    assign instr_err_out           = if_instr_err;
-    assign stall_dummy_instr       = 1'b0;
-    assign dummy_instr_id_o        = 1'b0;
-  end
-
   // The ID stage becomes valid as soon as any instruction is registered in the ID stage flops.
   // Note that the current instruction is squashed by the incoming pc_set_i signal.
   // Valid is held until it is explicitly cleared (due to an instruction completing or an exception)
@@ -302,14 +270,14 @@ module cve2_if_stage import cve2_pkg::*; #(
         illegal_c_insn_id_o      <= '0;
         pc_id_o                  <= '0;
       end else if (if_id_pipe_reg_we) begin
-        instr_rdata_id_o         <= instr_out;
+        instr_rdata_id_o         <= instr_decompressed;
         // To reduce fan-out and help timing from the instr_rdata_id flops they are replicated.
-        instr_rdata_alu_id_o     <= instr_out;
-        instr_fetch_err_o        <= instr_err_out;
+        instr_rdata_alu_id_o     <= instr_decompressed;
+        instr_fetch_err_o        <= if_instr_err; //instr_err_out;
         instr_fetch_err_plus2_o  <= if_instr_err_plus2;
         instr_rdata_c_id_o       <= if_instr_rdata[15:0];
-        instr_is_compressed_id_o <= instr_is_compressed_out;
-        illegal_c_insn_id_o      <= illegal_c_instr_out;
+        instr_is_compressed_id_o <= instr_is_compressed;
+        illegal_c_insn_id_o      <= illegal_c_insn; //illegal_c_instr_out;
         pc_id_o                  <= pc_if_o;
       end
     end
@@ -322,9 +290,9 @@ module cve2_if_stage import cve2_pkg::*; #(
     logic        prev_instr_seq_q, prev_instr_seq_d;
 
     // Do not check for sequential increase after a branch, jump, exception, interrupt or debug
-    // request, all of which will set branch_req. Also do not check after reset or for dummys.
+    // request, all of which will set branch_req. Also do not check after reset.
     assign prev_instr_seq_d = (prev_instr_seq_q | instr_new_id_d) &
-        ~branch_req & ~if_instr_err & ~stall_dummy_instr;
+        ~branch_req & ~if_instr_err;
 
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (!rst_ni) begin
@@ -380,7 +348,7 @@ module cve2_if_stage import cve2_pkg::*; #(
 
     assign instr_skid_en = predict_branch_taken & ~pc_set_i & ~id_in_ready_i & ~instr_skid_valid_q;
 
-    assign instr_skid_valid_d = (instr_skid_valid_q & ~id_in_ready_i & ~stall_dummy_instr) |
+    assign instr_skid_valid_d = (instr_skid_valid_q & ~id_in_ready_i) |
                                 instr_skid_en;
 
     always_ff @(posedge clk_i or negedge rst_ni) begin
@@ -431,7 +399,7 @@ module cve2_if_stage import cve2_pkg::*; #(
     assign if_instr_bus_err = ~instr_skid_valid_q & fetch_err;
     assign instr_bp_taken_d = instr_skid_valid_q ? instr_skid_bp_taken_q : predict_branch_taken;
 
-    assign fetch_ready = id_in_ready_i & ~stall_dummy_instr & ~instr_skid_valid_q;
+    assign fetch_ready = id_in_ready_i & ~instr_skid_valid_q;
 
     assign instr_bp_taken_o = instr_bp_taken_q;
 
@@ -446,7 +414,7 @@ module cve2_if_stage import cve2_pkg::*; #(
     assign if_instr_rdata = fetch_rdata;
     assign if_instr_addr  = fetch_addr;
     assign if_instr_bus_err = fetch_err;
-    assign fetch_ready = id_in_ready_i & ~stall_dummy_instr;
+    assign fetch_ready = id_in_ready_i;
   end
 
   ////////////////

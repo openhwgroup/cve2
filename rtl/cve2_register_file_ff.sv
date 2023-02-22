@@ -20,7 +20,6 @@ module cve2_register_file_ff #(
   input  logic                 rst_ni,
 
   input  logic                 test_en_i,
-  input  logic                 dummy_instr_id_i,
 
   //Read port R1
   input  logic [4:0]           raddr_a_i,
@@ -63,9 +62,6 @@ module cve2_register_file_ff #(
   end
 
   begin : g_normal_r0
-    logic unused_dummy_instr_id;
-    assign unused_dummy_instr_id = dummy_instr_id_i;
-
     // R0 is nil
     assign rf_reg[0] = WordZeroVal;
   end

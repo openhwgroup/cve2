@@ -55,7 +55,6 @@ module cve2_core import cve2_pkg::*; #(
   input  logic                         data_err_i,
 
   // Register file interface
-  output logic                         dummy_instr_id_o,
   output logic [4:0]                   rf_raddr_a_o,
   output logic [4:0]                   rf_raddr_b_o,
   output logic [4:0]                   rf_waddr_wb_o,
@@ -127,7 +126,6 @@ module cve2_core import cve2_pkg::*; #(
   localparam bit          ShadowCSR         = 1'b0;
 
   // IF/ID signals
-  logic        dummy_instr_id;
   logic        instr_valid_id;
   logic        instr_new_id;
   logic [31:0] instr_rdata_id;                 // Instruction sampled inside IF stage
@@ -148,10 +146,6 @@ module cve2_core import cve2_pkg::*; #(
   logic [1:0]  imd_val_we_ex;
 
   logic        data_ind_timing;
-  logic        dummy_instr_en;
-  logic [2:0]  dummy_instr_mask;
-  logic        dummy_instr_seed_en;
-  logic [31:0] dummy_instr_seed;
   logic        pc_mismatch_alert;
   logic        csr_shadow_err;
 
@@ -360,7 +354,6 @@ module cve2_core import cve2_pkg::*; #(
     .instr_fetch_err_o       (instr_fetch_err),
     .instr_fetch_err_plus2_o (instr_fetch_err_plus2),
     .illegal_c_insn_id_o     (illegal_c_insn_id),
-    .dummy_instr_id_o        (dummy_instr_id),
     .pc_if_o                 (pc_if),
     .pc_id_o                 (pc_id),
     .pmp_err_if_i            (pmp_req_err[PMP_I]),
@@ -373,10 +366,6 @@ module cve2_core import cve2_pkg::*; #(
     .nt_branch_mispredict_i(nt_branch_mispredict),
     .exc_pc_mux_i          (exc_pc_mux_id),
     .exc_cause             (exc_cause),
-    .dummy_instr_en_i      (dummy_instr_en),
-    .dummy_instr_mask_i    (dummy_instr_mask),
-    .dummy_instr_seed_en_i (dummy_instr_seed_en),
-    .dummy_instr_seed_i    (dummy_instr_seed),
 
     // branch targets
     .branch_target_ex_i(branch_target_ex),
@@ -701,7 +690,6 @@ module cve2_core import cve2_pkg::*; #(
   // Register file interface //
   /////////////////////////////
 
-  assign dummy_instr_id_o = dummy_instr_id;
   assign rf_raddr_a_o     = rf_raddr_a;
   assign rf_waddr_wb_o    = rf_waddr_wb;
   assign rf_we_wb_o       = rf_we_wb;
@@ -860,10 +848,6 @@ module cve2_core import cve2_pkg::*; #(
     .pc_wb_i(pc_wb),
 
     .data_ind_timing_o    (data_ind_timing),
-    .dummy_instr_en_o     (dummy_instr_en),
-    .dummy_instr_mask_o   (dummy_instr_mask),
-    .dummy_instr_seed_en_o(dummy_instr_seed_en),
-    .dummy_instr_seed_o   (dummy_instr_seed),
     .csr_shadow_err_o     (csr_shadow_err),
 
     .csr_save_if_i     (csr_save_if),
@@ -1101,7 +1085,7 @@ module cve2_core import cve2_pkg::*; #(
     // awaiting instruction retirement and RF Write data/Mem read data whilst instruction is in WB
     // So first stage becomes valid when instruction leaves ID/EX stage and remains valid until
     // instruction leaves WB
-    assign rvfi_stage_valid_d[0] = (rvfi_id_done & ~dummy_instr_id) |
+    assign rvfi_stage_valid_d[0] = rvfi_id_done |
                                    (rvfi_stage_valid[0] & ~rvfi_wb_done);
     // Second stage is output stage so simple valid cycle after instruction leaves WB (and so has
     // retired)
@@ -1129,7 +1113,7 @@ module cve2_core import cve2_pkg::*; #(
   end else begin : gen_rvfi_no_wb_stage
     // Without writeback stage first RVFI stage is output stage so simply valid the cycle after
     // instruction leaves ID/EX (and so has retired)
-    assign rvfi_stage_valid_d[0] = rvfi_id_done & ~dummy_instr_id;
+    assign rvfi_stage_valid_d[0] = rvfi_id_done;
     // Without writeback stage signal new instr_new_wb when instruction enters ID/EX to correctly
     // setup register write signals
     assign rvfi_instr_new_wb = instr_new_id;
@@ -1138,7 +1122,7 @@ module cve2_core import cve2_pkg::*; #(
     assign rvfi_wb_done = instr_done_wb;
   end
 
-  assign rvfi_stage_order_d = dummy_instr_id ? rvfi_stage_order[0] : rvfi_stage_order[0] + 64'd1;
+  assign rvfi_stage_order_d = rvfi_stage_order[0] + 64'd1;
 
   // For interrupts and debug Ibex will take the relevant trap as soon as whatever instruction in ID
   // finishes or immediately if the ID stage is empty. The rvfi_ext interface provides the DV
