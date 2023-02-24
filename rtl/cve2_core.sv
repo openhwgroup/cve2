@@ -121,9 +121,6 @@ module cve2_core import cve2_pkg::*; #(
 
   localparam int unsigned PMP_NUM_CHAN      = 3;
   // SEC_CM: CORE.DATA_REG_SW.SCA
-  localparam bit          DataIndTiming     = 1'b0;
-  localparam bit          PCIncrCheck       = 1'b0;
-  localparam bit          ShadowCSR         = 1'b0;
 
   // IF/ID signals
   logic        instr_valid_id;
@@ -144,10 +141,6 @@ module cve2_core import cve2_pkg::*; #(
   logic [33:0] imd_val_d_ex[2];                // Intermediate register for multicycle Ops
   logic [33:0] imd_val_q_ex[2];                // Intermediate register for multicycle Ops
   logic [1:0]  imd_val_we_ex;
-
-  logic        data_ind_timing;
-  logic        pc_mismatch_alert;
-  logic        csr_shadow_err;
 
   logic        instr_first_cycle_id;
   logic        instr_valid_clear;
@@ -326,7 +319,6 @@ module cve2_core import cve2_pkg::*; #(
   cve2_if_stage #(
     .DmHaltAddr       (DmHaltAddr),
     .DmExceptionAddr  (DmExceptionAddr),
-    .PCIncrCheck      (PCIncrCheck),
     .BranchPredictor  (BranchPredictor)
   ) if_stage_i (
     .clk_i (clk_i),
@@ -380,7 +372,6 @@ module cve2_core import cve2_pkg::*; #(
     // pipeline stalls
     .id_in_ready_i(id_in_ready),
 
-    .pc_mismatch_alert_o(pc_mismatch_alert),
     .if_busy_o          (if_busy)
   );
 
@@ -404,7 +395,6 @@ module cve2_core import cve2_pkg::*; #(
     .RV32E          (RV32E),
     .RV32M          (RV32M),
     .RV32B          (RV32B),
-    .DataIndTiming  (DataIndTiming),
     .WritebackStage (WritebackStage),
     .BranchPredictor(BranchPredictor)
   ) id_stage_i (
@@ -480,7 +470,6 @@ module cve2_core import cve2_pkg::*; #(
     .priv_mode_i          (priv_mode_id),
     .csr_mstatus_tw_i     (csr_mstatus_tw),
     .illegal_csr_insn_i   (illegal_csr_insn_id),
-    .data_ind_timing_i    (data_ind_timing),
 
     // LSU
     .lsu_req_o     (lsu_req),  // to load store unit
@@ -576,7 +565,6 @@ module cve2_core import cve2_pkg::*; #(
     .multdiv_operand_a_i  (multdiv_operand_a_ex),
     .multdiv_operand_b_i  (multdiv_operand_b_ex),
     .multdiv_ready_id_i   (multdiv_ready_id),
-    .data_ind_timing_i    (data_ind_timing),
 
     // Intermediate value register
     .imd_val_we_o(imd_val_we_ex),
@@ -726,7 +714,7 @@ module cve2_core import cve2_pkg::*; #(
   assign alert_minor_o = 1'b0;
 
   // Major alert - core is unrecoverable
-  assign alert_major_o = rf_ecc_err_comb | pc_mismatch_alert | csr_shadow_err;
+  assign alert_major_o = rf_ecc_err_comb;
 
   // Explict INC_ASSERT block to avoid unused signal lint warnings were asserts are not included
   `ifdef INC_ASSERT
@@ -784,8 +772,6 @@ module cve2_core import cve2_pkg::*; #(
   cve2_cs_registers #(
     .DbgTriggerEn     (DbgTriggerEn),
     .DbgHwBreakNum    (DbgHwBreakNum),
-    .DataIndTiming    (DataIndTiming),
-    .ShadowCSR        (ShadowCSR),
     .MHPMCounterNum   (MHPMCounterNum),
     .MHPMCounterWidth (MHPMCounterWidth),
     .PMPEnable        (PMPEnable),
@@ -846,9 +832,6 @@ module cve2_core import cve2_pkg::*; #(
     .pc_if_i(pc_if),
     .pc_id_i(pc_id),
     .pc_wb_i(pc_wb),
-
-    .data_ind_timing_o    (data_ind_timing),
-    .csr_shadow_err_o     (csr_shadow_err),
 
     .csr_save_if_i     (csr_save_if),
     .csr_save_id_i     (csr_save_id),

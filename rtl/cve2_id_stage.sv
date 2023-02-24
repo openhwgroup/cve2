@@ -21,7 +21,6 @@ module cve2_id_stage #(
   parameter bit               RV32E           = 0,
   parameter cve2_pkg::rv32m_e RV32M           = cve2_pkg::RV32MFast,
   parameter cve2_pkg::rv32b_e RV32B           = cve2_pkg::RV32BNone,
-  parameter bit               DataIndTiming   = 1'b0,
   parameter bit               WritebackStage  = 0,
   parameter bit               BranchPredictor = 0
 ) (
@@ -98,7 +97,6 @@ module cve2_id_stage #(
   input  cve2_pkg::priv_lvl_e       priv_mode_i,
   input  logic                      csr_mstatus_tw_i,
   input  logic                      illegal_csr_insn_i,
-  input  logic                      data_ind_timing_i,
 
   // Interface to load store unit
   output logic                      lsu_req_o,
@@ -194,7 +192,6 @@ module cve2_id_stage #(
   logic        branch_set, branch_set_raw, branch_set_raw_d;
   logic        branch_jump_set_done_q, branch_jump_set_done_d;
   logic        branch_not_set;
-  logic        branch_taken;
   logic        jump_in_dec;
   logic        jump_set_dec;
   logic        jump_set, jump_set_raw;
@@ -383,7 +380,6 @@ module cve2_id_stage #(
     .ecall_insn_o  (ecall_insn_dec),
     .wfi_insn_o    (wfi_insn_dec),
     .jump_set_o    (jump_set_dec),
-    .branch_taken_i(branch_taken),
 
     // from IF-ID pipeline register
     .instr_first_cycle_i(instr_first_cycle),
@@ -640,30 +636,6 @@ module cve2_id_stage #(
   assign jump_set        = jump_set_raw        & ~branch_jump_set_done_q;
   assign branch_set      = branch_set_raw      & ~branch_jump_set_done_q;
 
-  // Branch condition is calculated in the first cycle and flopped for use in the second cycle
-  // (only used in fixed time execution mode to determine branch destination).
-  if (DataIndTiming) begin : g_sec_branch_taken
-    // SEC_CM: CORE.DATA_REG_SW.SCA
-    logic branch_taken_q;
-
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        branch_taken_q <= 1'b0;
-      end else begin
-        branch_taken_q <= branch_decision_i;
-      end
-    end
-
-    assign branch_taken = ~data_ind_timing_i | branch_taken_q;
-
-  end else begin : g_nosec_branch_taken
-
-    // Signal unused without fixed time execution mode - only taken branches will trigger
-    // branch_set_raw
-    assign branch_taken = 1'b1;
-
-  end
-
   // Holding branch_set/jump_set high for more than one cycle should not cause a functional issue.
   // However it could generate needless prefetch buffer flushes and instruction fetches. The ID/EX
   // designs ensures that this never happens for non-predicted branches.
@@ -741,13 +713,13 @@ module cve2_id_stage #(
               // All branches take two cycles in fixed time execution mode, regardless of branch
               // condition.
               // SEC_CM: CORE.DATA_REG_SW.SCA
-              id_fsm_d         = (data_ind_timing_i || branch_decision_i) ?
+              id_fsm_d         = (branch_decision_i) ?
                                      MULTI_CYCLE : FIRST_CYCLE;
-              stall_branch     = (branch_decision_i | data_ind_timing_i);
-              branch_set_raw_d = (branch_decision_i | data_ind_timing_i);
+              stall_branch     = branch_decision_i;
+              branch_set_raw_d = branch_decision_i;
 
               if (BranchPredictor) begin
-                branch_not_set = ~branch_decision_i;
+                branch_not_set = 1'b1;
               end
 
               perf_branch_o = 1'b1;
@@ -1002,8 +974,6 @@ module cve2_id_stage #(
 
   `DV_FCOV_SIGNAL_GEN_IF(logic, rf_rd_wb_hz,
     (gen_stall_mem.rf_rd_a_hz | gen_stall_mem.rf_rd_b_hz) & instr_valid_i, WritebackStage)
-  `DV_FCOV_SIGNAL(logic, branch_taken,
-    instr_executing & (id_fsm_q == FIRST_CYCLE) & branch_decision_i)
   `DV_FCOV_SIGNAL(logic, branch_not_taken,
     instr_executing & (id_fsm_q == FIRST_CYCLE) & ~branch_decision_i)
 

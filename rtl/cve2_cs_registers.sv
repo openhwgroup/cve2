@@ -15,8 +15,6 @@
 module cve2_cs_registers #(
   parameter bit               DbgTriggerEn      = 0,
   parameter int unsigned      DbgHwBreakNum     = 1,
-  parameter bit               DataIndTiming     = 1'b0,
-  parameter bit               ShadowCSR         = 1'b0,
   parameter int unsigned      MHPMCounterNum    = 10,
   parameter int unsigned      MHPMCounterWidth  = 40,
   parameter bit               PMPEnable         = 0,
@@ -80,14 +78,6 @@ module cve2_cs_registers #(
   input  logic [31:0]          pc_if_i,
   input  logic [31:0]          pc_id_i,
   input  logic [31:0]          pc_wb_i,
-
-  // CPU control bits
-  output logic                 data_ind_timing_o,
-  output logic                 dummy_instr_en_o,
-  output logic [2:0]           dummy_instr_mask_o,
-  output logic                 dummy_instr_seed_en_o,
-  output logic [31:0]          dummy_instr_seed_o,
-  output logic                 csr_shadow_err_o,
 
   // Exception save/restore
   input  logic                 csr_save_if_i,
@@ -799,7 +789,6 @@ module cve2_cs_registers #(
                                           tw:   1'b0};
   cve2_csr #(
     .Width     ($bits(status_t)),
-    .ShadowCopy(ShadowCSR),
     .ResetValue({MSTATUS_RST_VAL})
   ) u_mstatus_csr (
     .clk_i     (clk_i),
@@ -887,7 +876,6 @@ module cve2_cs_registers #(
   // MTVEC
   cve2_csr #(
     .Width     (32),
-    .ShadowCopy(ShadowCSR),
     .ResetValue(32'd1)
   ) u_mtvec_csr (
     .clk_i     (clk_i),
@@ -1100,7 +1088,6 @@ module cve2_cs_registers #(
 
       cve2_csr #(
         .Width     ($bits(pmp_cfg_t)),
-        .ShadowCopy(ShadowCSR),
         .ResetValue(pmp_cfg_rst[i])
       ) u_pmp_cfg_csr (
         .clk_i     (clk_i),
@@ -1129,7 +1116,6 @@ module cve2_cs_registers #(
 
       cve2_csr #(
         .Width     (PMPAddrWidth),
-        .ShadowCopy(ShadowCSR),
         .ResetValue(pmp_addr_rst[i][33-:PMPAddrWidth])
       ) u_pmp_addr_csr (
         .clk_i     (clk_i),
@@ -1162,7 +1148,6 @@ module cve2_cs_registers #(
 
     cve2_csr #(
       .Width     ($bits(pmp_mseccfg_t)),
-      .ShadowCopy(ShadowCSR),
       .ResetValue(pmp_mseccfg_rst)
     ) u_pmp_mseccfg (
       .clk_i     (clk_i),
@@ -1500,22 +1485,6 @@ module cve2_cs_registers #(
   // Cast register write data
   assign cpuctrl_wdata_raw = cpu_ctrl_t'(csr_wdata_int[$bits(cpu_ctrl_t)-1:0]);
 
-  // Generate fixed time execution bit
-  if (DataIndTiming) begin : gen_dit
-    // SEC_CM: CORE.DATA_REG_SW.SCA
-    assign cpuctrl_wdata.data_ind_timing = cpuctrl_wdata_raw.data_ind_timing;
-
-  end else begin : gen_no_dit
-    // tieoff for the unused bit
-    logic unused_dit;
-    assign unused_dit = cpuctrl_wdata_raw.data_ind_timing;
-
-    // field will always read as zero if not configured
-    assign cpuctrl_wdata.data_ind_timing = 1'b0;
-  end
-
-  assign data_ind_timing_o = cpuctrl_q.data_ind_timing;
-
   // Generate dummy instruction signals
   begin : gen_no_dummy
     // tieoff for the unused bit
@@ -1539,7 +1508,6 @@ module cve2_cs_registers #(
 
   cve2_csr #(
     .Width     ($bits(cpu_ctrl_t)),
-    .ShadowCopy(ShadowCSR),
     .ResetValue('0)
   ) u_cpuctrl_csr (
     .clk_i     (clk_i),
@@ -1549,8 +1517,6 @@ module cve2_cs_registers #(
     .rd_data_o (cpuctrl_q),
     .rd_error_o(cpuctrl_err)
   );
-
-  assign csr_shadow_err_o = mstatus_err | mtvec_err | pmp_csr_err | cpuctrl_err;
 
   ////////////////
   // Assertions //

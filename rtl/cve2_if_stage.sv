@@ -15,7 +15,6 @@
 module cve2_if_stage import cve2_pkg::*; #(
   parameter int unsigned DmHaltAddr        = 32'h1A110800,
   parameter int unsigned DmExceptionAddr   = 32'h1A110808,
-  parameter bit          PCIncrCheck       = 1'b0,
   parameter bit          BranchPredictor   = 1'b0
 ) (
   input  logic                         clk_i,
@@ -79,7 +78,6 @@ module cve2_if_stage import cve2_pkg::*; #(
   input  logic                        id_in_ready_i,            // ID stage is ready for new instr
 
   // misc signals
-  output logic                        pc_mismatch_alert_o,
   output logic                        if_busy_o                 // IF stage is busy fetching instr
 );
 
@@ -281,40 +279,6 @@ module cve2_if_stage import cve2_pkg::*; #(
         pc_id_o                  <= pc_if_o;
       end
     end
-  end
-
-  // Check for expected increments of the PC when security hardening enabled
-  if (PCIncrCheck) begin : g_secure_pc
-    // SEC_CM: PC.CTRL_FLOW.CONSISTENCY
-    logic [31:0] prev_instr_addr_incr, prev_instr_addr_incr_buf;
-    logic        prev_instr_seq_q, prev_instr_seq_d;
-
-    // Do not check for sequential increase after a branch, jump, exception, interrupt or debug
-    // request, all of which will set branch_req. Also do not check after reset.
-    assign prev_instr_seq_d = (prev_instr_seq_q | instr_new_id_d) &
-        ~branch_req & ~if_instr_err;
-
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        prev_instr_seq_q <= 1'b0;
-      end else begin
-        prev_instr_seq_q <= prev_instr_seq_d;
-      end
-    end
-
-    assign prev_instr_addr_incr = pc_id_o + (instr_is_compressed_id_o ? 32'd2 : 32'd4);
-
-    // Buffer anticipated next PC address to ensure optimiser cannot remove the check.
-    prim_buf #(.Width(32)) u_prev_instr_addr_incr_buf (
-      .in_i (prev_instr_addr_incr),
-      .out_o(prev_instr_addr_incr_buf)
-    );
-
-    // Check that the address equals the previous address +2/+4
-    assign pc_mismatch_alert_o = prev_instr_seq_q & (pc_if_o != prev_instr_addr_incr_buf);
-
-  end else begin : g_no_secure_pc
-    assign pc_mismatch_alert_o = 1'b0;
   end
 
   if (BranchPredictor) begin : g_branch_predictor

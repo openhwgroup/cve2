@@ -30,7 +30,6 @@ module cve2_decoder #(
   output logic                 ecall_insn_o,          // syscall instr encountered
   output logic                 wfi_insn_o,            // wait for interrupt instr encountered
   output logic                 jump_set_o,            // jump taken set signal
-  input  logic                 branch_taken_i,        // registered branch decision
 
   // from IF-ID pipeline register
   input  logic                 instr_first_cycle_i,   // instruction read is in its first cycle
@@ -739,7 +738,7 @@ module cve2_decoder #(
           alu_op_a_mux_sel_o  = OP_A_CURRPC;
           alu_op_b_mux_sel_o  = OP_B_IMM;
           // Not-taken branch will jump to next instruction (used in secure mode)
-          imm_b_mux_sel_o     = branch_taken_i ? IMM_B_B : IMM_B_INCR_PC;
+          imm_b_mux_sel_o     = IMM_B_B;
           alu_operator_o      = ALU_ADD;
         end
       end
