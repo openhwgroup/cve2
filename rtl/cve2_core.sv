@@ -76,7 +76,6 @@ module cve2_core import cve2_pkg::*; #(
   output crash_dump_t                  crash_dump_o,
   // SEC_CM: EXCEPTION.CTRL_FLOW.LOCAL_ESC
   // SEC_CM: EXCEPTION.CTRL_FLOW.GLOBAL_ESC
-  output logic                         double_fault_seen_o,
 
   // RISC-V Formal Interface
   // Does not comply with the coding standards of _i/_o suffixes, but follows
@@ -113,7 +112,6 @@ module cve2_core import cve2_pkg::*; #(
 
   // CPU Control Signals
   // SEC_CM: FETCH.CTRL.LC_GATED
-  input  fetch_enable_t                fetch_enable_i,
   output logic                         alert_minor_o,
   output logic                         alert_major_o,
   output logic                         core_busy_o
@@ -381,10 +379,7 @@ module cve2_core import cve2_pkg::*; #(
 
   begin : g_instr_req_gated_non_secure
     // For non secure Ibex only the bottom bit of fetch enable is considered
-    logic unused_fetch_enable;
-    assign unused_fetch_enable = ^fetch_enable_i[$bits(fetch_enable_t)-1:1];
-
-    assign instr_req_gated = instr_req_int & fetch_enable_i[0];
+    assign instr_req_gated = instr_req_int;
   end
 
   //////////////
@@ -842,8 +837,6 @@ module cve2_core import cve2_pkg::*; #(
     .csr_mcause_i      (exc_cause),
     .csr_mtval_i       (csr_mtval),
     .illegal_csr_insn_o(illegal_csr_insn_id),
-
-    .double_fault_seen_o,
 
     // performance counter related signals
     .instr_ret_i                (perf_instr_ret_wb),

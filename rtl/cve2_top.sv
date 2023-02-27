@@ -65,7 +65,6 @@ module cve2_top import cve2_pkg::*; #(
   // Debug Interface
   input  logic                         debug_req_i,
   output crash_dump_t                  crash_dump_o,
-  output logic                         double_fault_seen_o,
 
   // RISC-V Formal Interface
   // Does not comply with the coding standards of _i/_o suffixes, but follows
@@ -101,7 +100,6 @@ module cve2_top import cve2_pkg::*; #(
 `endif
 
   // CPU Control Signals
-  input  fetch_enable_t                fetch_enable_i,
   output logic                         alert_minor_o,
   output logic                         alert_major_internal_o,
   output logic                         alert_major_bus_o,
@@ -143,8 +141,6 @@ module cve2_top import cve2_pkg::*; #(
   // Alert signals
   logic                        core_alert_major, core_alert_minor;
 
-  fetch_enable_t fetch_enable_buf;
-
   /////////////////////
   // Main clock gate //
   /////////////////////
@@ -170,12 +166,6 @@ module cve2_top import cve2_pkg::*; #(
   ////////////////////////
   // Core instantiation //
   ////////////////////////
-
-  // Buffer security critical signals to prevent synthesis optimisation removing them
-  prim_buf #(.Width($bits(fetch_enable_t))) u_fetch_enable_buf (
-    .in_i (fetch_enable_i),
-    .out_o(fetch_enable_buf)
-  );
 
   prim_buf #(.Width(32)) u_rf_rdata_a_ecc_buf (
     .in_i (rf_rdata_a_ecc),
@@ -231,8 +221,8 @@ module cve2_top import cve2_pkg::*; #(
     .rf_waddr_wb_o    (rf_waddr_wb),
     .rf_we_wb_o       (rf_we_wb),
     .rf_wdata_wb_ecc_o(rf_wdata_wb_ecc),
-    .rf_rdata_a_ecc_i (rf_rdata_a_ecc_buf),
-    .rf_rdata_b_ecc_i (rf_rdata_b_ecc_buf),
+    .rf_rdata_a_ecc_i (rf_rdata_a_ecc), //_buf),
+    .rf_rdata_b_ecc_i (rf_rdata_b_ecc), //_buf),
 
     .irq_software_i,
     .irq_timer_i,
@@ -243,7 +233,6 @@ module cve2_top import cve2_pkg::*; #(
 
     .debug_req_i,
     .crash_dump_o,
-    .double_fault_seen_o,
 
 `ifdef RVFI
     .rvfi_valid,
@@ -275,7 +264,6 @@ module cve2_top import cve2_pkg::*; #(
     .rvfi_ext_mcycle,
 `endif
 
-    .fetch_enable_i(fetch_enable_buf),
     .alert_minor_o (core_alert_minor),
     .alert_major_o (core_alert_major),
     .core_busy_o   (core_busy_d)
@@ -358,11 +346,6 @@ module cve2_top import cve2_pkg::*; #(
 
   end
 
-  // Redundant lockstep core implementation
-  begin : gen_no_lockstep
-    assign data_wdata_intg_o             = 'b0;
-  end
-
   assign alert_major_internal_o = core_alert_major;
   assign alert_major_bus_o      = 1'b0;
   assign alert_minor_o          = core_alert_minor;
@@ -375,7 +358,6 @@ module cve2_top import cve2_pkg::*; #(
   `ASSERT_KNOWN_IF(IbexDataReqPayloadX,
     {data_we_o, data_be_o, data_addr_o, data_wdata_o, data_wdata_intg_o}, data_req_o)
 
-  `ASSERT_KNOWN(IbexDoubleFaultSeenX, double_fault_seen_o)
   `ASSERT_KNOWN(IbexAlertMinorX, alert_minor_o)
   `ASSERT_KNOWN(IbexAlertMajorInternalX, alert_major_internal_o)
   `ASSERT_KNOWN(IbexAlertMajorBusX, alert_major_bus_o)
@@ -399,5 +381,4 @@ module cve2_top import cve2_pkg::*; #(
   `ASSERT_KNOWN(IbexIrqX, {irq_software_i, irq_timer_i, irq_external_i, irq_fast_i, irq_nm_i})
 
   `ASSERT_KNOWN(IbexDebugReqX, debug_req_i)
-  `ASSERT_KNOWN(IbexFetchEnableX, fetch_enable_i)
 endmodule

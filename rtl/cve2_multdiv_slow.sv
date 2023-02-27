@@ -26,7 +26,6 @@ module cve2_multdiv_slow
   input  logic [33:0]      alu_adder_ext_i,
   input  logic [31:0]      alu_adder_i,
   input  logic             equal_to_zero_i,
-  input  logic             data_ind_timing_i,
 
   output logic [32:0]      alu_operand_a_o,
   output logic [32:0]      alu_operand_b_o,
@@ -191,7 +190,7 @@ module cve2_multdiv_slow
               op_b_shift_d   = op_b_ext >> 1;
               // Proceed with multiplication by 0/1 in data-independent time mode
               // SEC_CM: CORE.DATA_REG_SW.SCA
-              md_state_d     = (!data_ind_timing_i && ((op_b_ext >> 1) == 0)) ? MD_LAST : MD_COMP;
+              md_state_d     = ((op_b_ext >> 1) == 0) ? MD_LAST : MD_COMP;
             end
             MD_OP_MULH: begin
               op_a_shift_d   = op_a_ext;
@@ -207,7 +206,7 @@ module cve2_multdiv_slow
               // normal and will naturally return -1
               accum_window_d = {33{1'b1}};
               // SEC_CM: CORE.DATA_REG_SW.SCA
-              md_state_d     = (!data_ind_timing_i && equal_to_zero_i) ? MD_FINISH : MD_ABS_A;
+              md_state_d     = equal_to_zero_i ? MD_FINISH : MD_ABS_A;
               // Record that this is a div by zero to stop the sign change at the end of the
               // division (in data_ind_timing mode).
               div_by_zero_d  = equal_to_zero_i;
@@ -219,7 +218,7 @@ module cve2_multdiv_slow
               // normal and will naturally return operand a
               accum_window_d = op_a_ext;
               // SEC_CM: CORE.DATA_REG_SW.SCA
-              md_state_d     = (!data_ind_timing_i && equal_to_zero_i) ? MD_FINISH : MD_ABS_A;
+              md_state_d     = equal_to_zero_i ? MD_FINISH : MD_ABS_A;
             end
             default:;
           endcase
@@ -252,7 +251,7 @@ module cve2_multdiv_slow
               // Multiplication is complete once op_b is zero, unless in data_ind_timing mode where
               // the maximum possible shift-add operations will be completed regardless of op_b
               // SEC_CM: CORE.DATA_REG_SW.SCA
-              md_state_d     = ((!data_ind_timing_i && (op_b_shift_d == 0)) ||
+              md_state_d     = ((op_b_shift_d == 0) ||
                                 (multdiv_count_q == 5'd1)) ? MD_LAST : MD_COMP;
             end
             MD_OP_MULH: begin

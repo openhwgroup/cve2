@@ -64,10 +64,8 @@ module cve2_top_tracing import cve2_pkg::*; #(
   // Debug Interface
   input  logic                         debug_req_i,
   output crash_dump_t                  crash_dump_o,
-  output logic                         double_fault_seen_o,
 
   // CPU Control Signals
-  input  fetch_enable_t                fetch_enable_i,
   output logic                         alert_minor_o,
   output logic                         alert_major_internal_o,
   output logic                         alert_major_bus_o,
@@ -172,7 +170,6 @@ module cve2_top_tracing import cve2_pkg::*; #(
 
     .debug_req_i,
     .crash_dump_o,
-    .double_fault_seen_o,
 
     .rvfi_valid,
     .rvfi_order,
@@ -202,7 +199,6 @@ module cve2_top_tracing import cve2_pkg::*; #(
     .rvfi_ext_debug_req,
     .rvfi_ext_mcycle,
 
-    .fetch_enable_i,
     .alert_minor_o,
     .alert_major_internal_o,
     .alert_major_bus_o,

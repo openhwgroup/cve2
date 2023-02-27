@@ -571,16 +571,5 @@ package cve2_pkg;
   // version here using their own unique encoding (e.g. 32 bits of the git hash of the implemented
   // commit).
   localparam logic [31:0] CSR_MIMPID_VALUE = 32'b0;
-
-  // Fetch enable. Mult-bit signal used for security hardening. For non-secure implementation all
-  // bits other than the bottom bit are ignored.
-  typedef logic [3:0] fetch_enable_t;
-
-  // Note that if adjusting these parameters it is assumed the bottom bit is set for On and unset
-  // for Off. This allows the use of FetchEnableOn/FetchEnableOff to work for both secure and
-  // non-secure Ibex. If this assumption is broken the RTL that uses the fetch_enable signal within
-  // `cve2_core` may need adjusting.
-  parameter fetch_enable_t FetchEnableOn  = 4'b1001;
-  parameter fetch_enable_t FetchEnableOff = 4'b0110;
 endpackage
 

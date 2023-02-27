@@ -271,11 +271,11 @@ module cve2_if_stage import cve2_pkg::*; #(
         instr_rdata_id_o         <= instr_decompressed;
         // To reduce fan-out and help timing from the instr_rdata_id flops they are replicated.
         instr_rdata_alu_id_o     <= instr_decompressed;
-        instr_fetch_err_o        <= if_instr_err; //instr_err_out;
+        instr_fetch_err_o        <= if_instr_err;
         instr_fetch_err_plus2_o  <= if_instr_err_plus2;
         instr_rdata_c_id_o       <= if_instr_rdata[15:0];
         instr_is_compressed_id_o <= instr_is_compressed;
-        illegal_c_insn_id_o      <= illegal_c_insn; //illegal_c_instr_out;
+        illegal_c_insn_id_o      <= illegal_c_insn;
         pc_id_o                  <= pc_if_o;
       end
     end
