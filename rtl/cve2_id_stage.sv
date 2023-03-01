@@ -80,7 +80,6 @@ module cve2_id_stage #(
   output logic  [1:0]               multdiv_signed_mode_ex_o,
   output logic [31:0]               multdiv_operand_a_ex_o,
   output logic [31:0]               multdiv_operand_b_ex_o,
-  output logic                      multdiv_ready_id_o,
 
   // CSR
   output logic                      csr_access_o,
@@ -88,7 +87,6 @@ module cve2_id_stage #(
   output logic                      csr_op_en_o,
   output logic                      csr_save_if_o,
   output logic                      csr_save_id_o,
-  output logic                      csr_save_wb_o,
   output logic                      csr_restore_mret_id_o,
   output logic                      csr_restore_dret_id_o,
   output logic                      csr_save_cause_o,
@@ -153,15 +151,8 @@ module cve2_id_stage #(
 
   // Register write information from writeback (for resolving data hazards)
   input  logic [4:0]                rf_waddr_wb_i,
-  input  logic [31:0]               rf_wdata_fwd_wb_i,
-  input  logic                      rf_write_wb_i,
 
-  output  logic                     en_wb_o,
-  output  cve2_pkg::wb_instr_type_e instr_type_wb_o,
   output  logic                     instr_perf_count_id_o,
-  input logic                       ready_wb_i,
-  input logic                       outstanding_load_wb_i,
-  input logic                       outstanding_store_wb_i,
 
   // Performance Counters
   output logic                      perf_jump_o,    // executing a jump instr
@@ -184,7 +175,6 @@ module cve2_id_stage #(
   logic        ecall_insn_dec;
   logic        wfi_insn_dec;
 
-  logic        wb_exception;
   logic        id_exception;
 
   logic        branch_in_dec;
@@ -206,7 +196,6 @@ module cve2_id_stage #(
   logic        stall_branch;
   logic        stall_jump;
   logic        stall_id;
-  logic        stall_wb;
   logic        flush_id;
   logic        multicycle_done;
 
@@ -515,7 +504,6 @@ module cve2_id_stage #(
     .lsu_addr_last_i(lsu_addr_last_i),
     .load_err_i     (lsu_load_err_i),
     .store_err_i    (lsu_store_err_i),
-    .wb_exception_o (wb_exception),
     .id_exception_o (id_exception),
 
     // jump/branch control
@@ -533,7 +521,6 @@ module cve2_id_stage #(
     // CSR Controller Signals
     .csr_save_if_o        (csr_save_if_o),
     .csr_save_id_o        (csr_save_id_o),
-    .csr_save_wb_o        (csr_save_wb_o),
     .csr_restore_mret_id_o(csr_restore_mret_id_o),
     .csr_restore_dret_id_o(csr_restore_dret_id_o),
     .csr_save_cause_o     (csr_save_cause_o),
@@ -552,9 +539,7 @@ module cve2_id_stage #(
     .trigger_match_i    (trigger_match_i),
 
     .stall_id_i(stall_id),
-    .stall_wb_i(stall_wb),
     .flush_id_o(flush_id),
-    .ready_wb_i(ready_wb_i),
 
     // Performance Counters
     .perf_jump_o   (perf_jump_o),
@@ -741,7 +726,7 @@ module cve2_id_stage #(
             rf_we_raw       = rf_we_dec & ex_valid_i;
           end
 
-          if (multicycle_done & ready_wb_i) begin
+          if (multicycle_done) begin
             id_fsm_d        = FIRST_CYCLE;
           end else begin
             stall_multdiv   = multdiv_en_dec;
@@ -756,9 +741,6 @@ module cve2_id_stage #(
       endcase
     end
   end
-
-  // Note for the two-stage configuration ready_wb_i is always set
-  assign multdiv_ready_id_o = ready_wb_i;
 
   `ASSERT(StallIDIfMulticycle, (id_fsm_q == FIRST_CYCLE) & (id_fsm_d == MULTI_CYCLE) |-> stall_id)
 
@@ -816,24 +798,11 @@ module cve2_id_stage #(
     // Tie-off outputs to constant values
     logic unused_data_req_done_ex;
     logic [4:0] unused_rf_waddr_wb;
-    logic unused_rf_write_wb;
-    logic unused_outstanding_load_wb;
-    logic unused_outstanding_store_wb;
-    logic unused_wb_exception;
-    logic [31:0] unused_rf_wdata_fwd_wb;
     logic unused_id_exception;
 
     assign unused_data_req_done_ex     = lsu_req_done_i;
     assign unused_rf_waddr_wb          = rf_waddr_wb_i;
-    assign unused_rf_write_wb          = rf_write_wb_i;
-    assign unused_outstanding_load_wb  = outstanding_load_wb_i;
-    assign unused_outstanding_store_wb = outstanding_store_wb_i;
-    assign unused_wb_exception         = wb_exception;
-    assign unused_rf_wdata_fwd_wb      = rf_wdata_fwd_wb_i;
     assign unused_id_exception         = id_exception;
-
-    assign instr_type_wb_o = WB_INSTR_OTHER;
-    assign stall_wb        = 1'b0;
 
     assign perf_dside_wait_o = instr_executing & lsu_req_dec & ~lsu_resp_valid_i;
 
@@ -844,10 +813,6 @@ module cve2_id_stage #(
   // ecall instructions are not counted.
   assign instr_perf_count_id_o = ~ebrk_insn & ~ecall_insn_dec & ~illegal_insn_dec &
       ~illegal_csr_insn_i & ~instr_fetch_err_i;
-
-  // An instruction is ready to move to the writeback stage (or retire if there is no writeback
-  // stage)
-  assign en_wb_o = instr_done;
 
   assign perf_wfi_wait_o = wfi_insn_dec;
   assign perf_div_wait_o = stall_multdiv & div_en_dec;

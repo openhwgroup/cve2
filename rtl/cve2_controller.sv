@@ -57,7 +57,6 @@ module cve2_controller #(
   input  logic [31:0]           lsu_addr_last_i,         // for mtval
   input  logic                  load_err_i,
   input  logic                  store_err_i,
-  output logic                  wb_exception_o,          // Instruction in WB taking an exception
   output logic                  id_exception_o,          // Instruction in ID taking an exception
 
   // jump/branch signals
@@ -86,7 +85,6 @@ module cve2_controller #(
 
   output logic                  csr_save_if_o,
   output logic                  csr_save_id_o,
-  output logic                  csr_save_wb_o,
   output logic                  csr_restore_mret_id_o,
   output logic                  csr_restore_dret_id_o,
   output logic                  csr_save_cause_o,
@@ -96,9 +94,7 @@ module cve2_controller #(
 
   // stall & flush signals
   input  logic                  stall_id_i,
-  input  logic                  stall_wb_i,
   output logic                  flush_id_o,
-  input  logic                  ready_wb_i,
 
   // performance monitors
   output logic                  perf_jump_o,             // we are executing a jump
@@ -149,7 +145,6 @@ module cve2_controller #(
   logic enter_debug_mode;
   logic ebreak_into_debug;
   logic handle_irq;
-  logic id_wb_pending;
 
   logic [3:0] mfip_id;
   logic       unused_irq_timer;
@@ -235,9 +230,6 @@ module cve2_controller #(
   // generic special request signal, applies to all instructions
   assign special_req = special_req_pc_change | special_req_flush_only;
 
-  // Is there an instruction in ID or WB that has yet to complete?
-  assign id_wb_pending = instr_valid_i | ~ready_wb_i;
-
   // Exception/fault prioritisation is taken from Table 3.7 of Priviledged Spec v1.11
   begin : g_no_wb_exceptions
     always_comb begin
@@ -262,7 +254,6 @@ module cve2_controller #(
         load_err_prio  = 1'b1;
       end
     end
-    assign wb_exception_o = 1'b0;
   end
 
   `ASSERT_IF(IbexExceptionPrioOnehot,
@@ -340,7 +331,6 @@ module cve2_controller #(
 
     csr_save_if_o         = 1'b0;
     csr_save_id_o         = 1'b0;
-    csr_save_wb_o         = 1'b0;
     csr_restore_mret_id_o = 1'b0;
     csr_restore_dret_id_o = 1'b0;
     csr_save_cause_o      = 1'b0;
@@ -464,15 +454,9 @@ module cve2_controller #(
           // FLUSH state.
           retain_id = 1'b1;
 
-          // Wait for the writeback stage to either be ready for a new instruction or raise its own
-          // exception before going to FLUSH. If the instruction in writeback raises an exception it
-          // must take priority over any exception from an instruction in ID/EX. Only once the
-          // writeback stage is ready can we be certain that won't happen. Without a writeback
-          // stage ready_wb_i == 1 so the FSM will always go directly to FLUSH.
+          // The FSM will always go directly to FLUSH.
 
-          if (ready_wb_i | wb_exception_o) begin
-            ctrl_fsm_ns = FLUSH;
-          end
+          ctrl_fsm_ns = FLUSH;
         end
 
         if (branch_set_i || jump_set_i) begin
@@ -492,12 +476,12 @@ module cve2_controller #(
         end
 
         // If entering debug mode or handling an IRQ the core needs to wait until any instruction in
-        // ID or WB has finished executing. Stall IF during that time.
-        if ((enter_debug_mode || handle_irq) && (stall || id_wb_pending)) begin
+        // ID has finished executing. Stall IF during that time.
+        if ((enter_debug_mode || handle_irq) && stall) begin
           halt_if = 1'b1;
         end
 
-        if (!stall && !special_req && !id_wb_pending) begin
+        if (!stall && !special_req && !instr_valid_i) begin
           if (enter_debug_mode) begin
             // enter debug mode
             ctrl_fsm_ns = DBG_TAKEN_IF;
@@ -740,9 +724,8 @@ module cve2_controller #(
   ///////////////////
 
   // If high current instruction cannot complete this cycle. Either because it needs more cycles to
-  // finish (stall_id_i) or because the writeback stage cannot accept it yet (stall_wb_i). If there
-  // is no writeback stage stall_wb_i is a constant 0.
-  assign stall = stall_id_i | stall_wb_i;
+  // finish (stall_id_i)
+  assign stall = stall_id_i;
 
   // signal to IF stage that ID stage is ready for next instr
   assign id_in_ready_o = ~stall & ~halt_if & ~retain_id;
