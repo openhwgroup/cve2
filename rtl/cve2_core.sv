@@ -207,7 +207,6 @@ module cve2_core import cve2_pkg::*; #(
   logic        lsu_sign_ext;
   logic        lsu_req;
   logic [31:0] lsu_wdata;
-  logic        lsu_req_done;
 
   // stall control
   logic        id_in_ready;
@@ -439,7 +438,6 @@ module cve2_core import cve2_pkg::*; #(
     .lsu_type_o    (lsu_type),  // to load store unit
     .lsu_sign_ext_o(lsu_sign_ext),  // to load store unit
     .lsu_wdata_o   (lsu_wdata),  // to load store unit
-    .lsu_req_done_i(lsu_req_done),  // from load store unit
 
     .lsu_addr_incr_req_i(lsu_addr_incr_req),
     .lsu_addr_last_i    (lsu_addr_last),
@@ -477,10 +475,6 @@ module cve2_core import cve2_pkg::*; #(
     .rf_waddr_id_o     (rf_waddr_id),
     .rf_wdata_id_o     (rf_wdata_id),
     .rf_we_id_o        (rf_we_id),
-    .rf_rd_a_wb_match_o(),
-    .rf_rd_b_wb_match_o(),
-
-    .rf_waddr_wb_i    (rf_waddr_wb),
 
     .instr_perf_count_id_o (instr_perf_count_id),
 
@@ -568,7 +562,6 @@ module cve2_core import cve2_pkg::*; #(
     .lsu_rdata_o      (rf_wdata_lsu),
     .lsu_rdata_valid_o(rf_we_lsu),
     .lsu_req_i        (lsu_req),
-    .lsu_req_done_o   (lsu_req_done),
 
     .adder_result_ex_i(alu_adder_result_ex),
 

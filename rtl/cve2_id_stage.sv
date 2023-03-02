@@ -102,11 +102,6 @@ module cve2_id_stage #(
   output logic                      lsu_sign_ext_o,
   output logic [31:0]               lsu_wdata_o,
 
-  input  logic                      lsu_req_done_i, // Data req to LSU is complete and
-                                                    // instruction can move to writeback
-                                                    // (only relevant where writeback stage is
-                                                    // present)
-
   input  logic                      lsu_addr_incr_req_i,
   input  logic [31:0]               lsu_addr_last_i,
 
@@ -146,11 +141,6 @@ module cve2_id_stage #(
   output logic [4:0]                rf_waddr_id_o,
   output logic [31:0]               rf_wdata_id_o,
   output logic                      rf_we_id_o,
-  output logic                      rf_rd_a_wb_match_o,
-  output logic                      rf_rd_b_wb_match_o,
-
-  // Register write information from writeback (for resolving data hazards)
-  input  logic [4:0]                rf_waddr_wb_i,
 
   output  logic                     instr_perf_count_id_o,
 
@@ -175,8 +165,6 @@ module cve2_id_stage #(
   logic        ecall_insn_dec;
   logic        wfi_insn_dec;
 
-  logic        id_exception;
-
   logic        branch_in_dec;
   logic        branch_set, branch_set_raw, branch_set_raw_d;
   logic        branch_jump_set_done_q, branch_jump_set_done_d;
@@ -190,7 +178,6 @@ module cve2_id_stage #(
   logic        instr_executing;
   logic        instr_done;
   logic        controller_run;
-  logic        stall_ld_hz;
   logic        stall_mem;
   logic        stall_multdiv;
   logic        stall_branch;
@@ -504,7 +491,6 @@ module cve2_id_stage #(
     .lsu_addr_last_i(lsu_addr_last_i),
     .load_err_i     (lsu_load_err_i),
     .store_err_i    (lsu_store_err_i),
-    .id_exception_o (id_exception),
 
     // jump/branch control
     .branch_set_i     (branch_set),
@@ -747,14 +733,14 @@ module cve2_id_stage #(
 
   // Stall ID/EX stage for reason that relates to instruction in ID/EX, update assertion below if
   // modifying this.
-  assign stall_id = stall_ld_hz | stall_mem | stall_multdiv | stall_jump | stall_branch |
+  assign stall_id = stall_mem | stall_multdiv | stall_jump | stall_branch |
                       stall_alu;
 
   // Generally illegal instructions have no reason to stall, however they must still stall waiting
   // for outstanding memory requests so exceptions related to them take priority over the illegal
   // instruction exception.
   `ASSERT(IllegalInsnStallMustBeMemStall, illegal_insn_o & stall_id |-> stall_mem &
-    ~(stall_ld_hz | stall_multdiv | stall_jump | stall_branch | stall_alu))
+    ~(stall_multdiv | stall_jump | stall_branch | stall_alu))
 
   assign instr_done = ~stall_id & ~flush_id & instr_executing;
 
@@ -775,9 +761,6 @@ module cve2_id_stage #(
     // Then stall until it is complete
     assign stall_mem = instr_valid_i & (lsu_req_dec & (~lsu_resp_valid_i | instr_first_cycle));
 
-    // No load hazards without Writeback Stage
-    assign stall_ld_hz   = 1'b0;
-
     // Without writeback stage any valid instruction that hasn't seen an error will execute
     assign instr_executing_spec = instr_valid_i & ~instr_fetch_err_i & controller_run;
     assign instr_executing = instr_executing_spec;
@@ -790,19 +773,10 @@ module cve2_id_stage #(
     assign rf_rdata_a_fwd = rf_rdata_a_i;
     assign rf_rdata_b_fwd = rf_rdata_b_i;
 
-    assign rf_rd_a_wb_match_o = 1'b0;
-    assign rf_rd_b_wb_match_o = 1'b0;
-
     // Unused Writeback stage only IO & wiring
     // Assign inputs and internal wiring to unused signals to satisfy lint checks
     // Tie-off outputs to constant values
     logic unused_data_req_done_ex;
-    logic [4:0] unused_rf_waddr_wb;
-    logic unused_id_exception;
-
-    assign unused_data_req_done_ex     = lsu_req_done_i;
-    assign unused_rf_waddr_wb          = rf_waddr_wb_i;
-    assign unused_id_exception         = id_exception;
 
     assign perf_dside_wait_o = instr_executing & lsu_req_dec & ~lsu_resp_valid_i;
 
