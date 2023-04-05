@@ -422,7 +422,7 @@ module cve2_if_stage import cve2_pkg::*; #(
 
     logic mispredicted, mispredicted_d, mispredicted_q;
 
-    assign next_pc = fetch_addr + (instr_is_compressed_out ? 32'd2 : 32'd4);
+    assign next_pc = fetch_addr + (instr_is_compressed ? 32'd2 : 32'd4);
 
     logic predicted_branch;
 
