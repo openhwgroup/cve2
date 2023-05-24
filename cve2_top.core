@@ -31,6 +31,11 @@ filesets:
     depend:
      - lowrisc:tool:check_tool_requirements
 
+  files_clk_gate:
+    files:
+    - bhv/cve2_sim_clock_gate.sv
+    file_type: systemVerilogSource
+
 parameters:
   RVFI:
     datatype: bool
@@ -129,6 +134,7 @@ targets:
       - tool_verilator ? (files_lint_verilator)
       - tool_veriblelint ? (files_lint_verible)
       - files_rtl
+      - target_sim? (files_clk_gate)
       - files_check_tool_requirements
     toplevel: cve2_top
     parameters:
@@ -138,6 +144,8 @@ targets:
     parameters:
       - SYNTHESIS=true
       - RVFI=true
+    filesets_append:
+    - files_clk_gate
     default_tool: verilator
     tools:
       verilator:
@@ -147,6 +155,7 @@ targets:
           # RAM primitives wider than 64bit (required for ECC) fail to build in
           # Verilator without increasing the unroll count (see Verilator#1266)
           - "--unroll-count 72"
+
   format:
     filesets:
       - files_rtl

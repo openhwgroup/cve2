@@ -61,5 +61,6 @@ ${DESIGN_RTL_DIR}/cve2_top.sv
 ${DESIGN_RTL_DIR}/cve2_top_tracing.sv
 ${DESIGN_RTL_DIR}/cve2_tracer.sv
 
+${DESIGN_RTL_DIR}/../bhv/cve2_sim_clock_gate.sv
+
 ${DESIGN_RTL_DIR}/../vendor/lowrisc_ip/ip/prim_generic/rtl/prim_generic_buf.sv
-${DESIGN_RTL_DIR}/../vendor/lowrisc_ip/ip/prim_generic/rtl/prim_generic_clock_gating.sv

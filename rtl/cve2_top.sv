@@ -135,10 +135,10 @@ module cve2_top import cve2_pkg::*; #(
   assign clock_en     = core_busy_q | debug_req_i | irq_pending | irq_nm_i;
   assign core_sleep_o = ~clock_en;
 
-  prim_clock_gating core_clock_gate_i (
+  cve2_clock_gate core_clock_gate_i (
     .clk_i    (clk_i),
     .en_i     (clock_en),
-    .test_en_i(test_en_i),
+    .scan_cg_en_i(test_en_i),
     .clk_o    (clk)
   );
 

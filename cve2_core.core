@@ -140,6 +140,7 @@ targets:
       - tool_verilator ? (files_lint_verilator)
       - tool_veriblelint ? (files_lint_verible)
       - files_rtl
+      - target_sim? (files_clk_gate)
       - files_check_tool_requirements
     toplevel: cve2_core
     parameters:
