@@ -84,12 +84,10 @@ module cve2_ex_block #(
   // branch handling
   assign branch_decision_o  = alu_cmp_result;
 
-  begin : g_no_branch_target_alu
-    // Unused bt_operand signals cause lint errors, this avoids them
-    //logic [31:0] unused_bt_a_operand, unused_bt_b_operand;
+  // Unused bt_operand signals cause lint errors, this avoids them
+  //logic [31:0] unused_bt_a_operand, unused_bt_b_operand;
 
-    assign branch_target_o = alu_adder_result_ex_o;
-  end
+  assign branch_target_o = alu_adder_result_ex_o;
 
   /////////
   // ALU //

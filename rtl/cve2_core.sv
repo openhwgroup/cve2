@@ -32,6 +32,8 @@ module cve2_core import cve2_pkg::*; #(
   input  logic                         clk_i,
   input  logic                         rst_ni,
 
+  input  logic                         test_en_i,
+
   input  logic [31:0]                  hart_id_i,
   input  logic [31:0]                  boot_addr_i,
 
@@ -102,9 +104,6 @@ module cve2_core import cve2_pkg::*; #(
 `endif
 
   // CPU Control Signals
-  // SEC_CM: FETCH.CTRL.LC_GATED
-  output logic                         alert_minor_o,
-  output logic                         alert_major_o,
   output logic                         core_busy_o
 );
 
@@ -175,8 +174,6 @@ module cve2_core import cve2_pkg::*; #(
   logic [4:0]  rf_waddr_id;
   logic [31:0] rf_wdata_id;
   logic        rf_we_id;
-  logic        rf_rd_a_wb_match;
-  logic        rf_rd_b_wb_match;
 
   // ALU Control
   alu_op_e     alu_operator_ex;
@@ -367,10 +364,8 @@ module cve2_core import cve2_pkg::*; #(
   // available
   assign perf_iside_wait = id_in_ready & ~instr_valid_id;
 
-  begin : g_instr_req_gated_non_secure
-    // For non secure Ibex only the bottom bit of fetch enable is considered
-    assign instr_req_gated = instr_req_int;
-  end
+  // For non secure Ibex only the bottom bit of fetch enable is considered
+  assign instr_req_gated = instr_req_int;
 
   //////////////
   // ID stage //
@@ -500,8 +495,8 @@ module cve2_core import cve2_pkg::*; #(
     .rf_waddr_id_o     (rf_waddr_id),
     .rf_wdata_id_o     (rf_wdata_id),
     .rf_we_id_o        (rf_we_id),
-    .rf_rd_a_wb_match_o(rf_rd_a_wb_match),
-    .rf_rd_b_wb_match_o(rf_rd_b_wb_match),
+    .rf_rd_a_wb_match_o(),
+    .rf_rd_b_wb_match_o(),
 
     .rf_waddr_wb_i    (rf_waddr_wb),
     .rf_wdata_fwd_wb_i(rf_wdata_fwd_wb),
@@ -659,15 +654,6 @@ module cve2_core import cve2_pkg::*; #(
     .instr_done_wb_o(instr_done_wb)
   );
 
-  /////////////////////////////
-  // Register file interface //
-  /////////////////////////////
-
-  assign rf_raddr_a_o     = rf_raddr_a;
-  assign rf_waddr_wb_o    = rf_waddr_wb;
-  assign rf_we_wb_o       = rf_we_wb;
-  assign rf_raddr_b_o     = rf_raddr_b;
-
   ///////////////////////
   // Crash dump output //
   ///////////////////////
@@ -677,12 +663,6 @@ module cve2_core import cve2_pkg::*; #(
   assign crash_dump_o.last_data_addr = lsu_addr_last;
   assign crash_dump_o.exception_addr = csr_mepc;
 
-  ///////////////////
-  // Alert outputs //
-  ///////////////////
-
-  // Minor alert - core is in a recoverable state
-  assign alert_minor_o = 1'b0;
 
   // Explict INC_ASSERT block to avoid unused signal lint warnings were asserts are not included
   `ifdef INC_ASSERT
@@ -726,26 +706,24 @@ module cve2_core import cve2_pkg::*; #(
   ////////////////////////
   // RF (Register File) //
   ////////////////////////
-  begin : gen_regfile_ff
-    cve2_register_file_ff #(
-      .RV32E            (RV32E),
-      .DataWidth        (32),
-      .WordZeroVal      (32'(prim_secded_pkg::SecdedInv3932ZeroWord))
-    ) register_file_i (
-      .clk_i (clk_i),
-      .rst_ni(rst_ni),
+  cve2_register_file_ff #(
+    .RV32E            (RV32E),
+    .DataWidth        (32),
+    .WordZeroVal      (32'(prim_secded_pkg::SecdedInv3932ZeroWord))
+  ) register_file_i (
+    .clk_i (clk_i),
+    .rst_ni(rst_ni),
 
-      .test_en_i       (test_en_i),
+    .test_en_i(test_en_i),
 
-      .raddr_a_i(rf_raddr_a),
-      .rdata_a_o(rf_rdata_a),
-      .raddr_b_i(rf_raddr_b),
-      .rdata_b_o(rf_rdata_b),
-      .waddr_a_i(rf_waddr_wb),
-      .wdata_a_i(rf_wdata_wb),
-      .we_a_i   (rf_we_wb)
-    );
-  end
+    .raddr_a_i(rf_raddr_a),
+    .rdata_a_o(rf_rdata_a),
+    .raddr_b_i(rf_raddr_b),
+    .rdata_b_o(rf_rdata_b),
+    .waddr_a_i(rf_waddr_wb),
+    .wdata_a_i(rf_wdata_wb),
+    .we_a_i   (rf_we_wb)
+  );
 
 
   /////////////////////////////////////////

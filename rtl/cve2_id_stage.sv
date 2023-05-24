@@ -298,32 +298,30 @@ module cve2_id_stage #(
     endcase
   end
 
-  begin : g_nobtalu
-    op_a_sel_e  unused_a_mux_sel;
-    imm_b_sel_e unused_b_mux_sel;
+  op_a_sel_e  unused_a_mux_sel;
+  imm_b_sel_e unused_b_mux_sel;
 
-    // Full main ALU immediate MUX for Operand B
-    always_comb begin : immediate_b_mux
-      unique case (imm_b_mux_sel)
-        IMM_B_I:         imm_b = imm_i_type;
-        IMM_B_S:         imm_b = imm_s_type;
-        IMM_B_B:         imm_b = imm_b_type;
-        IMM_B_U:         imm_b = imm_u_type;
-        IMM_B_J:         imm_b = imm_j_type;
-        IMM_B_INCR_PC:   imm_b = instr_is_compressed_i ? 32'h2 : 32'h4;
-        IMM_B_INCR_ADDR: imm_b = 32'h4;
-        default:         imm_b = 32'h4;
-      endcase
-    end
-    `ASSERT(IbexImmBMuxSelValid, instr_valid_i |-> imm_b_mux_sel inside {
-        IMM_B_I,
-        IMM_B_S,
-        IMM_B_B,
-        IMM_B_U,
-        IMM_B_J,
-        IMM_B_INCR_PC,
-        IMM_B_INCR_ADDR})
+  // Full main ALU immediate MUX for Operand B
+  always_comb begin : immediate_b_mux
+    unique case (imm_b_mux_sel)
+      IMM_B_I:         imm_b = imm_i_type;
+      IMM_B_S:         imm_b = imm_s_type;
+      IMM_B_B:         imm_b = imm_b_type;
+      IMM_B_U:         imm_b = imm_u_type;
+      IMM_B_J:         imm_b = imm_j_type;
+      IMM_B_INCR_PC:   imm_b = instr_is_compressed_i ? 32'h2 : 32'h4;
+      IMM_B_INCR_ADDR: imm_b = 32'h4;
+      default:         imm_b = 32'h4;
+    endcase
   end
+  `ASSERT(IbexImmBMuxSelValid, instr_valid_i |-> imm_b_mux_sel inside {
+      IMM_B_I,
+      IMM_B_S,
+      IMM_B_B,
+      IMM_B_U,
+      IMM_B_J,
+      IMM_B_INCR_PC,
+      IMM_B_INCR_ADDR})
 
   // ALU MUX for Operand B
   assign alu_operand_b = (alu_op_b_mux_sel == OP_B_IMM) ? imm_b : rf_rdata_b_fwd;
@@ -598,26 +596,24 @@ module cve2_id_stage #(
   // Branch set control //
   ////////////////////////
 
-  begin : g_branch_set_flop
-    // SEC_CM: CORE.DATA_REG_SW.SCA
-    // Branch set flopped without branch target ALU, or in fixed time execution mode
-    // (condition pass/fail used next cycle where branch target is calculated)
-    logic branch_set_raw_q;
+  // SEC_CM: CORE.DATA_REG_SW.SCA
+  // Branch set flopped without branch target ALU, or in fixed time execution mode
+  // (condition pass/fail used next cycle where branch target is calculated)
+  logic branch_set_raw_q;
 
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        branch_set_raw_q <= 1'b0;
-      end else begin
-        branch_set_raw_q <= branch_set_raw_d;
-      end
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      branch_set_raw_q <= 1'b0;
+    end else begin
+      branch_set_raw_q <= branch_set_raw_d;
     end
-
-    // Branches always take two cycles in fixed time execution mode, with or without the branch
-    // target ALU (to avoid a path from the branch decision into the branch target ALU operand
-    // muxing).
-    assign branch_set_raw      = branch_set_raw_q;
-
   end
+
+  // Branches always take two cycles in fixed time execution mode, with or without the branch
+  // target ALU (to avoid a path from the branch decision into the branch target ALU operand
+  // muxing).
+  assign branch_set_raw      = branch_set_raw_q;
+
 
   // Track whether the current instruction in ID/EX has done a branch or jump set.
   assign branch_jump_set_done_d = (branch_set_raw | jump_set_raw | branch_jump_set_done_q) &

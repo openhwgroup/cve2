@@ -38,7 +38,6 @@ module cve2_top import cve2_pkg::*; #(
   input  logic                         instr_rvalid_i,
   output logic [31:0]                  instr_addr_o,
   input  logic [31:0]                  instr_rdata_i,
-  input  logic [6:0]                   instr_rdata_intg_i,
   input  logic                         instr_err_i,
 
   // Data memory interface
@@ -49,9 +48,7 @@ module cve2_top import cve2_pkg::*; #(
   output logic [3:0]                   data_be_o,
   output logic [31:0]                  data_addr_o,
   output logic [31:0]                  data_wdata_o,
-  output logic [6:0]                   data_wdata_intg_o,
   input  logic [31:0]                  data_rdata_i,
-  input  logic [6:0]                   data_rdata_intg_i,
   input  logic                         data_err_i,
 
   // Interrupt inputs
@@ -99,18 +96,11 @@ module cve2_top import cve2_pkg::*; #(
 `endif
 
   // CPU Control Signals
-  output logic                         alert_minor_o,
-  output logic                         alert_major_internal_o,
-  output logic                         alert_major_bus_o,
-  output logic                         core_sleep_o,
-
-  // DFT bypass controls
-  input logic                          scan_rst_ni
+  output logic                         core_sleep_o
 );
 
   // Scrambling Parameter
   localparam int unsigned NumAddrScrRounds  = 0;
-  localparam int unsigned NumDiffRounds     = NumAddrScrRounds;
 
   // Physical Memory Protection
   localparam bit          PMPEnable        = 1'b0;
@@ -129,8 +119,6 @@ module cve2_top import cve2_pkg::*; #(
   logic                        core_busy_d, core_busy_q;
   logic                        clock_en;
   logic                        irq_pending;
-  // Alert signals
-  logic                        core_alert_major, core_alert_minor;
 
   /////////////////////
   // Main clock gate //
@@ -176,6 +164,7 @@ module cve2_top import cve2_pkg::*; #(
   ) u_cve2_core (
     .clk_i(clk),
     .rst_ni,
+    .test_en_i,
 
     .hart_id_i,
     .boot_addr_i,
@@ -237,8 +226,6 @@ module cve2_top import cve2_pkg::*; #(
     .rvfi_ext_mcycle,
 `endif
 
-    .alert_minor_o (core_alert_minor),
-    .alert_major_o (core_alert_major),
     .core_busy_o   (core_busy_d)
   );
 
@@ -246,15 +233,12 @@ module cve2_top import cve2_pkg::*; #(
   // Rams Instantiation //
   ////////////////////////
 
-  begin : gen_norams
+  prim_ram_1p_pkg::ram_1p_cfg_t unused_ram_cfg;
+  logic unused_ram_inputs;
 
-    prim_ram_1p_pkg::ram_1p_cfg_t unused_ram_cfg;
-    logic unused_ram_inputs;
+  assign unused_ram_cfg    = ram_cfg_i;
+  assign unused_ram_inputs = (|NumAddrScrRounds);
 
-    assign unused_ram_cfg    = ram_cfg_i;
-    assign unused_ram_inputs = (|NumAddrScrRounds);
-
-  end
 
   // X checks for top-level outputs
   `ASSERT_KNOWN(IbexInstrReqX, instr_req_o)
@@ -278,11 +262,11 @@ module cve2_top import cve2_pkg::*; #(
   `ASSERT_KNOWN(IbexInstrGntX, instr_gnt_i)
   `ASSERT_KNOWN(IbexInstrRValidX, instr_rvalid_i)
   `ASSERT_KNOWN_IF(IbexInstrRPayloadX,
-    {instr_rdata_i, instr_rdata_intg_i, instr_err_i}, instr_rvalid_i)
+    {instr_rdata_i, instr_err_i}, instr_rvalid_i)
 
   `ASSERT_KNOWN(IbexDataGntX, data_gnt_i)
   `ASSERT_KNOWN(IbexDataRValidX, data_rvalid_i)
-  `ASSERT_KNOWN_IF(IbexDataRPayloadX, {data_rdata_i, data_rdata_intg_i, data_err_i}, data_rvalid_i)
+  `ASSERT_KNOWN_IF(IbexDataRPayloadX, {data_rdata_i, data_err_i}, data_rvalid_i)
 
   `ASSERT_KNOWN(IbexIrqX, {irq_software_i, irq_timer_i, irq_external_i, irq_fast_i, irq_nm_i})
 

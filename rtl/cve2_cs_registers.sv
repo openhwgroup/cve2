@@ -166,7 +166,6 @@ module cve2_cs_registers #(
   // CSRs
   priv_lvl_e   priv_lvl_q, priv_lvl_d;
   status_t     mstatus_q, mstatus_d;
-  logic        mstatus_err;
   logic        mstatus_en;
   irqs_t       mie_q, mie_d;
   logic        mie_en;
@@ -179,7 +178,6 @@ module cve2_cs_registers #(
   logic [31:0] mtval_q, mtval_d;
   logic        mtval_en;
   logic [31:0] mtvec_q, mtvec_d;
-  logic        mtvec_err;
   logic        mtvec_en;
   irqs_t       mip;
   dcsr_t       dcsr_q, dcsr_d;
@@ -200,7 +198,6 @@ module cve2_cs_registers #(
   // PMP Signals
   logic [31:0]                 pmp_addr_rdata  [PMP_MAX_REGIONS];
   logic [PMP_CFG_W-1:0]        pmp_cfg_rdata   [PMP_MAX_REGIONS];
-  logic                        pmp_csr_err;
   pmp_mseccfg_t                pmp_mseccfg;
 
   // Hardware performance monitor signals
@@ -766,7 +763,7 @@ module cve2_cs_registers #(
     .wr_data_i ({mstatus_d}),
     .wr_en_i   (mstatus_en),
     .rd_data_o (mstatus_q),
-    .rd_error_o(mstatus_err)
+    .rd_error_o()
   );
 
   // MEPC
@@ -853,7 +850,7 @@ module cve2_cs_registers #(
     .wr_data_i (mtvec_d),
     .wr_en_i   (mtvec_en),
     .rd_data_o (mtvec_q),
-    .rd_error_o(mtvec_err)
+    .rd_error_o()
   );
 
   // DCSR
@@ -1128,7 +1125,6 @@ module cve2_cs_registers #(
       .rd_error_o(pmp_mseccfg_err)
     );
 
-    assign pmp_csr_err = (|pmp_cfg_err) | (|pmp_addr_err) | pmp_mseccfg_err;
     assign pmp_mseccfg = pmp_mseccfg_q;
 
   end else begin : g_no_pmp_tieoffs
@@ -1141,7 +1137,6 @@ module cve2_cs_registers #(
       assign csr_pmp_cfg_o[i]  = pmp_cfg_t'(1'b0);
       assign csr_pmp_addr_o[i] = '0;
     end
-    assign pmp_csr_err = 1'b0;
     assign pmp_mseccfg = '0;
   end
 

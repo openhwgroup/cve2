@@ -61,10 +61,8 @@ module cve2_register_file_ff #(
     end
   end
 
-  begin : g_normal_r0
-    // R0 is nil
-    assign rf_reg[0] = WordZeroVal;
-  end
+  // R0 is nil
+  assign rf_reg[0] = WordZeroVal;
 
   assign rf_reg[NUM_WORDS-1:1] = rf_reg_q[NUM_WORDS-1:1];
 

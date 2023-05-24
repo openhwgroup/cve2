@@ -12,7 +12,6 @@ filesets:
       - lowrisc:prim:clock_gating
       - lowrisc:prim:lfsr
       - lowrisc:cve2:cve2_pkg
-      - lowrisc:cve2:cve2_icache
       - lowrisc:dv:dv_fcov_macros
     files:
       - rtl/cve2_alu.sv
@@ -33,7 +32,6 @@ filesets:
       - rtl/cve2_prefetch_buffer.sv
       - rtl/cve2_pmp.sv
       - rtl/cve2_wb_stage.sv
-      - rtl/cve2_dummy_instr.sv
       - rtl/cve2_core.sv
       - rtl/cve2_pmp_reset_default.svh: {is_include_file: true}
     file_type: systemVerilogSource

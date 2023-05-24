@@ -165,37 +165,35 @@ module cve2_if_stage import cve2_pkg::*; #(
   // tell CS register file to initialize mtvec on boot
   assign csr_mtvec_init_o = (pc_mux_i == PC_BOOT) & pc_set_i;
 
-  begin : gen_prefetch_buffer
-    // prefetch buffer, caches a fixed number of instructions
-    cve2_prefetch_buffer #(
-    ) prefetch_buffer_i (
-        .clk_i               ( clk_i                      ),
-        .rst_ni              ( rst_ni                     ),
+  // prefetch buffer, caches a fixed number of instructions
+  cve2_prefetch_buffer #(
+  ) prefetch_buffer_i (
+      .clk_i               ( clk_i                      ),
+      .rst_ni              ( rst_ni                     ),
 
-        .req_i               ( req_i                      ),
+      .req_i               ( req_i                      ),
 
-        .branch_i            ( branch_req                 ),
-        .branch_mispredict_i ( nt_branch_mispredict_i     ),
-        .mispredict_addr_i   ( nt_branch_addr_i           ),
-        .addr_i              ( {fetch_addr_n[31:1], 1'b0} ),
+      .branch_i            ( branch_req                 ),
+      .branch_mispredict_i ( nt_branch_mispredict_i     ),
+      .mispredict_addr_i   ( nt_branch_addr_i           ),
+      .addr_i              ( {fetch_addr_n[31:1], 1'b0} ),
 
-        .ready_i             ( fetch_ready                ),
-        .valid_o             ( fetch_valid                ),
-        .rdata_o             ( fetch_rdata                ),
-        .addr_o              ( fetch_addr                 ),
-        .err_o               ( fetch_err                  ),
-        .err_plus2_o         ( fetch_err_plus2            ),
+      .ready_i             ( fetch_ready                ),
+      .valid_o             ( fetch_valid                ),
+      .rdata_o             ( fetch_rdata                ),
+      .addr_o              ( fetch_addr                 ),
+      .err_o               ( fetch_err                  ),
+      .err_plus2_o         ( fetch_err_plus2            ),
 
-        .instr_req_o         ( instr_req_o                ),
-        .instr_addr_o        ( instr_addr_o               ),
-        .instr_gnt_i         ( instr_gnt_i                ),
-        .instr_rvalid_i      ( instr_rvalid_i             ),
-        .instr_rdata_i       ( instr_rdata_i              ),
-        .instr_err_i         ( instr_err_i                ),
+      .instr_req_o         ( instr_req_o                ),
+      .instr_addr_o        ( instr_addr_o               ),
+      .instr_gnt_i         ( instr_gnt_i                ),
+      .instr_rvalid_i      ( instr_rvalid_i             ),
+      .instr_rdata_i       ( instr_rdata_i              ),
+      .instr_err_i         ( instr_err_i                ),
 
-        .busy_o              ( prefetch_busy              )
-    );
-  end
+      .busy_o              ( prefetch_busy              )
+  );
 
   assign unused_fetch_addr_n0 = fetch_addr_n[0];
 
@@ -256,28 +254,26 @@ module cve2_if_stage import cve2_pkg::*; #(
   // IF-ID pipeline registers, frozen when the ID stage is stalled
   assign if_id_pipe_reg_we = instr_new_id_d;
 
-  begin : g_instr_rdata
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        instr_rdata_id_o         <= '0;
-        instr_rdata_alu_id_o     <= '0;
-        instr_fetch_err_o        <= '0;
-        instr_fetch_err_plus2_o  <= '0;
-        instr_rdata_c_id_o       <= '0;
-        instr_is_compressed_id_o <= '0;
-        illegal_c_insn_id_o      <= '0;
-        pc_id_o                  <= '0;
-      end else if (if_id_pipe_reg_we) begin
-        instr_rdata_id_o         <= instr_decompressed;
-        // To reduce fan-out and help timing from the instr_rdata_id flops they are replicated.
-        instr_rdata_alu_id_o     <= instr_decompressed;
-        instr_fetch_err_o        <= if_instr_err;
-        instr_fetch_err_plus2_o  <= if_instr_err_plus2;
-        instr_rdata_c_id_o       <= if_instr_rdata[15:0];
-        instr_is_compressed_id_o <= instr_is_compressed;
-        illegal_c_insn_id_o      <= illegal_c_insn;
-        pc_id_o                  <= pc_if_o;
-      end
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      instr_rdata_id_o         <= '0;
+      instr_rdata_alu_id_o     <= '0;
+      instr_fetch_err_o        <= '0;
+      instr_fetch_err_plus2_o  <= '0;
+      instr_rdata_c_id_o       <= '0;
+      instr_is_compressed_id_o <= '0;
+      illegal_c_insn_id_o      <= '0;
+      pc_id_o                  <= '0;
+    end else if (if_id_pipe_reg_we) begin
+      instr_rdata_id_o         <= instr_decompressed;
+      // To reduce fan-out and help timing from the instr_rdata_id flops they are replicated.
+      instr_rdata_alu_id_o     <= instr_decompressed;
+      instr_fetch_err_o        <= if_instr_err;
+      instr_fetch_err_plus2_o  <= if_instr_err_plus2;
+      instr_rdata_c_id_o       <= if_instr_rdata[15:0];
+      instr_is_compressed_id_o <= instr_is_compressed;
+      illegal_c_insn_id_o      <= illegal_c_insn;
+      pc_id_o                  <= pc_if_o;
     end
   end
 
@@ -323,17 +319,15 @@ module cve2_if_stage import cve2_pkg::*; #(
       end
     end
 
-    begin : g_instr_skid
-      always_ff @(posedge clk_i or negedge rst_ni) begin
-        if (!rst_ni) begin
-          instr_skid_bp_taken_q <= '0;
-          instr_skid_data_q     <= '0;
-          instr_skid_addr_q     <= '0;
-        end else if (instr_skid_en) begin
-          instr_skid_bp_taken_q <= predict_branch_taken;
-          instr_skid_data_q     <= fetch_rdata;
-          instr_skid_addr_q     <= fetch_addr;
-        end
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+      if (!rst_ni) begin
+        instr_skid_bp_taken_q <= '0;
+        instr_skid_data_q     <= '0;
+        instr_skid_addr_q     <= '0;
+      end else if (instr_skid_en) begin
+        instr_skid_bp_taken_q <= predict_branch_taken;
+        instr_skid_data_q     <= fetch_rdata;
+        instr_skid_addr_q     <= fetch_addr;
       end
     end
 

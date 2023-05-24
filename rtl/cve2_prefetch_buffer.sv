@@ -154,13 +154,11 @@ module cve2_prefetch_buffer #(
   assign stored_addr_d = instr_addr;
 
   // CPU resets with a branch, so no need to reset these addresses
-  begin : g_stored_addr
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        stored_addr_q <= '0;
-      end else if (stored_addr_en) begin
-        stored_addr_q <= stored_addr_d;
-      end
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      stored_addr_q <= '0;
+    end else if (stored_addr_en) begin
+      stored_addr_q <= stored_addr_d;
     end
   end
   // 2. fetch_addr_q
@@ -174,13 +172,11 @@ module cve2_prefetch_buffer #(
                         // Current address + 4
                         {{29{1'b0}},(valid_new_req & ~valid_req_q),2'b00};
 
-  begin : g_fetch_addr
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        fetch_addr_q <= '0;
-      end else if (fetch_addr_en) begin
-        fetch_addr_q <= fetch_addr_d;
-      end
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      fetch_addr_q <= '0;
+    end else if (fetch_addr_en) begin
+      fetch_addr_q <= fetch_addr_d;
     end
   end
 

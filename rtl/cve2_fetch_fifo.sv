@@ -148,13 +148,11 @@ module cve2_fetch_fifo #(
   assign instr_addr_d = clear_i ? in_addr_i[31:1] :
                                   instr_addr_next;
 
-  begin : g_instr_addr
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        instr_addr_q <= '0;
-      end else if (instr_addr_en) begin
-        instr_addr_q <= instr_addr_d;
-      end
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      instr_addr_q <= '0;
+    end else if (instr_addr_en) begin
+      instr_addr_q <= instr_addr_d;
     end
   end
 
