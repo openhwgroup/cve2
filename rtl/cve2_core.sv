@@ -583,6 +583,9 @@ module cve2_core import cve2_pkg::*; #(
 
   cve2_wb #(
   ) wb_i (
+    .clk_i (clk_i),
+    .rst_ni(rst_ni),
+
     .instr_is_compressed_id_i(instr_is_compressed_id),
     .instr_perf_count_id_i   (instr_perf_count_id),
 

@@ -14,6 +14,9 @@
 
 module cve2_wb #(
 ) (
+  input  logic                     clk_i,
+  input  logic                     rst_ni,
+
   input  logic                     instr_is_compressed_id_i,
   input  logic                     instr_perf_count_id_i,
 
@@ -65,8 +68,5 @@ module cve2_wb #(
 
   `DV_FCOV_SIGNAL_GEN_IF(logic, wb_valid, g_writeback_stage.wb_valid_q, 1'b0)
 
-  RFWriteFromOneSourceOnly: assert property(~(rf_wdata_wb_mux_we[1] && rf_wdata_wb_mux_we[0]))
-    else begin
-      `ASSERT_ERROR(RFWriteFromOneSourceOnly)
-    end
+  `ASSERT(RFWriteFromOneSourceOnly, $onehot0(rf_wdata_wb_mux_we))
 endmodule
