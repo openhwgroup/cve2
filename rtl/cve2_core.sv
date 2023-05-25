@@ -709,7 +709,7 @@ module cve2_core import cve2_pkg::*; #(
   cve2_register_file_ff #(
     .RV32E            (RV32E),
     .DataWidth        (32),
-    .WordZeroVal      (32'(prim_secded_pkg::SecdedInv3932ZeroWord))
+    .WordZeroVal      (32'0)
   ) register_file_i (
     .clk_i (clk_i),
     .rst_ni(rst_ni),
