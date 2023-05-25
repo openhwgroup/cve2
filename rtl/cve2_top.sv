@@ -246,11 +246,8 @@ module cve2_top import cve2_pkg::*; #(
 
   `ASSERT_KNOWN(IbexDataReqX, data_req_o)
   `ASSERT_KNOWN_IF(IbexDataReqPayloadX,
-    {data_we_o, data_be_o, data_addr_o, data_wdata_o, data_wdata_intg_o}, data_req_o)
+    {data_we_o, data_be_o, data_addr_o, data_wdata_o}, data_req_o)
 
-  `ASSERT_KNOWN(IbexAlertMinorX, alert_minor_o)
-  `ASSERT_KNOWN(IbexAlertMajorInternalX, alert_major_internal_o)
-  `ASSERT_KNOWN(IbexAlertMajorBusX, alert_major_bus_o)
   `ASSERT_KNOWN(IbexCoreSleepX, core_sleep_o)
 
   // X check for top-level inputs

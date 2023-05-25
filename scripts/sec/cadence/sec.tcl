@@ -23,9 +23,6 @@ reset ~rst_ni
 
 check_sec -map -auto
 
-check_sec -waive -waive_signals alert_major_o
-check_sec -waive -waive_signals cve2_core_imp.alert_major_o
-
 check_sec -waive -waive_signals gen_regfile_ff.test_en_i
 check_sec -waive -waive_signals cve2_core_imp.gen_regfile_ff.test_en_i
 
