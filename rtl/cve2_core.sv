@@ -263,7 +263,6 @@ module cve2_core import cve2_pkg::*; #(
 
   logic        perf_instr_ret_wb;
   logic        perf_instr_ret_compressed_wb;
-  logic        perf_instr_ret_compressed_wb_spec;
   logic        perf_iside_wait;
   logic        perf_dside_wait;
   logic        perf_wfi_wait;

@@ -215,7 +215,7 @@ module cve2_cs_registers #(
   logic        unused_mhpmcounterh_we_1;
   logic        unused_mhpmcounter_incr_1;
 
-  logic [63:0] minstret_next, minstret_raw;
+  logic [63:0] minstret_raw;
 
   // Debug / trigger registers
   logic [31:0] tselect_rdata;
@@ -1220,7 +1220,7 @@ module cve2_cs_registers #(
     .counter_we_i(mhpmcounter_we[2]),
     .counter_val_i(csr_wdata_int),
     .counter_val_o(minstret_raw),
-    .counter_val_upd_o(minstret_next)
+    .counter_val_upd_o()
   );
 
   // Where the writeback stage is present instruction in ID observing value of minstret must take
