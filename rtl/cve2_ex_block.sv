@@ -137,6 +137,7 @@ module cve2_ex_block #(
       .imd_val_q_i       (imd_val_q_i),
       .imd_val_d_o       (multdiv_imd_val_d),
       .imd_val_we_o      (multdiv_imd_val_we),
+      .multdiv_ready_id_i(1'b1),
       .multdiv_result_o  (multdiv_result)
     );
   end else if (RV32M == RV32MFast || RV32M == RV32MSingleCycle) begin : gen_multdiv_fast
