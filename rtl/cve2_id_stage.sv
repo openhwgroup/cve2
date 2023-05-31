@@ -142,6 +142,7 @@ module cve2_id_stage #(
   output logic [31:0]               rf_wdata_id_o,
   output logic                      rf_we_id_o,
 
+  output  logic                     en_wb_o,
   output  logic                     instr_perf_count_id_o,
 
   // Performance Counters
@@ -751,8 +752,6 @@ module cve2_id_stage #(
   // Used by ALU to access RS3 if ternary instruction.
   assign instr_first_cycle_id_o = instr_first_cycle;
 
-  begin : gen_no_stall_mem
-
     assign multicycle_done = lsu_req_dec ? lsu_resp_valid_i : ex_valid_i;
 
     assign data_req_allowed = instr_first_cycle;
@@ -781,12 +780,14 @@ module cve2_id_stage #(
     assign perf_dside_wait_o = instr_executing & lsu_req_dec & ~lsu_resp_valid_i;
 
     assign instr_id_done_o = instr_done;
-  end
 
   // Signal which instructions to count as retired in minstret, all traps along with ebrk and
   // ecall instructions are not counted.
   assign instr_perf_count_id_o = ~ebrk_insn & ~ecall_insn_dec & ~illegal_insn_dec &
       ~illegal_csr_insn_i & ~instr_fetch_err_i;
+
+  // An instruction is ready to move to the writeback
+  assign en_wb_o = instr_done;
 
   assign perf_wfi_wait_o = wfi_insn_dec;
   assign perf_div_wait_o = stall_multdiv & div_en_dec;

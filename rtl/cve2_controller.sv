@@ -231,7 +231,6 @@ module cve2_controller #(
   assign special_req = special_req_pc_change | special_req_flush_only;
 
   // Exception/fault prioritisation is taken from Table 3.7 of Priviledged Spec v1.11
-  begin : g_no_wb_exceptions
     always_comb begin
       instr_fetch_err_prio = 0;
       illegal_insn_prio    = 0;
@@ -254,7 +253,6 @@ module cve2_controller #(
         load_err_prio  = 1'b1;
       end
     end
-  end
 
   `ASSERT_IF(IbexExceptionPrioOnehot,
              $onehot({instr_fetch_err_prio,
@@ -477,7 +475,7 @@ module cve2_controller #(
 
         // If entering debug mode or handling an IRQ the core needs to wait until any instruction in
         // ID has finished executing. Stall IF during that time.
-        if ((enter_debug_mode || handle_irq) && stall) begin
+        if ((enter_debug_mode || handle_irq) && (stall || instr_valid_i)) begin
           halt_if = 1'b1;
         end
 

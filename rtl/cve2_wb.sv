@@ -16,6 +16,7 @@ module cve2_wb #(
 ) (
   input  logic                     clk_i,
   input  logic                     rst_ni,
+  input  logic                     en_wb_i,
 
   input  logic                     instr_is_compressed_id_i,
   input  logic                     instr_perf_count_id_i,
@@ -45,17 +46,15 @@ module cve2_wb #(
   logic [31:0] rf_wdata_wb_mux    [2];
   logic [1:0]  rf_wdata_wb_mux_we;
 
-  begin : g_bypass_wb
     // without writeback stage just pass through register write signals
     assign rf_waddr_wb_o         = rf_waddr_id_i;
     assign rf_wdata_wb_mux[0]    = rf_wdata_id_i;
     assign rf_wdata_wb_mux_we[0] = rf_we_id_i;
 
     // Increment instruction retire counters for valid instructions which are not lsu errors.
-    assign perf_instr_ret_wb_o                 = instr_perf_count_id_i &
+    assign perf_instr_ret_wb_o                 = instr_perf_count_id_i & en_wb_i &
                                                  ~(lsu_resp_valid_i & lsu_resp_err_i);
     assign perf_instr_ret_compressed_wb_o      = perf_instr_ret_wb_o & instr_is_compressed_id_i;
-  end
 
   assign rf_wdata_wb_mux[1]    = rf_wdata_lsu_i;
   assign rf_wdata_wb_mux_we[1] = rf_we_lsu_i;

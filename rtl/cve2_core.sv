@@ -219,6 +219,9 @@ module cve2_core import cve2_pkg::*; #(
   logic        instr_req_int;          // Id stage asserts a req to instruction core interface
   logic        instr_req_gated;
 
+  // Writeback
+  logic        en_wb;
+
   // Interrupts
   logic        nmi_mode;
   irqs_t       irqs;
@@ -476,6 +479,7 @@ module cve2_core import cve2_pkg::*; #(
     .rf_wdata_id_o     (rf_wdata_id),
     .rf_we_id_o        (rf_we_id),
 
+    .en_wb_o           (en_wb),
     .instr_perf_count_id_o (instr_perf_count_id),
 
     // Performance Counters
@@ -583,8 +587,9 @@ module cve2_core import cve2_pkg::*; #(
 
   cve2_wb #(
   ) wb_i (
-    .clk_i (clk_i),
-    .rst_ni(rst_ni),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+    .en_wb_i (en_wb),
 
     .instr_is_compressed_id_i(instr_is_compressed_id),
     .instr_perf_count_id_i   (instr_perf_count_id),
