@@ -134,8 +134,8 @@ module cve2_top import cve2_pkg::*; #(
     end
   end
 
-  assign clock_en     = core_busy_q | debug_req_i | irq_pending | irq_nm_i;
-  assign core_sleep_o = ~clock_en;
+  assign clock_en = fetch_enable_q & (core_busy_q | debug_req_i | irq_pending | irq_nm_i);
+  assign core_sleep_o = fetch_enable_q & !clock_en;
   assign fetch_enable_d = fetch_enable_i ? 1'b1 : fetch_enable_q;
 
   cve2_clock_gate core_clock_gate_i (
