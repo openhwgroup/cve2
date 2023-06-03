@@ -962,15 +962,13 @@ module cve2_core import cve2_pkg::*; #(
   assign rvfi_id_done = instr_id_done | (id_stage_i.controller_i.rvfi_flush_next &
                                          id_stage_i.controller_i.id_exception_o);
 
-  begin : gen_rvfi_no_wb_stage
-    // Without writeback stage first RVFI stage is output stage so simply valid the cycle after
-    // instruction leaves ID/EX (and so has retired)
-    assign rvfi_stage_valid_d[0] = rvfi_id_done;
-    // Without writeback stage signal new instr_new_wb when instruction enters ID/EX to correctly
-    // setup register write signals
-    assign rvfi_instr_new_wb = instr_new_id;
-    assign rvfi_trap_id = id_stage_i.controller_i.exc_req_d | id_stage_i.controller_i.exc_req_lsu;
-  end
+  // Without writeback stage first RVFI stage is output stage so simply valid the cycle after
+  // instruction leaves ID/EX (and so has retired)
+  assign rvfi_stage_valid_d[0] = rvfi_id_done;
+  // Without writeback stage signal new instr_new_wb when instruction enters ID/EX to correctly
+  // setup register write signals
+  assign rvfi_instr_new_wb = instr_new_id;
+  assign rvfi_trap_id = id_stage_i.controller_i.exc_req_d | id_stage_i.controller_i.exc_req_lsu;
 
   assign rvfi_stage_order_d = rvfi_stage_order[0] + 64'd1;
 
