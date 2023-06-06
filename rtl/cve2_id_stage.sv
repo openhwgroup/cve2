@@ -494,7 +494,6 @@ module cve2_id_stage #(
     .lsu_addr_last_i(lsu_addr_last_i),
     .load_err_i     (lsu_load_err_i),
     .store_err_i    (lsu_store_err_i),
-    .id_exception_o (),
     // jump/branch control
     .branch_set_i     (branch_set),
     .branch_not_set_i (branch_not_set),
