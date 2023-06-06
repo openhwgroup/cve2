@@ -14,17 +14,13 @@ if { $lr_synth_timing_run } {
   write_sdc_out $lr_synth_sdc_file_in $lr_synth_sdc_file_out
 }
 
-yosys "read_verilog -defer -sv ./rtl/prim_clock_gating.v $lr_synth_out_dir/generated/*.v"
+yosys "read_verilog -defer -sv ./rtl/cve2_clock_gating.v $lr_synth_out_dir/generated/*.v"
 
 if { $lr_synth_cve2_writeback_stage } {
   yosys "chparam -set WritebackStage 1 $lr_synth_top_module"
 }
 
-yosys "chparam -set RV32B $lr_synth_cve2_bitmanip $lr_synth_top_module"
-
 yosys "chparam -set RV32M $lr_synth_cve2_multiplier $lr_synth_top_module"
-
-yosys "chparam -set RegFile $lr_synth_cve2_regfile $lr_synth_top_module"
 
 yosys "synth $flatten_opt -top $lr_synth_top_module"
 yosys "opt -purge"

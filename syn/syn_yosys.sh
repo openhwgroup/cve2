@@ -28,6 +28,10 @@ fi
 #-------------------------------------------------------------------------
 source syn_setup.sh
 
+if [ -z "$LR_SYNTH_CELL_LIBRARY_PATH" ]; then
+    error "See syn_setup.sh file for instructions"
+fi
+
 #-------------------------------------------------------------------------
 # use sv2v to convert all SystemVerilog files to Verilog
 #-------------------------------------------------------------------------
@@ -58,9 +62,9 @@ done
 # remove tracer (not needed for synthesis)
 rm -f $LR_SYNTH_OUT_DIR/generated/cve2_tracer.v
 
-# remove the FPGA & register-based register file (because we will use the
-# latch-based one instead)
-rm -f $LR_SYNTH_OUT_DIR/generated/cve2_register_file_ff.v
+# remove the FPGA & latch-based register file (because we will use the
+# register-based one instead)
+rm -f $LR_SYNTH_OUT_DIR/generated/cve2_register_file_latch.v
 rm -f $LR_SYNTH_OUT_DIR/generated/cve2_register_file_fpga.v
 
 yosys -c ./tcl/yosys_run_synth.tcl |& teelog syn || {
