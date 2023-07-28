@@ -250,7 +250,7 @@ module cve2_if_stage import cve2_pkg::*; #(
       instr_rdata_alu_id_o     <= instr_decompressed;
       instr_fetch_err_o        <= if_instr_err;
       instr_fetch_err_plus2_o  <= if_instr_err_plus2;
-      instr_rdata_c_id_o       <= fetch_rdata; //if_instr_rdata[15:0];
+      instr_rdata_c_id_o       <= fetch_rdata[15:0]; //if_instr_rdata[15:0];
       instr_is_compressed_id_o <= instr_is_compressed;
       illegal_c_insn_id_o      <= illegal_c_insn;
       pc_id_o                  <= pc_if_o;
