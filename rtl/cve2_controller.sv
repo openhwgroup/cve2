@@ -303,7 +303,7 @@ module cve2_controller #(
   always_comb begin : gen_mfip_id
     mfip_id = 4'd0;
 
-    for (int i = 14; i >= 0; i--) begin
+    for (int i = 15; i >= 0; i--) begin
       if (irqs_i.irq_fast[i]) begin
         mfip_id = i[3:0];
       end
@@ -499,11 +499,11 @@ module cve2_controller #(
           if (irq_nm_i && !nmi_mode_q) begin
             exc_cause_o = EXC_CAUSE_IRQ_NM;
             nmi_mode_d  = 1'b1; // enter NMI mode
-          end else if (irqs_i.irq_fast != 15'b0) begin
+          end else if (irqs_i.irq_fast != 16'b0) begin
             // generate exception cause ID from fast interrupt ID:
             // - first bit distinguishes interrupts from exceptions,
             // - second bit adds 16 to fast interrupt ID
-            // for example EXC_CAUSE_IRQ_FAST_0 = {1'b1, 5'd16}
+            // for example EXC_CAUSE_IRQ_FAST_0 = {1'b1, 6'd16}
             exc_cause_o = exc_cause_e'({2'b11, mfip_id});
           end else if (irqs_i.irq_external) begin
             exc_cause_o = EXC_CAUSE_IRQ_EXTERNAL_M;
