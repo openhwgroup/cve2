@@ -185,11 +185,14 @@ module cve2_cs_registers #(
   logic        dscratch0_en, dscratch1_en;
 
   // CSRs for recoverable NMIs
-  // NOTE: these CSRS are nonstandard, see https://github.com/riscv/riscv-isa-manual/issues/261
-  status_stk_t mstack_q, mstack_d;
-  logic        mstack_en;
-  logic [31:0] mstack_epc_q, mstack_epc_d;
-  logic  [6:0] mstack_cause_q, mstack_cause_d;
+  // NOTE: these CSRS are following draft implementation of SMRNMI in priviledged 
+  // see chapter 4.3
+  // (https://github.com/riscv/riscv-isa-manual/releases/download/riscv-isa-release-1239329-2023-05-23/riscv-privileged.pdf)
+  // beware it is a subject of changes and might (will) be different than the final standard implementation
+  status_stk_t mnstatus_q, mnstatus_d;
+  logic        mnstatus_en, mnscratch_en, mnepc_en;
+  logic [31:0] mnepc_q, mnepc_d;
+  logic  [5:0] mncause_q, mncause_d;
 
   // PMP Signals
   logic [31:0]                 pmp_addr_rdata  [PMP_MAX_REGIONS];
@@ -497,11 +500,13 @@ module cve2_cs_registers #(
     dscratch0_en = 1'b0;
     dscratch1_en = 1'b0;
 
-    mstack_en      = 1'b0;
-    mstack_d.mpie  = mstatus_q.mpie;
-    mstack_d.mpp   = mstatus_q.mpp;
-    mstack_epc_d   = mepc_q;
-    mstack_cause_d = mcause_q;
+    mnstatus_en      = 1'b0;
+    mnscratch_en     = 1'b0;
+    mnepc_en         = 1'b0;
+    mnstatus_d.mpie  = mstatus_q.mpie;
+    mnstatus_d.mpp   = mstatus_q.mpp;
+    mnepc_d   = mepc_q;
+    mncause_d = mcause_q;
 
     mcountinhibit_we = 1'b0;
     mhpmcounter_we   = '0;
@@ -530,8 +535,13 @@ module cve2_cs_registers #(
 
         CSR_MSCRATCH: mscratch_en = 1'b1;
 
+        CSR_MNSCRATCH: mnscratch_en = 1'b1;
+
         // mepc: exception program counter
         CSR_MEPC: mepc_en = 1'b1;
+
+        // mnepc: rNMI program counter
+        CSR_MNEPC: mnepc_en = 1'b1;
 
         // mcause
         CSR_MCAUSE: mcause_en = 1'b1;
@@ -648,7 +658,7 @@ module cve2_cs_registers #(
           mcause_en      = 1'b1;
           mcause_d       = {csr_mcause_i};
           // save previous status for recoverable NMI
-          mstack_en      = 1'b1;
+          mnstatus_en      = 1'b1;
 
         end
       end // csr_save_cause_i
@@ -670,13 +680,13 @@ module cve2_cs_registers #(
         // SEC_CM: EXCEPTION.CTRL_FLOW.GLOBAL_ESC
 
         if (nmi_mode_i) begin
-          // when returning from an NMI restore state from mstack CSR
-          mstatus_d.mpie = mstack_q.mpie;
-          mstatus_d.mpp  = mstack_q.mpp;
+          // when returning from an NMI restore state from mnstatus CSR
+          mstatus_d.mpie = mnstatus_q.mpie;
+          mstatus_d.mpp  = mnstatus_q.mpp;
           mepc_en        = 1'b1;
-          mepc_d         = mstack_epc_q;
+          mepc_d         = mnepc_q;
           mcause_en      = 1'b1;
-          mcause_d       = mstack_cause_q;
+          mcause_d       = mncause_q;
         end else begin
           // otherwise just set mstatus.MPIE/MPP
           // See RISC-V Privileged Specification, version 1.11, Section 3.1.6.1
@@ -805,6 +815,20 @@ module cve2_cs_registers #(
     .rd_error_o()
   );
 
+  // MNSCRATCH
+  cve2_csr #(
+    .Width     (32),
+    .ShadowCopy(1'b0),
+    .ResetValue('0)
+  ) u_mnscratch_csr (
+    .clk_i     (clk_i),
+    .rst_ni    (rst_ni),
+    .wr_data_i (csr_wdata_int),
+    .wr_en_i   (mnscratch_en),
+    .rd_data_o (mnscratch_q),
+    .rd_error_o()
+  );
+
   // MCAUSE
   cve2_csr #(
     .Width     (7),
@@ -908,46 +932,46 @@ module cve2_cs_registers #(
     .rd_error_o()
   );
 
-  // MSTACK
-  localparam status_stk_t MSTACK_RESET_VAL = '{mpie: 1'b1, mpp: PRIV_LVL_U};
+  // MNSTATUS
+  localparam status_stk_t MNSTATUS_RESET_VAL = '{mpie: 1'b1, mpp: PRIV_LVL_U};
   cve2_csr #(
     .Width     ($bits(status_stk_t)),
     .ShadowCopy(1'b0),
-    .ResetValue({MSTACK_RESET_VAL})
-  ) u_mstack_csr (
+    .ResetValue({MNSTATUS_RESET_VAL})
+  ) u_mnstatus_csr (
     .clk_i     (clk_i),
     .rst_ni    (rst_ni),
-    .wr_data_i ({mstack_d}),
-    .wr_en_i   (mstack_en),
-    .rd_data_o (mstack_q),
+    .wr_data_i (mnstatus_d),
+    .wr_en_i   (mnstatus_en),
+    .rd_data_o (mnstatus_q),
     .rd_error_o()
   );
 
-  // MSTACK_EPC
+  // MNEPC
   cve2_csr #(
     .Width     (32),
     .ShadowCopy(1'b0),
     .ResetValue('0)
-  ) u_mstack_epc_csr (
+  ) u_mnepc_csr (
     .clk_i     (clk_i),
     .rst_ni    (rst_ni),
-    .wr_data_i (mstack_epc_d),
-    .wr_en_i   (mstack_en),
-    .rd_data_o (mstack_epc_q),
+    .wr_data_i (mnepc_d),
+    .wr_en_i   (mnepc_en),
+    .rd_data_o (mnepc_q),
     .rd_error_o()
   );
 
-  // MSTACK_CAUSE
+  // MNCAUSE
   cve2_csr #(
     .Width     (7),
     .ShadowCopy(1'b0),
     .ResetValue('0)
-  ) u_mstack_cause_csr (
+  ) u_mncause_csr (
     .clk_i     (clk_i),
     .rst_ni    (rst_ni),
-    .wr_data_i (mstack_cause_d),
-    .wr_en_i   (mstack_en),
-    .rd_data_o (mstack_cause_q),
+    .wr_data_i (mncause_d),
+    .wr_en_i   (mncause_en),
+    .rd_data_o (mncause_q),
     .rd_error_o()
   );
 

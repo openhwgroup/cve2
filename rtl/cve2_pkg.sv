@@ -409,6 +409,12 @@ package cve2_pkg;
     CSR_PMPADDR14 = 12'h3BE,
     CSR_PMPADDR15 = 12'h3BF,
 
+    // Resumable NMI
+    CSR_MNSCRATCH = 12'h740,
+    CSR_MNEPC     = 12'h741,
+    CSR_MNCAUSE   = 12'h742,
+    CSR_MNSTATUS  = 12'h743,
+
     // ePMP control
     CSR_MSECCFG   = 12'h747,
     CSR_MSECCFGH  = 12'h757,
