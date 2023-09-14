@@ -275,6 +275,7 @@ package cve2_pkg;
     PC_JUMP,
     PC_EXC,
     PC_ERET,
+    PC_NRET,
     PC_DRET,
     PC_BP
   } pc_sel_e;
@@ -413,7 +414,7 @@ package cve2_pkg;
     CSR_MNSCRATCH = 12'h740,
     CSR_MNEPC     = 12'h741,
     CSR_MNCAUSE   = 12'h742,
-    CSR_MNSTATUS  = 12'h743,
+    CSR_MNSTATUS  = 12'h744,
 
     // ePMP control
     CSR_MSECCFG   = 12'h747,
