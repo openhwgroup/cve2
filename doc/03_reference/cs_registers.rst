@@ -332,7 +332,7 @@ Trigger Data Register 1 (tdata1)
 
 CSR Address: ``0x7A1``
 
-Reset Value: ``0x2800_1000``
+Reset Value: ``0x2800_1048``
 
 Accessible in Debug Mode or M-Mode.
 Since native triggers are not supported, writes to this register from M-Mode will be ignored.
