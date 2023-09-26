@@ -545,7 +545,7 @@ Machine Vendor ID (mvendorid)
 
 CSR Address: ``0xF11``
 
-Reset Value: ``0x0000_0000``
+Reset Value: ``CSR_MVENDORID_VALUE``
 
 Use the ``CSR_MVENDORID_VALUE`` parameter in :file:`rtl/cve2_pkg.sv` to change the fixed value.
 Details of what the ID represents can be found in the RISC-V Privileged Specification.
@@ -555,10 +555,10 @@ Machine Architecture ID (marchid)
 
 CSR Address: ``0xF12``
 
-Reset Value: ``0x0000_0016``
+Reset Value: ``CSR_MARCHID_VALUE``
 
 Use the ``CSR_MARCHID_VALUE`` parameter in :file:`rtl/cve2_pkg.sv` to change the fixed value.
-The value used is allocated specifically to Ibex.
+The value used is allocated specifically to cve2. See https://github.com/riscv/riscv-isa-manual/blob/master/marchid.md.
 If significant changes are made a different ID should be used.
 Details of what the ID represents can be found in the RISC-V Privileged Specification.
 
