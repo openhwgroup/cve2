@@ -78,8 +78,8 @@ Notes:
 
 ## Documentation (to be updated)
 
-The Ibex user manual can be
-[read online at ReadTheDocs](https://ibex-core.readthedocs.io/en/latest/). It is also contained in
+The CVE2 documentation can be
+[read online at ReadTheDocs](https://docs.openhwgroup.org/projects/cve2-user-manual/en/latest/). It is also contained in
 the `doc` folder of this repository.
 
 ## Examples
