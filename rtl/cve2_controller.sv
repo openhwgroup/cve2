@@ -692,9 +692,14 @@ module cve2_controller #(
         // Leave all other signals as is to ensure CSRs and PC get set as if
         // core was entering exception handler, entry to debug mode will then
         // see the appropriate state and setup dpc correctly.
+
         // If an EBREAK instruction is causing us to enter debug mode on the
         // same cycle as a debug_req or single step, honor the EBREAK and
-        // proceed to DBG_TAKEN_ID.
+        // proceed to DBG_TAKEN_ID, as it has the highest priority.
+        // [Debug Spec v1.0.0-STABLE, p.53]
+        // cause==EBREAK    -> prio 3 (highest)
+        // cause==debug_req -> prio 2
+        // cause==step      -> prio 1 (lowest)
         if (enter_debug_mode_prio_q && !(ebrk_insn_prio && ebreak_into_debug)) begin
           ctrl_fsm_ns = DBG_TAKEN_IF;
         end
