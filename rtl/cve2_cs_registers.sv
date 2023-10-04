@@ -135,10 +135,11 @@ module cve2_cs_registers #(
     logic      tw;
   } status_t;
 
-/*  typedef struct packed {
-    logic      mpie;
-    priv_lvl_e mpp;
-  } status_stk_t;*/
+  typedef struct packed {
+    logic      nmie;
+    logic      mnpv;
+    priv_lvl_e mnpp;
+  } nm_status_t;
 
   typedef struct packed {
       x_debug_ver_e xdebugver;
@@ -191,7 +192,7 @@ module cve2_cs_registers #(
   // see chapter 4.3
   // (https://github.com/riscv/riscv-isa-manual/releases/download/riscv-isa-release-1239329-2023-05-23/riscv-privileged.pdf)
   // beware it is a subject of changes and might (will) be different than the final standard implementation
-  status_t mnstatus_q, mnstatus_d;
+  nm_status_t mnstatus_q, mnstatus_d;
   logic        mnstatus_en, mnscratch_en, mnepc_en, mncause_en;
   logic [31:0] mnepc_q, mnepc_d, mnscratch_q, mnscratch_d;
   logic  [6:0] mncause_q, mncause_d;
@@ -292,12 +293,10 @@ module cve2_cs_registers #(
 
       // mnstatus: always M-mode, contains IE bit
       CSR_MNSTATUS: begin
-        csr_rdata_int                                                   = '0;
-        csr_rdata_int[CSR_MSTATUS_MIE_BIT]                              = mnstatus_q.mie;
-        csr_rdata_int[CSR_MSTATUS_MPIE_BIT]                             = mnstatus_q.mpie;
-        csr_rdata_int[CSR_MSTATUS_MPP_BIT_HIGH:CSR_MSTATUS_MPP_BIT_LOW] = mnstatus_q.mpp;
-        csr_rdata_int[CSR_MSTATUS_MPRV_BIT]                             = mnstatus_q.mprv;
-        csr_rdata_int[CSR_MSTATUS_TW_BIT]                               = mnstatus_q.tw;
+        csr_rdata_int                                                       = '0;
+        csr_rdata_int[CSR_MNSTATUS_NMIE_BIT]                                = mnstatus_q.nmie;
+        csr_rdata_int[CSR_MNSTATUS_MNPV_BIT]                                = mnstatus_q.mnpv;
+        csr_rdata_int[CSR_MNSTATUS_MNPP_BIT_HIGH:CSR_MNSTATUS_MNPP_BIT_LOW] = mnstatus_q.mnpp;
       end
 
       // mstatush: All zeros for Ibex (fixed little endian and all other bits reserved)
@@ -522,8 +521,8 @@ module cve2_cs_registers #(
     mnstatus_d       = mnstatus_q;
     mnscratch_en     = 1'b0;
     mnepc_en         = 1'b0;
-    mnstatus_d.mpie  = mstatus_q.mpie;
-    mnstatus_d.mpp   = mstatus_q.mpp;
+    /*mnstatus_d.mnpv  = mstatus_q.mpv;*/
+    mnstatus_d.mnpp  = mstatus_q.mpp;
     mnepc_d          = {csr_wdata_int[31:1], 1'b0};
     mncause_d        = {csr_wdata_int[31], csr_wdata_int[5:0]};
     mncause_en = 1'b0;
@@ -554,15 +553,13 @@ module cve2_cs_registers #(
         CSR_MNSTATUS: begin
           mnstatus_en = 1'b1;
           mnstatus_d    = '{
-              mie:  csr_wdata_int[CSR_MSTATUS_MIE_BIT],
-              mpie: csr_wdata_int[CSR_MSTATUS_MPIE_BIT],
-              mpp:  priv_lvl_e'(csr_wdata_int[CSR_MSTATUS_MPP_BIT_HIGH:CSR_MSTATUS_MPP_BIT_LOW]),
-              mprv: csr_wdata_int[CSR_MSTATUS_MPRV_BIT],
-              tw:   csr_wdata_int[CSR_MSTATUS_TW_BIT]
+              nmie: csr_wdata_int[CSR_MNSTATUS_NMIE_BIT],
+              mnpv: csr_wdata_int[CSR_MNSTATUS_MNPV_BIT],
+              mnpp: priv_lvl_e'(csr_wdata_int[CSR_MNSTATUS_MNPP_BIT_HIGH:CSR_MNSTATUS_MNPP_BIT_LOW])
           };
           // Convert illegal values to M-mode
-          if ((mnstatus_d.mpp != PRIV_LVL_M) && (mnstatus_d.mpp != PRIV_LVL_U)) begin
-            mnstatus_d.mpp = PRIV_LVL_M;
+          if ((mnstatus_d.mnpp != PRIV_LVL_M) && (mnstatus_d.mnpp != PRIV_LVL_U)) begin
+            mnstatus_d.mnpp = PRIV_LVL_M;
           end
         end
 
@@ -687,11 +684,12 @@ module cve2_cs_registers #(
           // includes cause, epc, tval, dpc and mstatus." [Debug Spec v0.13.2, p.39]
           mtval_en       = 1'b1;
           mtval_d        = csr_mtval_i;
-          //mstatus_en     = 1'b1;
-          mnstatus_d.mie  = 1'b0; // disable interrupts
+          mstatus_en     = 1'b1;
+          mstatus_d.mie  = 1'b0; // disable interrupts
           // save current status
-          mnstatus_d.mpie = mstatus_q.mie;
-          mnstatus_d.mpp  = priv_lvl_q;
+          mnstatus_en    = 1'b1;
+          //mnstatus_d.mpie = mstatus_q.mie;
+          mnstatus_d.mnpp  = priv_lvl_q;
           mnepc_en        = 1'b1;
           mnepc_d         = exception_pc;
           mncause_en      = 1'b1;
@@ -721,8 +719,8 @@ module cve2_cs_registers #(
 
         if (nmi_mode_i) begin
           // when returning from an NMI restore state from mstatus CSR
-          mstatus_d.mpie = mnstatus_q.mpie;
-          mstatus_d.mpp  = mnstatus_q.mpp;
+          mstatus_d.mpie = mstatus_q.mpie;
+          mstatus_d.mpp  = mnstatus_q.mnpp;
           mepc_en        = 1'b1;
           mepc_d         = mepc_q;
           mcause_en      = 1'b1;
@@ -736,31 +734,24 @@ module cve2_cs_registers #(
       end // csr_restore_mret_i
 
       csr_restore_mnret_i: begin // MNRET
-        priv_lvl_d     = mnstatus_q.mpp;
-        mnstatus_en     = 1'b1;
-        mnstatus_d.mie  = mnstatus_q.mpie; // re-enable interrupts
+        priv_lvl_d     = mnstatus_q.mnpp;
+        mstatus_en     = 1'b1;
+        mstatus_d.mie  = mstatus_q.mpie; // re-enable interrupts
 
-        if (mnstatus_q.mpp != PRIV_LVL_M) begin
-          mnstatus_d.mprv = 1'b0;
+        if (mnstatus_q.mnpp != PRIV_LVL_M) begin
+          mstatus_d.mprv = 1'b0;
         end
 
         // SEC_CM: EXCEPTION.CTRL_FLOW.LOCAL_ESC
         // SEC_CM: EXCEPTION.CTRL_FLOW.GLOBAL_ESC
 
-        if (nmi_mode_i) begin
-          // when returning from an NMI restore state from mnstatus CSR
-          mstatus_d.mpie = mnstatus_q.mpie;
-          mstatus_d.mpp  = mnstatus_q.mpp;
-          mepc_en        = 1'b1;
-          mepc_d         = mnepc_q;
-          mcause_en      = 1'b1;
-          mcause_d       = mncause_q;
-        end else begin
-          // otherwise just set mstatus.MPIE/MPP
-          // See RISC-V Privileged Specification, version 1.11, Section 3.1.6.1
-          mstatus_d.mpie = 1'b1;
-          mstatus_d.mpp  = PRIV_LVL_U;
-        end
+        // when returning from an NMI restore state from mnstatus CSR
+        mstatus_d.mpie = mstatus_q.mpie;
+        mstatus_d.mpp  = mnstatus_q.mnpp;
+        mepc_en        = 1'b1;
+        mepc_d         = mnepc_q;
+        mcause_en      = 1'b1;
+        mcause_d       = mncause_q;
       end // csr_restore_mnret_i
 
       default:;
@@ -1009,7 +1000,7 @@ module cve2_cs_registers #(
                                              tw:   1'b0};
 
   cve2_csr #(
-    .Width     ($bits(status_t)),
+    .Width     ($bits(nm_status_t)),
     .ShadowCopy(1'b0),
     .ResetValue({MNSTATUS_RESET_VAL})
   ) u_mnstatus_csr (

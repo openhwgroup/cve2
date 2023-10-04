@@ -545,6 +545,12 @@ package cve2_pkg;
   parameter int unsigned CSR_MSTATUS_MPRV_BIT     = 17;
   parameter int unsigned CSR_MSTATUS_TW_BIT       = 21;
 
+  // CSR mnstatus bits
+  parameter int unsigned CSR_MNSTATUS_NMIE_BIT    = 3;
+  parameter int unsigned CSR_MNSTATUS_MNPV_BIT     = 7;
+  parameter int unsigned CSR_MNSTATUS_MNPP_BIT_LOW  = 11;
+  parameter int unsigned CSR_MNSTATUS_MNPP_BIT_HIGH = 12;
+
   // CSR machine ISA
   parameter logic [1:0] CSR_MISA_MXL = 2'd1; // M-XLEN: XLEN in M-Mode for RV32
 
