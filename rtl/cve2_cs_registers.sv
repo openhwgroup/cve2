@@ -137,7 +137,6 @@ module cve2_cs_registers #(
 
   typedef struct packed {
     logic      nmie;
-    logic      mnpv;
     priv_lvl_e mnpp;
   } nm_status_t;
 
@@ -295,7 +294,6 @@ module cve2_cs_registers #(
       CSR_MNSTATUS: begin
         csr_rdata_int                                                       = '0;
         csr_rdata_int[CSR_MNSTATUS_NMIE_BIT]                                = mnstatus_q.nmie;
-        csr_rdata_int[CSR_MNSTATUS_MNPV_BIT]                                = mnstatus_q.mnpv;
         csr_rdata_int[CSR_MNSTATUS_MNPP_BIT_HIGH:CSR_MNSTATUS_MNPP_BIT_LOW] = mnstatus_q.mnpp;
       end
 
@@ -521,7 +519,6 @@ module cve2_cs_registers #(
     mnstatus_d       = mnstatus_q;
     mnscratch_en     = 1'b0;
     mnepc_en         = 1'b0;
-    /*mnstatus_d.mnpv  = mstatus_q.mpv;*/
     mnstatus_d.mnpp  = mstatus_q.mpp;
     mnepc_d          = {csr_wdata_int[31:1], 1'b0};
     mncause_d        = {csr_wdata_int[31], csr_wdata_int[5:0]};
@@ -554,7 +551,6 @@ module cve2_cs_registers #(
           mnstatus_en = 1'b1;
           mnstatus_d    = '{
               nmie: csr_wdata_int[CSR_MNSTATUS_NMIE_BIT],
-              mnpv: csr_wdata_int[CSR_MNSTATUS_MNPV_BIT],
               mnpp: priv_lvl_e'(csr_wdata_int[CSR_MNSTATUS_MNPP_BIT_HIGH:CSR_MNSTATUS_MNPP_BIT_LOW])
           };
           // Convert illegal values to M-mode
