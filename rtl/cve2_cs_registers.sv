@@ -53,7 +53,7 @@ module cve2_cs_registers #(
   input  logic                 irq_software_i,
   input  logic                 irq_timer_i,
   input  logic                 irq_external_i,
-  input  logic [14:0]          irq_fast_i,
+  input  logic [15:0]          irq_fast_i,
   input  logic                 nmi_mode_i,
   output logic                 irq_pending_o,          // interrupt request pending
   output cve2_pkg::irqs_t      irqs_o,                 // interrupt requests qualified with mie
@@ -185,7 +185,7 @@ module cve2_cs_registers #(
   logic        mscratch_en;
   logic [31:0] mepc_q, mepc_d;
   logic        mepc_en;
-  logic  [5:0] mcause_q, mcause_d;
+  logic  [6:0] mcause_q, mcause_d;
   logic        mcause_en;
   logic [31:0] mtval_q, mtval_d;
   logic        mtval_en;
@@ -205,7 +205,7 @@ module cve2_cs_registers #(
   status_stk_t mstack_q, mstack_d;
   logic        mstack_en;
   logic [31:0] mstack_epc_q, mstack_epc_d;
-  logic  [5:0] mstack_cause_q, mstack_cause_d;
+  logic  [6:0] mstack_cause_q, mstack_cause_d;
 
   // PMP Signals
   logic [31:0]                 pmp_addr_rdata  [PMP_MAX_REGIONS];
@@ -334,7 +334,7 @@ module cve2_cs_registers #(
       CSR_MEPC: csr_rdata_int = mepc_q;
 
       // mcause: exception cause
-      CSR_MCAUSE: csr_rdata_int = {mcause_q[5], 26'b0, mcause_q[4:0]};
+      CSR_MCAUSE: csr_rdata_int = {mcause_q[6], 25'b0, mcause_q[5:0]};
 
       // mtval: trap value
       CSR_MTVAL: csr_rdata_int = mtval_q;
@@ -476,6 +476,16 @@ module cve2_cs_registers #(
         illegal_csr = 1'b1;
       end
     endcase
+
+    if (!PMPEnable) begin
+      if (csr_addr inside {CSR_PMPCFG0,   CSR_PMPCFG1,   CSR_PMPCFG2,   CSR_PMPCFG3,
+                           CSR_PMPADDR0,  CSR_PMPADDR1,  CSR_PMPADDR2,  CSR_PMPADDR3,
+                           CSR_PMPADDR4,  CSR_PMPADDR5,  CSR_PMPADDR6,  CSR_PMPADDR7,
+                           CSR_PMPADDR8,  CSR_PMPADDR9,  CSR_PMPADDR10, CSR_PMPADDR11,
+                           CSR_PMPADDR12, CSR_PMPADDR13, CSR_PMPADDR14, CSR_PMPADDR15}) begin
+        illegal_csr = 1'b1;
+      end
+    end
   end
 
   // write logic
@@ -490,7 +500,7 @@ module cve2_cs_registers #(
     mepc_en      = 1'b0;
     mepc_d       = {csr_wdata_int[31:1], 1'b0};
     mcause_en    = 1'b0;
-    mcause_d     = {csr_wdata_int[31], csr_wdata_int[4:0]};
+    mcause_d     = {csr_wdata_int[31], csr_wdata_int[5:0]};
     mtval_en     = 1'b0;
     mtval_d      = csr_wdata_int;
     mtvec_en     = csr_mtvec_init_i;
@@ -807,7 +817,7 @@ module cve2_cs_registers #(
 
   // MCAUSE
   cve2_csr #(
-    .Width     (6),
+    .Width     (7),
     .ShadowCopy(1'b0),
     .ResetValue('0)
   ) u_mcause_csr (
@@ -939,7 +949,7 @@ module cve2_cs_registers #(
 
   // MSTACK_CAUSE
   cve2_csr #(
-    .Width     (6),
+    .Width     (7),
     .ShadowCopy(1'b0),
     .ResetValue('0)
   ) u_mstack_cause_csr (
