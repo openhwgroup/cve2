@@ -156,6 +156,22 @@ module cve2_cs_registers #(
       priv_lvl_e    prv;
   } dcsr_t;
 
+  typedef struct packed {
+      logic hpm12;
+      logic hpm11;
+      logic hpm10;
+      logic hpm9;
+      logic hpm8;
+      logic hpm7;
+      logic hpm6;
+      logic hpm5;
+      logic hpm4;
+      logic hpm3;
+      logic ir;
+      logic zero0;
+      logic cy;
+  } mcountinhibit_t;
+
   // Interrupt and exception control signals
   logic [31:0] exception_pc;
 
@@ -1273,9 +1289,25 @@ module cve2_cs_registers #(
     assign mcountinhibit = mcountinhibit_q;
   end
 
+  // MCOUNTINHIBIT
+  localparam mcountinhibit_t MCOUNTINHIBIT_RST_VAL = '{cy: 1'b1,
+                                                       zero0: 1'b0,
+                                                       ir: 1'b1,
+                                                       hpm3: 1'b1,
+                                                       hpm4: 1'b0,
+                                                       hpm5: 1'b0,
+                                                       hpm6: 1'b0,
+                                                       hpm7: 1'b0,
+                                                       hpm8: 1'b0,
+                                                       hpm9: 1'b0,
+                                                       hpm10: 1'b0,
+                                                       hpm11: 1'b0,
+                                                       hpm12: 1'b0};
+
+
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      mcountinhibit_q <= '0;
+      mcountinhibit_q <= logic'(MCOUNTINHIBIT_RST_VAL);
     end else begin
       mcountinhibit_q <= mcountinhibit_d;
     end
