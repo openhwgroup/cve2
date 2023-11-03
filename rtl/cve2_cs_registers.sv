@@ -1317,7 +1317,7 @@ module cve2_cs_registers #(
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      mcountinhibit_q <= logic'(MCOUNTINHIBIT_RST_VAL);
+      mcountinhibit_q <= 13'(MCOUNTINHIBIT_RST_VAL);
     end else begin
       mcountinhibit_q <= mcountinhibit_d;
     end
