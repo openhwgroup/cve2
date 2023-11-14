@@ -73,7 +73,7 @@ register values. If the hart had been executing machine-mode code in a trap hand
 To support recovering from an NMI (RNMI) happening during a trap handling routine, CVE2 supports the Smrnmi extension. The extension adds four new CSRs (``mnepc``, ``mncause``, ``mnstatus``, and ``mnscratch``) to hold the
 interrupted state, and one new instruction, MNRET, to resume from the RNMI handler.
 
-For more information, see chapter 4 in draft of 'The RISC-V Instruction Set Manual <https://github.com/riscv/riscv-isa-manual/releases>'_.
+For more information, see chapter '"Smrnmi" Standard Extension for Resumable Non-Maskable Interrupts"' in draft of 'The RISC-V Instruction Set Manual <https://github.com/riscv/riscv-isa-manual/releases/download/riscv-isa-release-056b6ff-2023-10-02/riscv-privileged.pdf#chapter.4>'_.
 
 
 Exceptions
