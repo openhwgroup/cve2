@@ -193,6 +193,9 @@ identify the versions of RISC-V extensions from these specifications.
    Privileged Architecture Extension, version 0.9-draft, 3/15/2022,
    https://github.com/riscv/riscv-fast-interrupt/blob/master/clic.pdf
 
+.. [SMRNMI] "Smrnmi" Standard Extension for Resumable Non-Maskable Interrupts
+   https://github.com/riscv/riscv-isa-manual/releases/download/riscv-isa-release-056b6ff-2023-10-02/riscv-privileged.pdf#chapter.4
+
 Other documents
 ===============
 
@@ -709,9 +712,7 @@ IRQs, but is not yet ratified at the time of specification.
 +---------+------------------------------------------------------------+
 
 .. note::
-   It should be noted that Ibex had implemented a custom mechanism for NMI 
-   recovery. A standard RISC-V way of NMI recovery is in draft stage. In
-   future, the custom mechanism could be reworked to follow the standard.
+   A standard RISC-V way of NMI recovery is in draft stage [SMRNMI]_
 
 Coprocessor interface
 ---------------------
