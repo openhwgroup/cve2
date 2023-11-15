@@ -202,6 +202,9 @@ Other documents
 .. [FPGAreset] Ken Chapman, “Get Smart About Reset: Think Local, Not
    Global”, Xilinx WP272 white paper, https://docs.xilinx.com/v/u/en-US/wp272
 
+.. [Ibex] Production-quality open source 32-bit RISC-V CPU core written in SystemVerilog
+   https://ibex-core.readthedocs.io/en/latest/index.html
+
 CV32E20 core functional requirements
 ====================================
 
@@ -712,7 +715,8 @@ IRQs, but is not yet ratified at the time of specification.
 +---------+------------------------------------------------------------+
 
 .. note::
-   A standard RISC-V way of NMI recovery is in draft stage [SMRNMI]_
+   [Ibex] had implemented a custom mechanism for NMI recovery. In CVE2 this
+   custom mechanism is reworked to follow the drafted standsrd [SMRNMI]_.
 
 Coprocessor interface
 ---------------------
