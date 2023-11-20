@@ -716,7 +716,7 @@ IRQs, but is not yet ratified at the time of specification.
 
 .. note::
    [Ibex] had implemented a custom mechanism for NMI recovery. In CVE2 this
-   custom mechanism is reworked to follow the drafted standsrd [SMRNMI]_.
+   custom mechanism is reworked to follow the drafted standard [SMRNMI]_.
 
 Coprocessor interface
 ---------------------
