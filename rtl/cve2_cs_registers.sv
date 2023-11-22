@@ -999,11 +999,8 @@ module cve2_cs_registers #(
   );
 
   // MNSTATUS
-  localparam status_t MNSTATUS_RESET_VAL = '{mie:  1'b0,
-                                             mpie: 1'b0,
-                                             mpp:  PRIV_LVL_M,
-                                             mprv: 1'b0,
-                                             tw:   1'b0};
+  localparam nm_status_t MNSTATUS_RESET_VAL = '{nmie:  1'b0,
+                                                mnpp:  PRIV_LVL_M};
 
   cve2_csr #(
     .Width     ($bits(nm_status_t)),
