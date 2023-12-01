@@ -58,7 +58,7 @@ module cve2_core import cve2_pkg::*; #(
   input  logic                         irq_software_i,
   input  logic                         irq_timer_i,
   input  logic                         irq_external_i,
-  input  logic [14:0]                  irq_fast_i,
+  input  logic [15:0]                  irq_fast_i,
   input  logic                         irq_nm_i,       // non-maskeable interrupt
   output logic                         irq_pending_o,
 
@@ -950,8 +950,10 @@ module cve2_core import cve2_pkg::*; #(
 
   // Factor in exceptions taken in ID so RVFI tracking picks up flushed instructions that took
   // a trap
-  assign rvfi_id_done = instr_id_done | (id_stage_i.controller_i.rvfi_flush_next &
-                                         id_stage_i.controller_i.exc_req_d);
+  // MRET causes MSTATUS to get written one clock later. Fix rvfi_valid when executing MRET
+  assign rvfi_id_done = (instr_id_done & !id_stage_i.controller_i.mret_insn)|
+                         id_stage_i.csr_restore_mret_id_o |
+                        (id_stage_i.controller_i.rvfi_flush_next & id_stage_i.controller_i.exc_req_d);
 
   // Without writeback stage first RVFI stage is output stage so simply valid the cycle after
   // instruction leaves ID/EX (and so has retired)

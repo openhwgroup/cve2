@@ -292,26 +292,25 @@ package cve2_pkg;
     logic        irq_software;
     logic        irq_timer;
     logic        irq_external;
-    logic [14:0] irq_fast; // 15 fast interrupts,
-                          // one interrupt is reserved for NMI (not visible through mip/mie)
+    logic [15:0] irq_fast; // 16 fast interrupts
   } irqs_t;
 
   // Exception cause
-  typedef enum logic [5:0] {
-    EXC_CAUSE_IRQ_SOFTWARE_M     = {1'b1, 5'd03},
-    EXC_CAUSE_IRQ_TIMER_M        = {1'b1, 5'd07},
-    EXC_CAUSE_IRQ_EXTERNAL_M     = {1'b1, 5'd11},
-    // EXC_CAUSE_IRQ_FAST_0      = {1'b1, 5'd16},
-    // EXC_CAUSE_IRQ_FAST_14     = {1'b1, 5'd30},
-    EXC_CAUSE_IRQ_NM             = {1'b1, 5'd31}, // == EXC_CAUSE_IRQ_FAST_15
-    EXC_CAUSE_INSN_ADDR_MISA     = {1'b0, 5'd00},
-    EXC_CAUSE_INSTR_ACCESS_FAULT = {1'b0, 5'd01},
-    EXC_CAUSE_ILLEGAL_INSN       = {1'b0, 5'd02},
-    EXC_CAUSE_BREAKPOINT         = {1'b0, 5'd03},
-    EXC_CAUSE_LOAD_ACCESS_FAULT  = {1'b0, 5'd05},
-    EXC_CAUSE_STORE_ACCESS_FAULT = {1'b0, 5'd07},
-    EXC_CAUSE_ECALL_UMODE        = {1'b0, 5'd08},
-    EXC_CAUSE_ECALL_MMODE        = {1'b0, 5'd11}
+  typedef enum logic [6:0] {
+    EXC_CAUSE_IRQ_SOFTWARE_M     = {1'b1, 6'd03},
+    EXC_CAUSE_IRQ_TIMER_M        = {1'b1, 6'd07},
+    EXC_CAUSE_IRQ_EXTERNAL_M     = {1'b1, 6'd11},
+    // EXC_CAUSE_IRQ_FAST_0      = {1'b1, 6'd16},
+    // EXC_CAUSE_IRQ_FAST_15     = {1'b1, 6'd31},
+    EXC_CAUSE_IRQ_NM             = {1'b1, 6'd32},
+    EXC_CAUSE_INSN_ADDR_MISA     = {1'b0, 6'd00},
+    EXC_CAUSE_INSTR_ACCESS_FAULT = {1'b0, 6'd01},
+    EXC_CAUSE_ILLEGAL_INSN       = {1'b0, 6'd02},
+    EXC_CAUSE_BREAKPOINT         = {1'b0, 6'd03},
+    EXC_CAUSE_LOAD_ACCESS_FAULT  = {1'b0, 6'd05},
+    EXC_CAUSE_STORE_ACCESS_FAULT = {1'b0, 6'd07},
+    EXC_CAUSE_ECALL_UMODE        = {1'b0, 6'd08},
+    EXC_CAUSE_ECALL_MMODE        = {1'b0, 6'd11}
   } exc_cause_e;
 
   // Debug cause
@@ -547,32 +546,31 @@ package cve2_pkg;
   parameter int unsigned CSR_MTIX_BIT      = 7;
   parameter int unsigned CSR_MEIX_BIT      = 11;
   parameter int unsigned CSR_MFIX_BIT_LOW  = 16;
-  parameter int unsigned CSR_MFIX_BIT_HIGH = 30;
+  parameter int unsigned CSR_MFIX_BIT_HIGH = 31;
 
   // CSR Machine Security Configuration bits
   parameter int unsigned CSR_MSECCFG_MML_BIT  = 0;
   parameter int unsigned CSR_MSECCFG_MMWP_BIT = 1;
   parameter int unsigned CSR_MSECCFG_RLB_BIT  = 2;
 
-  // Vendor ID
-  // No JEDEC ID has been allocated to lowRISC so the value is 0 to indicate the field is not
-  // implemented
-  localparam logic [31:0] CSR_MVENDORID_VALUE  = 32'b0;
+  // Machine Vendor ID - OpenHW JEDEC ID is '2 decimal (bank 13)'
+  parameter MVENDORID_OFFSET = 7'h2;  // Final byte without parity bit
+  parameter MVENDORID_BANK = 25'hC;  // Number of continuation codes
 
-  // Architecture ID
-  // Top bit is unset to indicate an open source project. The lower bits are an ID allocated by the
-  // RISC-V Foundation. Note this is allocated specifically to Ibex, should significant changes be
-  // made a different architecture ID should be supplied.
-  localparam logic [31:0] CSR_MARCHID_VALUE = {1'b0, 31'd22};
+  // Machine Architecture ID (https://github.com/riscv/riscv-isa-manual/blob/master/marchid.md)
+  parameter MARCHID = 32'd35;
+
+  localparam logic [31:0] CSR_MVENDORID_VALUE  = {MVENDORID_BANK, MVENDORID_OFFSET};
+  localparam logic [31:0] CSR_MARCHID_VALUE = MARCHID;
 
   // Implementation ID
-  // 0 indicates this field is not implemeted. Ibex implementors may wish to indicate an RTL/netlist
+  // 0 indicates this field is not implemeted. cve2 implementors may wish to indicate an RTL/netlist
   // version here using their own unique encoding (e.g. 32 bits of the git hash of the implemented
   // commit).
   localparam logic [31:0] CSR_MIMPID_VALUE = 32'b0;
 
   // Machine Configuration Pointer
-  // 0 indicates the configuration data structure does not eixst. Ibex implementors may wish to
+  // 0 indicates the configuration data structure does not eixst. cve2 implementors may wish to
   // alter this to point to their system specific configuration data structure.
   localparam logic [31:0] CSR_MCONFIGPTR_VALUE = 32'b0;
 
