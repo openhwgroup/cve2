@@ -104,7 +104,7 @@ module cve2_core import cve2_pkg::*; #(
   // CPU Control Signals
   input  logic                         fetch_enable_i,
   output logic                         core_busy_o,
-  output logic                         priv_mode_o
+  priv_lvl_e                           priv_mode_o
 );
 
   localparam int unsigned PMP_NUM_CHAN      = 3;
@@ -281,7 +281,7 @@ module cve2_core import cve2_pkg::*; #(
   // interfaces to finish ongoing operations.
   assign core_busy_o = ctrl_busy | if_busy | lsu_busy;
 
-  assign priv_mode_o = ( priv_mode_id == PRIV_LVL_M );
+  assign priv_mode_o = priv_mode_id;
 
   //////////////
   // IF stage //

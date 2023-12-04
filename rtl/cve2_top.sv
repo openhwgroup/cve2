@@ -96,7 +96,7 @@ module cve2_top import cve2_pkg::*; #(
   // CPU Control Signals
   input  logic                         fetch_enable_i,
   output logic                         core_sleep_o,
-  output logic                         priv_mode_o
+  priv_lvl_e                           priv_mode_o
 );
 
   // Scrambling Parameter
