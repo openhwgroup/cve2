@@ -467,11 +467,6 @@ module cve2_cs_registers #(
         illegal_csr   = ~DbgTriggerEn;
       end
 
-      // Custom CSR for LFSR re-seeding (cannot be read)
-      CSR_SECURESEED: begin
-        csr_rdata_int = '0;
-      end
-
       default: begin
         illegal_csr = 1'b1;
       end

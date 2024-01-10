@@ -469,8 +469,7 @@ package cve2_pkg;
     CSR_MHPMCOUNTER10H = 12'hB8A,
     CSR_MHPMCOUNTER11H = 12'hB8B,
     CSR_MHPMCOUNTER12H = 12'hB8C,
-    CSR_CPUCTRL        = 12'h7C0,
-    CSR_SECURESEED     = 12'h7C1
+    CSR_CPUCTRL        = 12'h7C0
   } csr_num_e;
 
   // CSR pmp-related offsets
