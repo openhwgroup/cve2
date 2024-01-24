@@ -156,6 +156,12 @@ module cve2_cs_registers #(
       priv_lvl_e    prv;
   } dcsr_t;
 
+  // CPU control register fields
+  typedef struct packed {
+      logic        double_fault_seen;
+      logic        sync_exc_seen;
+  } cpu_ctrl_t;
+
   // Interrupt and exception control signals
   logic [31:0] exception_pc;
 
@@ -221,6 +227,11 @@ module cve2_cs_registers #(
   logic [31:0] tselect_rdata;
   logic [31:0] tmatch_control_rdata;
   logic [31:0] tmatch_value_rdata;
+
+  // CPU control bits
+  cpu_ctrl_t   cpuctrl_q, cpuctrl_d, cpuctrl_wdata_raw, cpuctrl_wdata;
+  logic        cpuctrl_we;
+  logic        cpuctrl_err;
 
   // CSR update logic
   logic [31:0] csr_wdata_int;
@@ -459,6 +470,11 @@ module cve2_cs_registers #(
         illegal_csr   = ~DbgTriggerEn;
       end
 
+      // Custom CSR for controlling CPU features
+      CSR_CPUCTRL: begin
+        csr_rdata_int = {{32 - $bits(cpu_ctrl_t) {1'b0}}, cpuctrl_q};
+      end
+
       // Custom CSR for LFSR re-seeding (cannot be read)
       CSR_SECURESEED: begin
         csr_rdata_int = '0;
@@ -506,6 +522,9 @@ module cve2_cs_registers #(
     mcountinhibit_we = 1'b0;
     mhpmcounter_we   = '0;
     mhpmcounterh_we  = '0;
+
+    cpuctrl_we       = 1'b0;
+    cpuctrl_d        = cpuctrl_q;
 
     if (csr_we_int) begin
       unique case (csr_addr_i)
@@ -604,6 +623,11 @@ module cve2_cs_registers #(
           mhpmcounterh_we[mhpmcounter_idx] = 1'b1;
         end
 
+        CSR_CPUCTRL: begin
+          cpuctrl_d  = cpuctrl_wdata;
+          cpuctrl_we = 1'b1;
+        end
+
         default:;
       endcase
     end
@@ -650,6 +674,15 @@ module cve2_cs_registers #(
           // save previous status for recoverable NMI
           mstack_en      = 1'b1;
 
+          if (!mcause_d[5]) begin
+            cpuctrl_we = 1'b1;
+
+            cpuctrl_d.sync_exc_seen = 1'b1;
+            //if (cpuctrl_q.sync_exc_seen) begin
+            //  double_fault_seen_o         = 1'b1;
+            //  cpuctrl_d.double_fault_seen = 1'b1;
+            //end
+          end
         end
       end // csr_save_cause_i
 
@@ -668,6 +701,8 @@ module cve2_cs_registers #(
 
         // SEC_CM: EXCEPTION.CTRL_FLOW.LOCAL_ESC
         // SEC_CM: EXCEPTION.CTRL_FLOW.GLOBAL_ESC
+        cpuctrl_we              = 1'b1;
+        cpuctrl_d.sync_exc_seen = 1'b0;
 
         if (nmi_mode_i) begin
           // when returning from an NMI restore state from mstack CSR
