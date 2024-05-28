@@ -3,16 +3,20 @@
 Examples
 ========
 
-To make use of Ibex it has to be integrated as described in :ref:`core-integration`.
+To make use of CVE2 please review the :ref:`core-integration` section of this document.
+The CVE2 is simple enough to integrate into your own platform.
+To get you started, we suggest a couple of very useful open-source platforms.
 
-FPGA
-----
+Ibex Minimal System
+-------------------
 
-A minimal example for the `Arty A7 <https://reference.digilentinc.com/reference/programmable-logic/arty-a7/start>`_ FPGA Development board is provided.
-In this example Ibex is directly linked to a SRAM memory instance.
-Four LEDs from the board are connected to the data bus and are updated each time when a word is written.
-The memory is separated into a instruction and data section.
-The instructions memory is initialized at synthesis time by reading the output from the software build.
-The software writes to the data section the complementary lower for bits of a word every second resulting in blinking LEDs.
+A minimal example for the `Arty A7 <https://reference.digilentinc.com/reference/programmable-logic/arty-a7/start>`_ FPGA Development board developed for Ibex should be portable to the CVE2 without significant effort.
+If you are interested in using the Ibex minimal example, it can be found `here <https://github.com/lowRISC/ibex/tree/master/examples/simple_system>`_.
 
-Find the description of how to build and program the Arty board in ``examples/fpga/artya7/README.md``.
+X-HEEP
+------
+
+The CV32E20 (a specific configuration of the CVE2) has been integrated into the `X-HEEP <https://github.com/esl-epfl/x-heep/tree/main>`_ (eXtendable Heterogeneous Energy-Efficient Platform).
+X-HEEP is a RISC-V microcontroller implemented in SystemVerilog that can be configured to integrate a number of CORE-V processors.
+X-HEEP provides a simple customizable MCU to get you up and running quickly.
+
