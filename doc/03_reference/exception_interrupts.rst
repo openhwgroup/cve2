@@ -3,18 +3,18 @@
 Exceptions and Interrupts
 =========================
 
-Ibex implements trap handling for interrupts and exceptions according to the RISC-V Privileged Specification, version 1.11.
+Ibex implements trap handling for interrupts and exceptions according to the `RISC-V Privileged Specification, version 20211203 <https://drive.google.com/file/d/1EMip5dZlnypTk7pt4WWUKmtjUKTOkBqh/view>`.
 
 When entering an interrupt/exception handler, the core sets the ``mepc`` CSR to the current program counter and saves ``mstatus``.MIE to ``mstatus``.MPIE.
 All exceptions cause the core to jump to the base address of the vector table in the ``mtvec`` CSR.
-Interrupts are handled in vectored mode, i.e., the core jumps to the base address plus four times the interrupt ID.
+Interrupts are handled in vectored mode, i.e., the core jumps to the base address plus the interrupt ID times 4.
 Upon executing an MRET instruction, the core jumps to the program counter previously saved in the ``mepc`` CSR and restores ``mstatus``.MPIE to ``mstatus``.MIE.
 
 The base address of the vector table is initialized to the boot address (must be aligned to 256 bytes, i.e., its least significant byte must be 0x00) when the core is booting.
 The base address can be changed after bootup by writing to the ``mtvec`` CSR.
 For more information, see the :ref:`cs-registers` documentation.
 
-The core starts fetching at the address made by concatenating the most significant 3 bytes of the boot address and the reset value (0x80) as the least significant byte.
+The core starts fetching at ``boot_addr_i``, see :ref:`core-integration` .
 It is assumed that the boot address is supplied via a register to avoid long paths to the instruction fetch unit.
 
 Privilege Modes
@@ -29,20 +29,21 @@ Interrupts
 
 Ibex supports the following interrupts.
 
-+-------------------------+-------+--------------------------------------------------+
-| Interrupt Input Signal  | ID    | Description                                      |
-+=========================+=======+==================================================+
-| ``irq_nm_i``            | 31    | Non-maskable interrupt (NMI)                     |
-+-------------------------+-------+--------------------------------------------------+
-| ``irq_fast_i[14:0]``    | 30:16 | 15 fast, local interrupts                        |
-+-------------------------+-------+--------------------------------------------------+
-| ``irq_external_i``      | 11    | Connected to platform-level interrupt controller |
-+-------------------------+-------+--------------------------------------------------+
-| ``irq_timer_i``         | 7     | Connected to timer module                        |
-+-------------------------+-------+--------------------------------------------------+
-| ``irq_software_i``      | 3     | Connected to memory-mapped (inter-processor)     |
-|                         |       | interrupt register                               |
-+-------------------------+-------+--------------------------------------------------+
++-------------------------+-------+------------------------------------------------------------+
+| Interrupt Input Signal  | ID    | Description                                                |
++=========================+=======+============================================================+
+| ``irq_software_i``      | 3     | Connected to memory-mapped (inter-processor)               |
+|                         |       | interrupt register (a.k.a. Machine software interrupt)     |
++-------------------------+-------+------------------------------------------------------------+
+| ``irq_timer_i``         | 7     | Connected to timer module (a.k.a. Machine timer interrupt) |
++-------------------------+-------+------------------------------------------------------------+
+| ``irq_external_i``      | 11    | Connected to platform-level interrupt controller           |
+|                         |       | (a.k.a. Machine external interrupt)                        |
++-------------------------+-------+------------------------------------------------------------+
+| ``irq_fast_i[15:0]``    | 31:16 | 16 fast, local interrupts                                  |
++-------------------------+-------+------------------------------------------------------------+
+| ``irq_nm_i``            | 32    | Non-maskable interrupt (NMI)                               |
++-------------------------+-------+------------------------------------------------------------+
 
 All interrupts except for the non-maskable interrupt (NMI) are controlled via the ``mstatus``, ``mie`` and ``mip`` CSRs.
 After reset, all interrupts are disabled.
