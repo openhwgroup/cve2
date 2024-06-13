@@ -3,7 +3,7 @@
 Exceptions and Interrupts
 =========================
 
-Ibex implements trap handling for interrupts and exceptions according to the `RISC-V Privileged Specification, version 20211203 <https://drive.google.com/file/d/1EMip5dZlnypTk7pt4WWUKmtjUKTOkBqh/view>`.
+Ibex implements trap handling for interrupts and exceptions according to the `RISC-V Privileged Specification, version 20211203 <https://drive.google.com/file/d/1EMip5dZlnypTk7pt4WWUKmtjUKTOkBqh/view>`_.
 
 When entering an interrupt/exception handler, the core sets the ``mepc`` CSR to the current program counter and saves ``mstatus``.MIE to ``mstatus``.MPIE.
 All exceptions cause the core to jump to the base address of the vector table in the ``mtvec`` CSR.
@@ -171,13 +171,29 @@ Interrupt vector table
 ----------------------
 
 The interrupt vector table is located at ``mtvec``, and each entry can contain the code for 
-the interrupt/exception handling. The following table indicates the offset of the entry and 
+the interrupt/exception handling. 
+
+
+  When MODE=Direct, all traps into machine mode cause the pc to be set to the address in the BASE field. 
+
+  When MODE=Vectored,
+
+  all synchronous exceptions into machine mode cause the pc to be set to the address in the BASE
+  field, 
+
+  whereas interrupts cause the pc to be set to the address in the BASE field plus four times the
+  interrupt cause number.
+
+
+From `RISC-V Privileged Specification, version 20211203, page 30 <https://drive.google.com/file/d/1EMip5dZlnypTk7pt4WWUKmtjUKTOkBqh/view>`_.
+
+The following table indicates the offset of the entry and 
 its description.
 
 +-------------------------+------------------------------------------------------------+
 | offset in bytes         | Description                                                |
 +=========================+============================================================+
-| 0x00                    | Boot                                                       |
+| 0x00                    | Exception                                                  |
 +-------------------------+------------------------------------------------------------+
 | 0x04                    | reserved                                                   |
 +-------------------------+------------------------------------------------------------+
