@@ -579,6 +579,18 @@ module cve2_core import cve2_pkg::*; #(
     .clk_i (clk_i),
     .rst_ni(rst_ni),
 
+   // X-Interface
+    .x_result_valid_assigned_i(x_result_valid_assigned),
+    .x_result_rd_i            (x_result_i.rd),
+    .x_result_data_i          (x_result_i.data),
+    .x_result_we_i            (x_result_i.we),
+    .x_mem_instr_i            (x_mem_instr),
+    .x_mem_id_ex_i            (x_mem_id_ex),
+    .x_mem_result_rdata_o     (x_mem_result_o.rdata),
+    .x_mem_instr_wb_o         (x_mem_instr_wb),
+    .x_mem_result_id_o        (x_mem_result_o.id),
+    .result_fw_to_x_o         (result_fw_to_x),
+
     // ALU signal from ID stage
     .alu_operator_i         (alu_operator_ex),
     .alu_operand_a_i        (alu_operand_a_ex),
@@ -608,6 +620,7 @@ module cve2_core import cve2_pkg::*; #(
     .branch_decision_o(branch_decision),  // to ID
 
     .ex_valid_o(ex_valid)
+
   );
 
   /////////////////////

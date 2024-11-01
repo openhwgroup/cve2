@@ -254,7 +254,7 @@ module cve2_id_stage #(
   assign rf_ren_a_o = rf_ren_a;
   assign rf_ren_b_o = rf_ren_b;
 
-  localparam REGFILE_NUM_READ_PORTS = ((COREV_X_IF == 1) & (X_DUALREAD == 1)) ? 2 : 1;
+  //localparam REGFILE_NUM_READ_PORTS = ((COREV_X_IF == 1) & (X_DUALREAD == 1)) ? 2 : 1;
   //logic [REGFILE_NUM_READ_PORTS-1:0][31:0] regfile_data_ra_fwd;
   //logic [REGFILE_NUM_READ_PORTS-1:0][31:0] regfile_data_rb_fwd;
   logic [31:0] rf_rdata_a_fwd;
