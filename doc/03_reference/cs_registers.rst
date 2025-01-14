@@ -208,7 +208,6 @@ Detailed:
 | 0           | RO   (0x0) | **A** (Atomic extension)                                               |
 +-------------+------------+------------------------------------------------------------------------+
 
-* **B** = 0 if RV32B == RV32BNone and 1 otherwise, It's controlled by "RV32BEnabled" parameter
 * **M** = 0 if RV32M == RV32MNone and 1 otherwise, It's controlled by "RV32MEnabled" parameter
 * **MXL** = 1 (i.e. XLEN = 32)
 
