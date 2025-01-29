@@ -133,7 +133,7 @@ module cve2_top import cve2_pkg::*; #(
   localparam rv32b_e      RV32B            = RV32BNone;
 
   // CV-X-IF 
-  localparam int unsigned XInterface       = 1;
+  localparam int unsigned XInterface       = 0;
 
   // Clock signals
   logic                        clk;
