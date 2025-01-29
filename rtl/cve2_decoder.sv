@@ -92,7 +92,6 @@ module cve2_decoder #(
   // Core-V eXtension interface (CV-X-IF)
   input  cve2_pkg::readregflags_t  x_issue_resp_register_read_i,
   input  cve2_pkg::writeregflags_t x_issue_resp_writeback_i,
-  output logic                     coproc_instr_in_dec_o,
 
   // jump/branches
   output logic                     jump_in_dec_o,         // jump is being calculated in ALU
@@ -207,8 +206,7 @@ module cve2_decoder #(
   always_comb begin
     jump_in_dec_o         = 1'b0;
     jump_set_o            = 1'b0;
-    branch_in_dec_o       = 1'b0;
-    coproc_instr_in_dec_o = 1'b0; 
+    branch_in_dec_o       = 1'b0; 
 
     multdiv_operator_o    = MD_OP_MULL;
     multdiv_signed_mode_o = 2'b00;
@@ -641,16 +639,14 @@ module cve2_decoder #(
       default: begin
         illegal_insn = 1'b1;
 
-        for(int i = 0; i < 32; i++) begin
-          if(XInterface && CoprocOpcodes[i] && (instr[6:2] == i)) begin
-            coproc_instr_in_dec_o = 1'b1;
-            rf_ren_a_o            = x_issue_resp_register_read_i[0];     
-            rf_ren_b_o            = x_issue_resp_register_read_i[1];           
-            rf_we                 = x_issue_resp_register_read_i;                          
-            rf_wdata_sel_o        = RF_WD_COPROC;
-            illegal_insn          = 1'b0;
-          end
+        // CV-X-IF
+        if(XInterface) begin
+          rf_ren_a_o            = x_issue_resp_register_read_i[0];     
+          rf_ren_b_o            = x_issue_resp_register_read_i[1];           
+          rf_we                 = x_issue_resp_writeback_i;                          
+          rf_wdata_sel_o        = RF_WD_COPROC;
         end
+
       end
     endcase
 
@@ -665,7 +661,6 @@ module cve2_decoder #(
     // insufficient privileges), or when accessing non-available registers in RV32E,
     // these cases are not handled here
     if (illegal_insn) begin
-      rf_we           = 1'b0;
       data_req_o      = 1'b0;
       data_we_o       = 1'b0;
       jump_in_dec_o   = 1'b0;

@@ -25,8 +25,7 @@ module cve2_core import cve2_pkg::*; #(
   parameter int unsigned DbgHwBreakNum     = 1,
   parameter int unsigned DmHaltAddr        = 32'h1A110800,
   parameter int unsigned DmExceptionAddr   = 32'h1A110808,
-  parameter bit          XInterface        = 1'b0,
-  parameter [31:0]       CoprocOpcodes     = '0
+  parameter bit          XInterface        = 1'b0
 ) (
   // Clock and Reset
   input  logic                         clk_i,
@@ -375,8 +374,7 @@ module cve2_core import cve2_pkg::*; #(
     .RV32E          (RV32E),
     .RV32M          (RV32M),
     .RV32B          (RV32B),
-    .XInterface     (XInterface),
-    .CoprocOpcodes  (CoprocOpcodes)
+    .XInterface     (XInterface)
   ) id_stage_i (
     .clk_i (clk_i),
     .rst_ni(rst_ni),

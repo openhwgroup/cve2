@@ -21,8 +21,7 @@ module cve2_id_stage #(
   parameter bit               RV32E           = 0,
   parameter cve2_pkg::rv32m_e RV32M           = cve2_pkg::RV32MFast,
   parameter cve2_pkg::rv32b_e RV32B           = cve2_pkg::RV32BNone,
-  parameter bit               XInterface      = 1'b0,
-  parameter [31:0]            CoprocOpcodes   = '0
+  parameter bit               XInterface      = 1'b0
 ) (
   input  logic                      clk_i,
   input  logic                      rst_ni,
@@ -265,7 +264,6 @@ module cve2_id_stage #(
   logic [31:0] alu_operand_b;
 
   // CV-X-IF
-  logic coproc_instr_in_dec;
   logic stall_coproc;
   logic coproc_done;
 
@@ -285,11 +283,12 @@ module cve2_id_stage #(
     end
   end
 
+  // CV-X-IF
   if (XInterface) begin: gen_xif
     assign coproc_done = (x_issue_valid_o & x_issue_ready_i & ~x_issue_resp_i.writeback) | (x_result_valid_i & x_result_i.we);
  
     // Issue Interface
-    assign x_issue_valid_o     = instr_executing & coproc_instr_in_dec & (id_fsm_q == FIRST_CYCLE);
+    assign x_issue_valid_o     = instr_executing & illegal_insn_dec & (id_fsm_q == FIRST_CYCLE);
     assign x_issue_req_o.instr = instr_rdata_i;
 
     // Register Interface
@@ -303,7 +302,10 @@ module cve2_id_stage #(
 
     // Result Interface 
     assign x_result_ready_o = 1'b1;
+
+    assign illegal_insn_o = instr_valid_i & (illegal_csr_insn_i | (x_issue_valid_o & x_issue_ready_i & ~x_issue_resp_i.accept));
   end 
+
   else begin: no_gen_xif
     logic          unused_x_issue_ready;
     x_issue_resp_t unused_x_issue_resp;
@@ -327,6 +329,8 @@ module cve2_id_stage #(
     assign x_result_ready_o      = 1'b0;
     assign unused_x_result_valid = x_result_valid_i;
     assign unused_x_result       = x_result_i;
+
+    assign illegal_insn_o = instr_valid_i & (illegal_csr_insn_i | illegal_insn_dec);
   end
 
   /////////////
@@ -412,7 +416,7 @@ module cve2_id_stage #(
     unique case (rf_wdata_sel)
       RF_WD_EX:     rf_wdata_id_o   = result_ex_i;
       RF_WD_CSR:    rf_wdata_id_o   = csr_rdata_i;
-      RF_WD_COPROC: rf_wdata_id_o = x_result_i.data;
+      RF_WD_COPROC: rf_wdata_id_o   = x_result_i.data;
       default:      rf_wdata_id_o   = result_ex_i;
     endcase
   end
@@ -425,8 +429,7 @@ module cve2_id_stage #(
     .RV32E          (RV32E),
     .RV32M          (RV32M),
     .RV32B          (RV32B),
-    .XInterface     (XInterface),
-    .CoprocOpcodes  (CoprocOpcodes)
+    .XInterface     (XInterface)
   ) decoder_i (
     .clk_i (clk_i),
     .rst_ni(rst_ni),
@@ -494,7 +497,7 @@ module cve2_id_stage #(
     // Core-V eXtension Interface (CV-X-IF)
     .x_issue_resp_register_read_i(x_issue_resp_i.register_read),
     .x_issue_resp_writeback_i(x_issue_resp_i.writeback),
-    .coproc_instr_in_dec_o(coproc_instr_in_dec),
+    
     // jump/branches
     .jump_in_dec_o  (jump_in_dec),
     .branch_in_dec_o(branch_in_dec)
@@ -534,8 +537,6 @@ module cve2_id_stage #(
   ////////////////
   // Controller //
   ////////////////
-
-  assign illegal_insn_o = instr_valid_i & (illegal_insn_dec | illegal_csr_insn_i | (x_issue_valid_o & x_issue_ready_i & ~x_issue_resp_i.accept));
 
   cve2_controller #(
   ) controller_i (
@@ -753,13 +754,30 @@ module cve2_id_stage #(
               id_fsm_d      = MULTI_CYCLE;
               rf_we_raw     = 1'b0;
             end
-            coproc_instr_in_dec: begin
-              if (x_issue_ready_i && x_issue_resp_i.writeback) begin
-                id_fsm_d             = MULTI_CYCLE;
+            illegal_insn_dec: begin
+              
+              // CV-X-IF
+              if(XInterface) begin
+                if(x_issue_valid_o && x_issue_ready_i) begin
+                  if(x_issue_resp_i.accept && x_issue_resp_i.writeback) begin
+                      id_fsm_d = MULTI_CYCLE;
+                      stall_coproc = 1'b1;
+                  end
+                  else begin
+                    id_fsm_d = FIRST_CYCLE;
+                  end
+                end
+                else begin
+                  stall_coproc = 1'b1;
+                  id_fsm_d = FIRST_CYCLE;
+                end
               end
-              stall_coproc = ~x_issue_ready_i ||  x_issue_resp_i.writeback; 
-              rf_we_raw  = 1'b0;
+              else begin
+                id_fsm_d = FIRST_CYCLE;
+              end
+
             end
+
             default: begin
               id_fsm_d      = FIRST_CYCLE;
             end
@@ -777,7 +795,7 @@ module cve2_id_stage #(
             stall_multdiv   = multdiv_en_dec;
             stall_branch    = branch_in_dec;
             stall_jump      = jump_in_dec;
-            stall_coproc    = coproc_instr_in_dec;
+            stall_coproc    = illegal_insn_dec;
           end
         end
 
@@ -814,7 +832,7 @@ module cve2_id_stage #(
   // Used by ALU to access RS3 if ternary instruction.
   assign instr_first_cycle_id_o = instr_first_cycle;
 
-    assign multicycle_done = lsu_req_dec ? lsu_resp_valid_i : (coproc_instr_in_dec ? coproc_done : ex_valid_i);
+    assign multicycle_done = lsu_req_dec ? lsu_resp_valid_i : (illegal_insn_dec ? coproc_done : ex_valid_i);
 
     assign data_req_allowed = instr_first_cycle;
 
@@ -895,7 +913,7 @@ module cve2_id_stage #(
 
   // Multicycle enable signals must be unique.
   `ASSERT(IbexMulticycleEnableUnique,
-      $onehot0({lsu_req_dec, multdiv_en_dec, branch_in_dec, jump_in_dec, coproc_instr_in_dec}))
+      $onehot0({lsu_req_dec, multdiv_en_dec, branch_in_dec, jump_in_dec, illegal_insn_dec}))
 
   // Duplicated instruction flops must match
   // === as DV environment can produce instructions with Xs in, so must use precise match that
