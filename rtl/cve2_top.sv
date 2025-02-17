@@ -13,7 +13,7 @@
  * Top level module of the ibex RISC-V core
  */
 module cve2_top import cve2_pkg::*; #(
-  parameter int unsigned MHPMCounterNum   = 0,
+  parameter int unsigned MHPMCounterNum   = 10,
   parameter int unsigned MHPMCounterWidth = 40,
   parameter bit          RV32E            = 1'b0,
   parameter rv32m_e      RV32M            = RV32MFast,
