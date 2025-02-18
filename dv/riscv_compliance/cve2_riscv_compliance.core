@@ -3,7 +3,7 @@ CAPI=2:
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 name: "lowrisc:cve2:cve2_riscv_compliance:0.1"
-description: "Ibex simulation for RISC-V compliance testing (using Verilator)"
+description: "CVE2 simulation for RISC-V compliance testing (using Verilator)"
 filesets:
   files_sim:
     depend:
@@ -77,7 +77,7 @@ parameters:
     paramtype: vlogparam
     description: "Number of PMP regions"
 
-  SecureIbex:
+  SecureCVE2:
     datatype: int
     paramtype: vlogparam
     default: 0
@@ -105,7 +105,7 @@ targets:
       - PMPEnable
       - PMPGranularity
       - PMPNumRegions
-      - SecureIbex
+      - SecureCVE2
       - ICacheScramble
     toplevel: cve2_riscv_compliance
     tools:

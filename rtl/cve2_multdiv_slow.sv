@@ -364,7 +364,7 @@ module cve2_multdiv_slow
   ////////////////
 
   // State must be valid.
-  `ASSERT(IbexMultDivStateValid, md_state_q inside {
+  `ASSERT(CVE2MultDivStateValid, md_state_q inside {
       MD_IDLE, MD_ABS_A, MD_ABS_B, MD_COMP, MD_LAST, MD_CHANGE_SIGN, MD_FINISH
       }, clk_i, !rst_ni)
 

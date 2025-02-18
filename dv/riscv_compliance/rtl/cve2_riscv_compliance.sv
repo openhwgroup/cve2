@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * Ibex simulation to run the RISC-V compliance test on
+ * CVE2 simulation to run the RISC-V compliance test on
  *
- * This is a toplevel wrapper for Ibex with helpers to run the RISC-V compliance
+ * This is a toplevel wrapper for CVE2 with helpers to run the RISC-V compliance
  * test. It is designed for Verilator, but should equally work for other
  * simulators (if the top-level clk and rst ports are replaced with a generated
  * clock).
@@ -24,7 +24,7 @@ module cve2_riscv_compliance (
   parameter cve2_pkg::regfile_e RegFile = cve2_pkg::RegFileFF;
   parameter bit ICache                  = 1'b0;
   parameter bit ICacheECC               = 1'b0;
-  parameter bit SecureIbex              = 1'b0;
+  parameter bit SecureCVE2              = 1'b0;
   parameter bit ICacheScramble          = 1'b0;
 
   logic clk_sys, rst_sys_n;
@@ -120,7 +120,7 @@ module cve2_riscv_compliance (
       .RegFile         (RegFile         ),
       .ICache          (ICache          ),
       .ICacheECC       (ICacheECC       ),
-      .SecureIbex      (SecureIbex      ),
+      .SecureCVE2      (SecureCVE2      ),
       .ICacheScramble  (ICacheScramble  ),
       .DmHaltAddr      (32'h00000000    ),
       .DmExceptionAddr (32'h00000000    )

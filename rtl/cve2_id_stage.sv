@@ -286,7 +286,7 @@ module cve2_id_stage #(
       default:         imm_b = 32'h4;
     endcase
   end
-  `ASSERT(IbexImmBMuxSelValid, instr_valid_i |-> imm_b_mux_sel inside {
+  `ASSERT(CVE2ImmBMuxSelValid, instr_valid_i |-> imm_b_mux_sel inside {
       IMM_B_I,
       IMM_B_S,
       IMM_B_B,
@@ -735,7 +735,7 @@ module cve2_id_stage #(
     assign instr_executing_spec = instr_valid_i & ~instr_fetch_err_i & controller_run;
     assign instr_executing = instr_executing_spec;
 
-    `ASSERT(IbexStallIfValidInstrNotExecuting,
+    `ASSERT(CVE2StallIfValidInstrNotExecuting,
       instr_valid_i & ~instr_fetch_err_i & ~instr_executing & controller_run |-> stall_id)
 
     // No data forwarding without writeback stage so always take source register data direct from
@@ -778,40 +778,40 @@ module cve2_id_stage #(
   ////////////////
 
   // Selectors must be known/valid.
-  `ASSERT_KNOWN_IF(IbexAluOpMuxSelKnown, alu_op_a_mux_sel, instr_valid_i)
-  `ASSERT(IbexAluAOpMuxSelValid, instr_valid_i |-> alu_op_a_mux_sel inside {
+  `ASSERT_KNOWN_IF(CVE2AluOpMuxSelKnown, alu_op_a_mux_sel, instr_valid_i)
+  `ASSERT(CVE2AluAOpMuxSelValid, instr_valid_i |-> alu_op_a_mux_sel inside {
       OP_A_REG_A,
       OP_A_FWD,
       OP_A_CURRPC,
       OP_A_IMM})
-  `ASSERT(IbexRegfileWdataSelValid, instr_valid_i |-> rf_wdata_sel inside {
+  `ASSERT(CVE2RegfileWdataSelValid, instr_valid_i |-> rf_wdata_sel inside {
       RF_WD_EX,
       RF_WD_CSR})
-  `ASSERT_KNOWN(IbexWbStateKnown, id_fsm_q)
+  `ASSERT_KNOWN(CVE2WbStateKnown, id_fsm_q)
 
   // Branch decision must be valid when jumping.
-  `ASSERT_KNOWN_IF(IbexBranchDecisionValid, branch_decision_i,
+  `ASSERT_KNOWN_IF(CVE2BranchDecisionValid, branch_decision_i,
       instr_valid_i && !(illegal_csr_insn_i || instr_fetch_err_i))
 
   // Instruction delivered to ID stage can not contain X.
-  `ASSERT_KNOWN_IF(IbexIdInstrKnown, instr_rdata_i,
+  `ASSERT_KNOWN_IF(CVE2IdInstrKnown, instr_rdata_i,
       instr_valid_i && !(illegal_c_insn_i || instr_fetch_err_i))
 
   // Instruction delivered to ID stage can not contain X.
-  `ASSERT_KNOWN_IF(IbexIdInstrALUKnown, instr_rdata_alu_i,
+  `ASSERT_KNOWN_IF(CVE2IdInstrALUKnown, instr_rdata_alu_i,
       instr_valid_i && !(illegal_c_insn_i || instr_fetch_err_i))
 
   // Multicycle enable signals must be unique.
-  `ASSERT(IbexMulticycleEnableUnique,
+  `ASSERT(CVE2MulticycleEnableUnique,
       $onehot0({lsu_req_dec, multdiv_en_dec, branch_in_dec, jump_in_dec}))
 
   // Duplicated instruction flops must match
   // === as DV environment can produce instructions with Xs in, so must use precise match that
   // includes Xs
-  `ASSERT(IbexDuplicateInstrMatch, instr_valid_i |-> instr_rdata_i === instr_rdata_alu_i)
+  `ASSERT(CVE2DuplicateInstrMatch, instr_valid_i |-> instr_rdata_i === instr_rdata_alu_i)
 
   `ifdef CHECK_MISALIGNED
-  `ASSERT(IbexMisalignedMemoryAccess, !lsu_addr_incr_req_i)
+  `ASSERT(CVE2MisalignedMemoryAccess, !lsu_addr_incr_req_i)
   `endif
 
 endmodule

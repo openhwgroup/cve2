@@ -173,9 +173,9 @@ See :ref:`load-store-unit` for more details.
 
 .. rubric:: Footnotes
 
-.. [#B_draft] Ibex fully implements the ratified version 1.0.0 of the RISC-V Bit-Manipulation Extension including the Zba, Zbb, Zbc and Zbs sub-extensions.
-   In addition, Ibex also supports the remaining Zbe, Zbf, Zbp, Zbr and Zbt sub-extensions as defined in draft version 0.93 of the RISC-V Bit-Manipulation Extension.
+.. [#B_draft] CVE2 fully implements the ratified version 1.0.0 of the RISC-V Bit-Manipulation Extension including the Zba, Zbb, Zbc and Zbs sub-extensions.
+   In addition, CVE2 also supports the remaining Zbe, Zbf, Zbp, Zbr and Zbt sub-extensions as defined in draft version 0.93 of the RISC-V Bit-Manipulation Extension.
    Note that the latter sub-extensions may change before being ratified as a standard by the RISC-V Foundation.
-   Ibex will be updated to match future versions of the specification.
+   CVE2 will be updated to match future versions of the specification.
    Prior to ratification this may involve backwards incompatible changes.
    Additionally, neither GCC or Clang have committed to maintaining support upstream for unratified versions of the specification.

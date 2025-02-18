@@ -74,7 +74,7 @@ Notes:
   Red indicates a configuration with minimal/no verification.
 * v.1.0.0 of the RISC-V Bit-Manipulation Extension is supported as well as the remaining sub-extensions of draft v.0.93 of the bitmanip spec.
   The latter is *not ratified* and there may be changes before ratification.
-  See [Standards Compliance](https://ibex-core.readthedocs.io/en/latest/01_overview/compliance.html) in the Ibex documentation for more information.
+  See [Standards Compliance](https://cve2-core.readthedocs.io/en/latest/01_overview/compliance.html) in the CVE2 documentation for more information.
 
 ## Documentation (to be updated)
 
@@ -93,6 +93,8 @@ It is intended to provide an easy way to get bare metal binaries running on CV32
 We highly appreciate community contributions. We are currently using the lowRISC contribution guide.
 To ease our work of reviewing your contributions,
 please:
+
+<!-- TODO upgrade Contributing policy to the current repo -->
 
 * Create your own fork to commit your changes and then open a Pull Request to the **dev** branch.
 * Split large contributions into smaller commits addressing individual changes or bug fixes. Do not

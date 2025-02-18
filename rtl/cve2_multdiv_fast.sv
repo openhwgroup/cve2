@@ -249,7 +249,7 @@ module cve2_multdiv_fast #(
     assign unused_mult1_res_uns = mult1_res_uns[33:32];
 
     // States must be knwon/valid.
-    `ASSERT_KNOWN(IbexMultStateKnown, mult_state_q)
+    `ASSERT_KNOWN(CVE2MultStateKnown, mult_state_q)
 
   // The fast multiplier uses one 17 bit multiplier to compute MUL instructions in 3 cycles
   // and MULH instructions in 4 cycles.
@@ -367,7 +367,7 @@ module cve2_multdiv_fast #(
     end
 
     // States must be knwon/valid.
-    `ASSERT_KNOWN(IbexMultStateKnown, mult_state_q)
+    `ASSERT_KNOWN(CVE2MultStateKnown, mult_state_q)
 
   end // gen_mult_fast
 
@@ -518,7 +518,7 @@ module cve2_multdiv_fast #(
   assign valid_o = mult_valid | div_valid;
 
   // States must be knwon/valid.
-  `ASSERT(IbexMultDivStateValid, md_state_q inside {
+  `ASSERT(CVE2MultDivStateValid, md_state_q inside {
       MD_IDLE, MD_ABS_A, MD_ABS_B, MD_COMP, MD_LAST, MD_CHANGE_SIGN, MD_FINISH})
 
 `ifdef FORMAL

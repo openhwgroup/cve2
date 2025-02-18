@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * Simplistic Ibex bus implementation
+ * Simplistic CVE2 bus implementation
  *
  * This module is designed for demo and simulation purposes, do not use it in
  * a real-world system.

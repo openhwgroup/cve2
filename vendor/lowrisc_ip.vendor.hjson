@@ -20,7 +20,7 @@
 
         // We apply a patch to fix the bus_params_pkg core file name when
         // vendoring in dv_lib and dv_utils. This allows us to have an
-        // Ibex-specific core file for these defines.
+        // CVE2-specific core file for these defines.
         {
             from:      "hw/dv/sv/dv_lib",
             to:        "dv/sv/dv_lib",

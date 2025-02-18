@@ -219,11 +219,11 @@ def parse_config(config_name, config_filename):
 
     Arguments:
 
-        config_name: Name of the chosen Ibex core config
+        config_name: Name of the chosen CVE2 core config
 
         config_filename: Name of the configuration filename to be parsed
 
-    Returns: the chosen Ibex config as a YAML object.
+    Returns: the chosen CVE2 config as a YAML object.
 
     Raises a ConfigException if there are any error while parsing the YAML.
 
@@ -275,7 +275,7 @@ def main():
     ]
 
     argparser = argparse.ArgumentParser(description=(
-        'Outputs Ibex configuration parameters for a named config in a number '
+        'Outputs CVE2 configuration parameters for a named config in a number '
         'of formats.  If not specified on the command line the config will be '
         'read from {0}. This default can be overridden by setting the '
         'CVE2_CONFIG_FILE environment variable. Some output types support '
@@ -283,7 +283,7 @@ def main():
         'followed by --help').format(get_config_file_location()))
 
     argparser.add_argument('config_name',
-                           help=('The name of the Ibex '
+                           help=('The name of the CVE2 '
                                  'configuration to output'))
 
     argparser.add_argument('--config_filename',

@@ -8,14 +8,14 @@ Coverage Plan
 
 Introduction
 ------------
-Ibex functional coverage is split into two major categories:
+CVE2 functional coverage is split into two major categories:
 
 * Architectural coverage - which is concerned with instructions being executed and exercising various features of the RISC-V architecture (e.g. PMP) and does not consider the details of how this execution occurs.
 * Microarchitectural coverage - which is concerned with the specifics of the RTL operation, ensuring interesting corner cases are seen along with various micro-architectural events (e.g. the different kinds of stall) and combinations of them.
 
-Architectural coverage is not Ibex specific. It can be determined directly from a trace of executed instructions and is handled by RISCV-DV, details can be found in the `RISCV-DV documentation <https://htmlpreview.github.io/?https://github.com/google/riscv-dv/blob/master/docs/build/singlehtml/index.html#document-coverage_model>`_.
+Architectural coverage is not CVE2 specific. It can be determined directly from a trace of executed instructions and is handled by RISCV-DV, details can be found in the `RISCV-DV documentation <https://htmlpreview.github.io/?https://github.com/google/riscv-dv/blob/master/docs/build/singlehtml/index.html#document-coverage_model>`_.
 
-Microarchitectural coverage will probe the Ibex RTL directly and is described here.
+Microarchitectural coverage will probe the CVE2 RTL directly and is described here.
 There is some inevitable overlap between architectural and microarchitectural coverage but we aim to minimise it.
 
 Microarchitectural Events and Behaviour
@@ -98,8 +98,8 @@ A stall category is sampled at the ID/EX stage only (as stalls in IF and WB don'
 
 Privilege Level
 """""""""""""""
-Ibex can operate at either the M (machine) or U (user) privilege levels.
-Different aspects of the Ibex microarchitecture can be using different privilege levels at once.
+CVE2 can operate at either the M (machine) or U (user) privilege levels.
+Different aspects of the CVE2 microarchitecture can be using different privilege levels at once.
 
 * ``cp_priv_mode_if`` - Privilege level of IF stage instruction.
 * ``cp_priv_mode_id`` - Privilege level of ID/EX stage instruction.
@@ -110,7 +110,7 @@ Any instruction that reaches WB can be considered bound to retire and any releva
 
 Hazards
 """""""
-Ibex hazards all occur in the interaction between the ID and EX stage.
+CVE2 hazards all occur in the interaction between the ID and EX stage.
 
 * RAW Reg - Read after write hazard, instruction in ID/EX reads a register that writeback is writing.
   Split into two versions:
@@ -206,7 +206,7 @@ Furthermore they can all occur together and must be appropriately prioritised (c
 * External debug request.
 * Instruction executed when debug single step enabled.
 * Instruction matches hardware trigger point.
-* Ibex operating in debug mode.
+* CVE2 operating in debug mode.
 
 PMP
 ^^^

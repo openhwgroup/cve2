@@ -32,18 +32,18 @@ steps:
       displayName: Lint Verilog source files with Verible Verilog Lint for ${{ config }}
 
     - bash: |
-        # Build simulation model of Ibex
+        # Build simulation model of CVE2
         fusesoc --cores-root=. run --target=sim --setup --build lowrisc:cve2:cve2_riscv_compliance $CVE2_CONFIG_OPTS
         if [ $? != 0 ]; then
           echo -n "##vso[task.logissue type=error]"
-          echo "Unable to build Verilator model of Ibex for compliance testing."
+          echo "Unable to build Verilator model of CVE2 for compliance testing."
           exit 1
         fi
 
         # Run compliance test suite
         export TARGET_SIM=$PWD/build/lowrisc_cve2_cve2_riscv_compliance_0.1/sim-verilator/Vcve2_riscv_compliance
         export RISCV_PREFIX=riscv32-unknown-elf-
-        export RISCV_TARGET=ibex
+        export RISCV_TARGET=cve2
         export RISCV_DEVICE=rv32imc
         fail=0
         for isa in rv32i rv32im rv32imc rv32Zicsr rv32Zifencei; do
@@ -64,7 +64,7 @@ steps:
           fi
         done
         exit $fail
-      displayName: Run RISC-V Compliance test for Ibex RV32IMC for ${{ config }}
+      displayName: Run RISC-V Compliance test for CVE2 RV32IMC for ${{ config }}
 
     - bash: |
         # Setup environment to use cosim with Simple System

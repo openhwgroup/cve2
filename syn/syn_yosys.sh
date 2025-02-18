@@ -4,7 +4,7 @@
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
-# This script drives the experimental Ibex synthesis flow. More details can be
+# This script drives the experimental CVE2 synthesis flow. More details can be
 # found in README.md
 
 set -e

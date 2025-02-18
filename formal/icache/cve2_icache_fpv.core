@@ -4,7 +4,7 @@ CAPI=2:
 # SPDX-License-Identifier: Apache-2.0
 
 name: "lowrisc:fpv:cve2_icache_fpv:0.1"
-description: "Formal properties for Ibex ICache"
+description: "Formal properties for CVE2 ICache"
 
 filesets:
   all:

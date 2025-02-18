@@ -6,7 +6,7 @@
 // (PMPNumRegions) is less than 16 the reset values for the higher numbered
 // regions are ignored.
 //
-// See the Ibex Reference Guide (Custom Reset Values under Physical Memory
+// See the CVE2 Reference Guide (Custom Reset Values under Physical Memory
 // Protection) for more information.
 
 localparam pmp_cfg_t pmp_cfg_rst[16] = '{

@@ -296,7 +296,7 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 		ee_printf("Iterations/Sec   : %d\n",default_num_contexts*results[0].iterations/time_in_secs(total_time));
 #endif
   // Remove error report if execution time low.
-  // On Ibex a few loops suffices to get an accurate result. With this check in
+  // On CVE2 a few loops suffices to get an accurate result. With this check in
   // the verilator simulation of coremark will report failure (unless left running
   // for a significant number of iterations greatly increasing simulation time).
   // The other error checking is useful to determine if the benchmark has been

@@ -3,7 +3,7 @@
 Control and Status Registers
 ============================
 
-Ibex implements all the Control and Status Registers (CSRs) listed in the following table according to the RISC-V Privileged Specification, version 1.11.
+CVE2 implements all the Control and Status Registers (CSRs) listed in the following table according to the RISC-V Privileged Specification, version 1.11.
 
 +---------+--------------------+--------+-----------------------------------------------+
 | Address |   Name             | Access | Description                                   |
@@ -143,7 +143,7 @@ CSR Address: ``0x301``
 Reset Value: ``0x4010_1104``
 
 ``misa`` is a WARL register which describes the ISA supported by the hart.
-On Ibex, ``misa`` is hard-wired, i.e. it will remain unchanged after any write.
+On CVE2, ``misa`` is hard-wired, i.e. it will remain unchanged after any write.
 
 Detailed:
 
@@ -404,7 +404,7 @@ Reset Value: ``0x2800_1000``
 Accessible in Debug Mode or M-Mode.
 Since native triggers are not supported, writes to this register from M-Mode will be ignored.
 
-Ibex only implements one type of trigger, instruction address match.
+CVE2 only implements one type of trigger, instruction address match.
 Most fields of this register will read as a fixed value to reflect the mode that is supported.
 
 +-------+------+------------------------------------------------------------------+
@@ -471,7 +471,7 @@ Reset Value: ``0x0000_0000``
 
 Accessible in Debug Mode or M-Mode.
 
-Ibex does not support the features requiring this register, so writes are ignored and it will always read as zero.
+CVE2 does not support the features requiring this register, so writes are ignored and it will always read as zero.
 
 Machine Context Register (mcontext)
 -----------------------------------
@@ -482,7 +482,7 @@ Reset Value: ``0x0000_0000``
 
 Accessible in Debug Mode or M-Mode.
 
-Ibex does not support the features requiring this register, so writes are ignored and it will always read as zero.
+CVE2 does not support the features requiring this register, so writes are ignored and it will always read as zero.
 
 Supervisor Context Register (scontext)
 --------------------------------------
@@ -493,7 +493,7 @@ Reset Value: ``0x0000_0000``
 
 Accessible in Debug Mode or M-Mode.
 
-Ibex does not support the features requiring this register, so writes are ignored and it will always read as zero.
+CVE2 does not support the features requiring this register, so writes are ignored and it will always read as zero.
 
 .. _csr-dcsr:
 
@@ -505,7 +505,7 @@ CSR Address: ``0x7B0``
 Reset Value: ``0x4000_0003``
 
 Accessible in Debug Mode only.
-Ibex implements the following bit fields.
+CVE2 implements the following bit fields.
 Other bit fields read as zero.
 
 +-------+------+------------------------------------------------------------------+
@@ -526,7 +526,7 @@ Other bit fields read as zero.
 +-------+------+------------------------------------------------------------------+
 | 1:0   | WARL | **prv:** Privilege level the core was operating in when Debug    |
 |       |      | Mode was entered. May be modified by debugger to change          |
-|       |      | privilege level. Ibex allows transitions to all supported modes. |
+|       |      | privilege level. CVE2 allows transitions to all supported modes. |
 |       |      | (M- and U-Mode).                                                 |
 +-------+------+------------------------------------------------------------------+
 
@@ -577,7 +577,7 @@ Reset Value: ``0x0000_0000``
 
 Custom CSR to control runtime configuration of CPU components.
 Accessible in Machine Mode only.
-Ibex implements the following bit fields.
+CVE2 implements the following bit fields.
 Other bit fields read as zero.
 
 +-------+------+------------------------------------------------------------------+
@@ -603,7 +603,7 @@ Time Registers (time(h))
 
 CSR Address: ``0xC01 / 0xC81``
 
-The User Mode ``time(h)`` registers are not implemented in Ibex.
+The User Mode ``time(h)`` registers are not implemented in CVE2.
 Any access to these registers will trap.
 It is recommended that trap handler software provides a means of accessing platform-defined ``mtime(h)`` timers where available.
 

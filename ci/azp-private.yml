@@ -28,4 +28,4 @@ resources:
     name: lowrisc/lowrisc-private-ci
 
 extends:
-  template: jobs-ibex.yml@lowrisc-private-ci
+  template: jobs-cve2.yml@lowrisc-private-ci

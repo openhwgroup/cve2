@@ -1,16 +1,16 @@
-Ibex simulation for RISC-V Compliance Testing
+CVE2 simulation for RISC-V Compliance Testing
 =============================================
 
-This directory contains a compiled simulation of Ibex to be used as target
+This directory contains a compiled simulation of CVE2 to be used as target
 in the [RISC-V Compliance Test](https://github.com/riscv/riscv-compliance).
-In addition to Ibex itself, it contains a 64 kB RAM and a memory-mapped helper
+In addition to CVE2 itself, it contains a 64 kB RAM and a memory-mapped helper
 module to interact with the software, e.g. to dump out the test signature and to
 end the simulation.
 
 The simulation is designed for Verilator, but can be adapted to other simulators
 if needed.
 
-How to run RISC-V Compliance on Ibex
+How to run RISC-V Compliance on CVE2
 ------------------------------------
 
 0. Check your prerequisites
@@ -33,10 +33,10 @@ How to run RISC-V Compliance on Ibex
    https://www.veripool.org/projects/verilator/wiki/Installing for installation
    instructions.
 
-1. Build a simulation of Ibex
+1. Build a simulation of CVE2
 
    ```sh
-   cd $IBEX_REPO_BASE
+   cd $CVE2_REPO_BASE
    fusesoc --cores-root=. run --target=sim --setup --build lowrisc:cve2:cve2_riscv_compliance --RV32E=0 --RV32M=cve2_pkg::RV32MNone
    ```
 
@@ -47,7 +47,7 @@ How to run RISC-V Compliance on Ibex
 
 2. Get the RISC-V Compliance test suite
 
-   The upstream RISC-V compliance test suite supports Ibex out of the box.
+   The upstream RISC-V compliance test suite supports CVE2 out of the box.
 
    ```
    git clone https://github.com/riscv/riscv-compliance.git
@@ -63,7 +63,7 @@ How to run RISC-V Compliance on Ibex
    export TARGET_SIM=/path/to/your/Vcve2_riscv_compliance
 
    export RISCV_DEVICE=rv32imc
-   export RISCV_TARGET=ibex
+   export RISCV_TARGET=cve2
 
    # Note: rv32imc does not include the I and M extension tests
    make RISCV_ISA=rv32i && make RISCV_ISA=rv32im && make RISCV_ISA=rv32imc && \
@@ -76,7 +76,7 @@ Compliance test suite system
 This directory contains a system designed especially to run the compliance test
 suite. The system consists of
 
-- an Ibex core,
+- an CVE2 core,
 - a bus,
 - a single-port memory for data and instructions,
 - a bus-attached test utility.

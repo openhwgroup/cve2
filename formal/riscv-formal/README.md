@@ -4,8 +4,8 @@
 
 The Verilog source created here is used by [riscv-formal](https://github.com/SymbioticEDA/riscv-formal).
 
-Riscv-formal uses Yosys, but the SystemVerilog front-end of Yosys does not support all the language features used by Ibex.
-The `Makefile` provided here uses sv2v and Yosys to create a single Verilog source of Ibex.
+Riscv-formal uses Yosys, but the SystemVerilog front-end of Yosys does not support all the language features used by CVE2.
+The `Makefile` provided here uses sv2v and Yosys to create a single Verilog source of CVE2.
 
 This flow has some similarities to [syn](../syn/README.md), but uses only a simplified subset.
 
@@ -24,13 +24,13 @@ The "M" extension is currently disabled.
 
 ## Usage
 
-It should not be necessary to create the Verilog source manually as it is used by the riscv-formal Ibex build system.
+It should not be necessary to create the Verilog source manually as it is used by the riscv-formal CVE2 build system.
 
-Run the following command from the top level directory of Ibex to create the Verilog source.
+Run the following command from the top level directory of CVE2 to create the Verilog source.
 
 ```console
 make -C formal/riscv-formal
 ```
 
 This will create a directory *formal/riscv-formal/build* which contains an equivalent Verilog file for each SystemVerilog source.
-The single output file *formal/riscv-formal/ibex.v* contains the complete Ibex source, which can then be imported by riscv-formal.
+The single output file *formal/riscv-formal/cve2.v* contains the complete CVE2 source, which can then be imported by riscv-formal.

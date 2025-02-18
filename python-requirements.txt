@@ -12,7 +12,7 @@ pyyaml
 mako
 junit-xml
 
-# Needed by dvsim.py (not actually used in Ibex)
+# Needed by dvsim.py (not actually used in CVE2)
 hjson
 mistletoe>=0.7.2
 # Premailer 3.9.0 broke the API by introducing an allow_loading_external_files
