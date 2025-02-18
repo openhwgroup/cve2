@@ -286,10 +286,10 @@ import cve2_pkg::*;
         csr_rdata_int[CSR_MSTATUS_TW_BIT]                               = mstatus_q.tw;
       end
 
-      // mstatush: All zeros for Ibex (fixed little endian and all other bits reserved)
+      // mstatush: All zeros for CVE2 (fixed little endian and all other bits reserved)
       CSR_MSTATUSH: csr_rdata_int = '0;
 
-      // menvcfg: machine environment configuration, all zeros for Ibex (none of the relevant
+      // menvcfg: machine environment configuration, all zeros for CVE2 (none of the relevant
       // features are implemented)
       CSR_MENVCFG, CSR_MENVCFGH: csr_rdata_int = '0;
 

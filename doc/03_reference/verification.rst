@@ -1,6 +1,8 @@
 Verification
 ============
 
+.. TODO Updated it to CVE2
+
 .. todo::
 
   This section needs to be split into a HOWTO-style user/developer guide, and reference information on the testbench structure.

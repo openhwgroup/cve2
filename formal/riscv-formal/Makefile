@@ -2,11 +2,11 @@
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
-# Provide a convenient way to create a Verilog source of Ibex.
+# Provide a convenient way to create a Verilog source of CVE2.
 # This is used by riscv-formal. See README.md for more details.
 
 # Name of the output file
-IBEX_OUT := ibex.v
+CVE2_OUT := cve2.v
 # Build folder name
 OUTDIR   := build
 
@@ -24,7 +24,7 @@ INC_DIRS :=                    \
   $(LOWRISC_IP)/ip/prim/rtl    \
   $(LOWRISC_IP)/dv/sv/dv_utils
 
-# SystemVerilog sources of Ibex
+# SystemVerilog sources of CVE2
 SRCS_SV ?=                              \
   $(SRC_DIR)/cve2_alu.sv                \
   $(SRC_DIR)/cve2_compressed_decoder.sv \
@@ -55,7 +55,7 @@ PRIM_CLOCK ?= $(SYN_DIR)/rtl/prim_clock_gating.v
 
 GEN_V := $(patsubst %.sv,%.v,$(patsubst $(SRC_DIR)%,$(OUTDIR)%,$(SRCS_SV)))
 
-all: $(IBEX_OUT)
+all: $(CVE2_OUT)
 
 verilog: $(GEN_V)
 
@@ -67,14 +67,14 @@ $(GEN_V): $(OUTDIR)%.v: $(SRC_DIR)%.sv $(PKGS) | $(OUTDIR)
 	sv2v --define=RISCV_FORMAL $(addprefix -I,$(INC_DIRS)) $(PKGS) \
 		$< > $@
 
-# Combine multiple Verilog sources into one Ibex Verilog file
+# Combine multiple Verilog sources into one CVE2 Verilog file
 # Disable "M" extension
-$(IBEX_OUT): $(GEN_V) $(PRIM_CLOCK)
+$(CVE2_OUT): $(GEN_V) $(PRIM_CLOCK)
 	yosys -p "read_verilog $(PRIM_CLOCK) $(GEN_V)"                     \
 	      -p "chparam -set RV32M 0 cve2_top"                           \
 	      -p "synth -top cve2_top"                                     \
-	      -p "write_verilog $(IBEX_OUT)"
+	      -p "write_verilog $(CVE2_OUT)"
 
 .PHONY: clean
 clean:
-	-rm -rf $(IBEX_OUT) $(OUTDIR)
+	-rm -rf $(CVE2_OUT) $(OUTDIR)

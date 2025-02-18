@@ -10,7 +10,7 @@
 `include "prim_assert.sv"
 
 /**
- * Top level module of the ibex RISC-V core
+ * Top level module of the CVE2 RISC-V core
  */
 module cve2_core import cve2_pkg::*; #(
   parameter bit          PMPEnable         = 1'b0,
@@ -343,7 +343,7 @@ module cve2_core import cve2_pkg::*; #(
   // available
   assign perf_iside_wait = id_in_ready & ~instr_valid_id;
 
-  // For non secure Ibex only the bottom bit of fetch enable is considered
+  // For non secure CVE2 only the bottom bit of fetch enable is considered
   assign instr_req_gated = instr_req_int;
 
   //////////////
@@ -753,13 +753,13 @@ module cve2_core import cve2_pkg::*; #(
   );
 
   // These assertions are in top-level as instr_valid_id required as the enable term
-  `ASSERT(IbexCsrOpValid, instr_valid_id |-> csr_op inside {
+  `ASSERT(CVE2CsrOpValid, instr_valid_id |-> csr_op inside {
       CSR_OP_READ,
       CSR_OP_WRITE,
       CSR_OP_SET,
       CSR_OP_CLEAR
       })
-  `ASSERT_KNOWN_IF(IbexCsrWdataIntKnown, cs_registers_i.csr_wdata_int, csr_op_en)
+  `ASSERT_KNOWN_IF(CVE2CsrWdataIntKnown, cs_registers_i.csr_wdata_int, csr_op_en)
 
   if (PMPEnable) begin : g_pmp
     logic [33:0] pmp_req_addr [PMP_NUM_CHAN];
@@ -994,7 +994,7 @@ module cve2_core import cve2_pkg::*; #(
 
   assign rvfi_stage_order_d = rvfi_stage_order[0] + 64'd1;
 
-  // For interrupts and debug Ibex will take the relevant trap as soon as whatever instruction in ID
+  // For interrupts and debug CVE2 will take the relevant trap as soon as whatever instruction in ID
   // finishes or immediately if the ID stage is empty. The rvfi_ext interface provides the DV
   // environment with information about the irq/debug_req/nmi state that applies to a particular
   // instruction.

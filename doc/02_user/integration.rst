@@ -98,13 +98,13 @@ Parameters
 | ``DmExceptionAddr``          | int                 | 0x1A110808 | Address to jump to when an exception occurs while in Debug Mode       |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 
-Any parameter marked *EXPERIMENTAL* when enabled is not verified to the same standard as the rest of the Ibex core.
+Any parameter marked *EXPERIMENTAL* when enabled is not verified to the same standard as the rest of the CVE2 core.
 
-Note that Ibex uses SystemVerilog enum parameters e.g. for ``RV32M``.
+Note that CVE2 uses SystemVerilog enum parameters e.g. for ``RV32M``.
 This is well supported by most tools but some care is needed when overriding these parameters at the top level:
 
 * Synopsys VCS does not support overriding enum and string parameters at the top level via command line.
-  As a workaround, SystemVerilog defines are used in Ibex top level files simulated with VCS.
+  As a workaround, SystemVerilog defines are used in CVE2 top level files simulated with VCS.
   These defines can be set via command line.
 
 * Yosys does not support overriding enum parameters at the top level by setting enum names.

@@ -3,7 +3,7 @@ CAPI=2:
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 name: "openhwgroup:cve2:cve2_core:0.1"
-description: "Ibex CPU Core Components"
+description: "CVE2 CPU Core Components"
 
 filesets:
   files_rtl:

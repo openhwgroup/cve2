@@ -36,7 +36,7 @@ or as the processor element in embedded :term:`SoC` subsystems.
 
 The core design was originally developed as the PULPino *ZeroRISCY*
 processor by ETH Zürich and the University of Bologna and later enhanced
-by the lowRISC consortium as the *Ibex* core. For this project, the Ibex
+by the lowRISC consortium as the *CVE2* core. For this project, the CVE2
 design description is copied and further enhanced by the OpenHW Group.
 The design is qualified using the industrial-strength
 Core-V-Verification methodologies. The source :term:`RTL` code is written in
@@ -578,14 +578,14 @@ lower order 32-bit register.
 +--------+---------------------------------------------------------------+
 
 .. note::
-   The Ibex documentation is incorrect/confusing about the optional
-   presence of mpmcounter{11,12}. This specification assumes the Ibex
+   The CVE2 documentation is incorrect/confusing about the optional
+   presence of mpmcounter{11,12}. This specification assumes the CVE2
    documentation is simply incorrect for these 2 counters.
 
 .. note::
    It should be mentioned that the event associated with 
    mphm{event,counter}11 has a different definition for the E20 core versus
-   Ibex. This counter no longer tracks multiply cycles, but rather, the
+   CVE2. This counter no longer tracks multiply cycles, but rather, the
    cycles when the core is quiescent in the 'wait for interrupt' state.  
 
 Additional details on the CSRs are available in the user manual.
@@ -700,7 +700,7 @@ IRQs, but is not yet ratified at the time of specification.
 +---------+------------------------------------------------------------+
 
 .. note::
-   It should be noted that Ibex had implemented a custom mechanism for NMI 
+   It should be noted that CVE2 had implemented a custom mechanism for NMI 
    recovery. A standard RISC-V way of NMI recovery is in draft stage. In
    future, the custom mechanism could be reworked to follow the standard.
 

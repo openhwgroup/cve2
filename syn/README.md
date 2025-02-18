@@ -2,7 +2,7 @@
 tape-out quality netlists and area/timing numbers it generates are not
 representative of what would be achievable with a tape-out quality flow**
 
-# Yosys/OpenSTA Ibex Synthesis Flow
+# Yosys/OpenSTA CVE2 Synthesis Flow
 
 This is a synthesis-only implementation flow using Yosys for Synthesis and
 OpenSTA to produce timing reports. Its outputs are:
@@ -18,8 +18,8 @@ OpenSTA to produce timing reports. Its outputs are:
 * Timing reports - Overal timing report and reports broken down into various
   path groups (register to register paths and per IO reports)
 
-Yosys doesn't yet support the full subset of SystemVerilog used by Ibex so the
-sv2v tool is used to first convert the Ibex RTL into the SystemVerilog subset
+Yosys doesn't yet support the full subset of SystemVerilog used by CVE2 so the
+sv2v tool is used to first convert the CVE2 RTL into the SystemVerilog subset
 Yosys can process.
 
 # Synthesis flow requirements
@@ -71,7 +71,7 @@ flow. All outputs are placed under the `syn/syn_out` directory with the prefix
       - syn.log - Log of the Yosys run
       - sta.log - Log of the OpenSTA run
     - `generated`
-      - *.v - Ibex RTL after sv2v processing
+      - *.v - CVE2 RTL after sv2v processing
       - cve2_top.pre_map.v - Pre-mapping synthesis netlists
       - cve2_top_netlist.v - Post-synthesis netlist
       - cve2_top_netlist.sta.v - Post-synthesis netlist usable by OpenSTA
@@ -89,7 +89,7 @@ flow. These are used to generate a single .sdc file
 * `cve2_top_lr_synth_core.tcl` - This specifies the constraints on all inputs
   and outputs as a fraction of a clock cycle, the names of the clock and reset
   inputs and the desired clock period in ps
-* `ibex.[library-name].sdc` - Header to include in generated .sdc file. Settings
+* `cve2.[library-name].sdc` - Header to include in generated .sdc file. Settings
   can be library dependent so the `LR_SYNTH_CELL_LIBRARY_NAME` environment
   varible is used to supply the `[library-name]` part of the name
 

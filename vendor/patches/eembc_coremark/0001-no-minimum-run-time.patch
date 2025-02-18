@@ -11,7 +11,7 @@ index 6161974..cca596c 100644
 -		total_errors++;
 -	}
 +  // Remove error report if execution time low.
-+  // On Ibex a few loops suffices to get an accurate result. With this check in
++  // On CVE2 a few loops suffices to get an accurate result. With this check in
 +  // the verilator simulation of coremark will report failure (unless left running
 +  // for a significant number of iterations greatly increasing simulation time).
 +  // The other error checking is useful to determine if the benchmark has been

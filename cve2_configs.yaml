@@ -2,7 +2,7 @@
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
-# Ibex configurations files, holds the parameter sets that are tested under CI.
+# CVE2 configurations files, holds the parameter sets that are tested under CI.
 # Each configuration must specify the same set of parameters
 
 # Two-stage pipeline without additional branch target ALU and 3 cycle multiplier
@@ -79,7 +79,7 @@ experimental-maxperf-pmp-bmfull:
   PMPNumRegions            : 16
 
 # experimental-maxperf with branch predictor switched on. This exists to allow
-# easy use of Ibex with the branch predictor in particular for CI runs. The
+# easy use of CVE2 with the branch predictor in particular for CI runs. The
 # branch predictor will be enabled in all the 'maxperf' configs after further
 # development.
 experimental-branch-predictor:

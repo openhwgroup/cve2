@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * Package with constants used by Ibex
+ * Package with constants used by CVE2
  */
 package cve2_pkg;
 

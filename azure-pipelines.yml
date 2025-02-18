@@ -76,7 +76,7 @@ jobs:
     displayName: 'Use clang-format to check C/C++ coding style'
 
   - bash: |
-      # Build and run CSR testbench, chosen Ibex configuration does not effect
+      # Build and run CSR testbench, chosen CVE2 configuration does not effect
       # this so doesn't need to be part of per-config CI
       fusesoc --cores-root=. run --target=sim --tool=verilator lowrisc:cve2:tb_cs_registers
     displayName: Build and run CSR testbench with Verilator
@@ -93,8 +93,8 @@ jobs:
       make -C ./examples/sw/benchmarks/coremark SUPPRESS_PCOUNT_DUMP=1
     displayName: Build CoreMark
 
-  # Run Ibex RTL CI per supported configuration
-  - template : ci/ibex-rtl-ci-steps.yml
+  # Run CVE2 RTL CI per supported configuration
+  - template : ci/cve2-rtl-ci-steps.yml
     parameters:
       cve2_configs:
         # Note: Try to keep the list of configurations in sync with the one used

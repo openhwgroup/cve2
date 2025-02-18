@@ -7,11 +7,12 @@ To make use of CVE2 please review the :ref:`core-integration` section of this do
 The CVE2 is simple enough to integrate into your own platform.
 To get you started, we suggest a couple of very useful open-source platforms.
 
-Ibex Minimal System
--------------------
+.. TODO Create or Adapt minimal system to CVE2
+.. Ibex Minimal System
+.. -------------------
 
-A minimal example for the `Arty A7 <https://reference.digilentinc.com/reference/programmable-logic/arty-a7/start>`_ FPGA Development board developed for Ibex should be portable to the CVE2 without significant effort.
-If you are interested in using the Ibex minimal example, it can be found `here <https://github.com/lowRISC/ibex/tree/master/examples/simple_system>`_.
+.. A minimal example for the `Arty A7 <https://reference.digilentinc.com/reference/programmable-logic/arty-a7/start>`_ FPGA Development board developed for Ibex should be portable to the CVE2 without significant effort.
+.. If you are interested in using the Ibex minimal example, it can be found `here <https://github.com/lowRISC/ibex/tree/master/examples/simple_system>`_.
 
 X-HEEP
 ------
