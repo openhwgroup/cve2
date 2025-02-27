@@ -61,15 +61,15 @@ module cve2_core import cve2_pkg::*; #(
   input  logic                         x_issue_ready_i,
   output x_issue_req_t                 x_issue_req_o,
   input  x_issue_resp_t                x_issue_resp_i,
-  
-  // Register Interface   
+
+  // Register Interface
   output x_register_t                  x_register_o,
-  
-  // Commit Interface   
+
+  // Commit Interface
   output logic                         x_commit_valid_o,
   output x_commit_t                    x_commit_o,
-  
-  // Result Interface   
+
+  // Result Interface
   input  logic                         x_result_valid_i,
   output logic                         x_result_ready_o,
   input  x_result_t                    x_result_i,

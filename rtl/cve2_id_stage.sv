@@ -286,7 +286,7 @@ module cve2_id_stage #(
   // CV-X-IF
   if (XInterface) begin: gen_xif
     assign coproc_done = (x_issue_valid_o & x_issue_ready_i & ~x_issue_resp_i.writeback) | (x_result_valid_i & x_result_i.we);
- 
+
     // Issue Interface
     assign x_issue_valid_o     = instr_executing & illegal_insn_dec & (id_fsm_q == FIRST_CYCLE);
     assign x_issue_req_o.instr = instr_rdata_i;
@@ -300,17 +300,19 @@ module cve2_id_stage #(
     assign x_commit_valid_o       = 1'b1;
     assign x_commit_o.commit_kill = 1'b0;
 
-    // Result Interface 
+    // Result Interface
     assign x_result_ready_o = 1'b1;
 
     assign illegal_insn_o = instr_valid_i & (illegal_csr_insn_i | (x_issue_valid_o & x_issue_ready_i & ~x_issue_resp_i.accept));
-  end 
+  end
 
   else begin: no_gen_xif
     logic          unused_x_issue_ready;
     x_issue_resp_t unused_x_issue_resp;
     logic          unused_x_result_valid;
     x_result_t     unused_x_result;
+
+    assign coproc_done = 1'b0;
 
     // Issue Interface
     assign x_issue_valid_o      = 1'b0;
@@ -497,7 +499,7 @@ module cve2_id_stage #(
     // Core-V eXtension Interface (CV-X-IF)
     .x_issue_resp_register_read_i(x_issue_resp_i.register_read),
     .x_issue_resp_writeback_i(x_issue_resp_i.writeback),
-    
+
     // jump/branches
     .jump_in_dec_o  (jump_in_dec),
     .branch_in_dec_o(branch_in_dec)
@@ -755,7 +757,7 @@ module cve2_id_stage #(
               rf_we_raw     = 1'b0;
             end
             illegal_insn_dec: begin
-              
+
               // CV-X-IF
               if(XInterface) begin
                 if(x_issue_valid_o && x_issue_ready_i) begin
@@ -832,34 +834,34 @@ module cve2_id_stage #(
   // Used by ALU to access RS3 if ternary instruction.
   assign instr_first_cycle_id_o = instr_first_cycle;
 
-    assign multicycle_done = lsu_req_dec ? lsu_resp_valid_i : (illegal_insn_dec ? coproc_done : ex_valid_i);
+  assign multicycle_done = lsu_req_dec ? lsu_resp_valid_i : (illegal_insn_dec ? coproc_done : ex_valid_i);
 
-    assign data_req_allowed = instr_first_cycle;
+  assign data_req_allowed = instr_first_cycle;
 
-    // Without Writeback Stage always stall the first cycle of a load/store.
-    // Then stall until it is complete
-    assign stall_mem = instr_valid_i & (lsu_req_dec & (~lsu_resp_valid_i | instr_first_cycle));
+  // Without Writeback Stage always stall the first cycle of a load/store.
+  // Then stall until it is complete
+  assign stall_mem = instr_valid_i & (lsu_req_dec & (~lsu_resp_valid_i | instr_first_cycle));
 
-    // Without writeback stage any valid instruction that hasn't seen an error will execute
-    assign instr_executing_spec = instr_valid_i & ~instr_fetch_err_i & controller_run;
-    assign instr_executing = instr_executing_spec;
+  // Without writeback stage any valid instruction that hasn't seen an error will execute
+  assign instr_executing_spec = instr_valid_i & ~instr_fetch_err_i & controller_run;
+  assign instr_executing = instr_executing_spec;
 
-    `ASSERT(IbexStallIfValidInstrNotExecuting,
-      instr_valid_i & ~instr_fetch_err_i & ~instr_executing & controller_run |-> stall_id)
+  `ASSERT(IbexStallIfValidInstrNotExecuting,
+    instr_valid_i & ~instr_fetch_err_i & ~instr_executing & controller_run |-> stall_id)
 
-    // No data forwarding without writeback stage so always take source register data direct from
-    // register file
-    assign rf_rdata_a_fwd = rf_rdata_a_i;
-    assign rf_rdata_b_fwd = rf_rdata_b_i;
+  // No data forwarding without writeback stage so always take source register data direct from
+  // register file
+  assign rf_rdata_a_fwd = rf_rdata_a_i;
+  assign rf_rdata_b_fwd = rf_rdata_b_i;
 
-    // Unused Writeback stage only IO & wiring
-    // Assign inputs and internal wiring to unused signals to satisfy lint checks
-    // Tie-off outputs to constant values
-    logic unused_data_req_done_ex;
+  // Unused Writeback stage only IO & wiring
+  // Assign inputs and internal wiring to unused signals to satisfy lint checks
+  // Tie-off outputs to constant values
+  logic unused_data_req_done_ex;
 
-    assign perf_dside_wait_o = instr_executing & lsu_req_dec & ~lsu_resp_valid_i;
+  assign perf_dside_wait_o = instr_executing & lsu_req_dec & ~lsu_resp_valid_i;
 
-    assign instr_id_done_o = instr_done;
+  assign instr_id_done_o = instr_done;
 
   // Signal which instructions to count as retired in minstret, all traps along with ebrk and
   // ecall instructions are not counted.

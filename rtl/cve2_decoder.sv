@@ -17,8 +17,7 @@ module cve2_decoder #(
   parameter bit RV32E               = 0,
   parameter cve2_pkg::rv32m_e RV32M = cve2_pkg::RV32MFast,
   parameter cve2_pkg::rv32b_e RV32B = cve2_pkg::RV32BNone,
-  parameter bit               XInterface    = 1'b0,
-  parameter [31:0]            CoprocOpcodes = '0
+  parameter bit               XInterface    = 1'b0
 ) (
   input  logic                 clk_i,
   input  logic                 rst_ni,
@@ -59,29 +58,29 @@ module cve2_decoder #(
   output logic [4:0]               rf_waddr_o,
   output logic                     rf_ren_a_o,          // Instruction reads from RF addr A
   output logic                     rf_ren_b_o,          // Instruction reads from RF addr B
-    
-  // ALU    
+
+  // ALU
   output cve2_pkg::alu_op_e        alu_operator_o,        // ALU operation selection
   output cve2_pkg::op_a_sel_e      alu_op_a_mux_sel_o,    // operand a selection: reg value, PC,
                                                           // immediate or zero
   output cve2_pkg::op_b_sel_e      alu_op_b_mux_sel_o,    // operand b selection: reg value or
                                                           // immediate
   output logic                     alu_multicycle_o,      // ternary bitmanip instruction
-    
-  // MULT & DIV    
+
+  // MULT & DIV
   output logic                     mult_en_o,             // perform integer multiplication
   output logic                     div_en_o,              // perform integer division or remainder
   output logic                     mult_sel_o,            // as above but static, for data muxes
   output logic                     div_sel_o,             // as above but static, for data muxes
-    
+
   output cve2_pkg::md_op_e         multdiv_operator_o,
   output logic [1:0]               multdiv_signed_mode_o,
-    
-  // CSRs    
+
+  // CSRs
   output logic                     csr_access_o,          // access to CSR
   output cve2_pkg::csr_op_e        csr_op_o,              // operation to perform on CSR
-    
-  // LSU    
+
+  // LSU
   output logic                     data_req_o,            // start transaction to data memory
   output logic                     data_we_o,             // write enable
   output logic [1:0]               data_type_o,           // size of transaction: byte, half
@@ -206,7 +205,7 @@ module cve2_decoder #(
   always_comb begin
     jump_in_dec_o         = 1'b0;
     jump_set_o            = 1'b0;
-    branch_in_dec_o       = 1'b0; 
+    branch_in_dec_o       = 1'b0;
 
     multdiv_operator_o    = MD_OP_MULL;
     multdiv_signed_mode_o = 2'b00;
@@ -641,9 +640,9 @@ module cve2_decoder #(
 
         // CV-X-IF
         if(XInterface) begin
-          rf_ren_a_o            = x_issue_resp_register_read_i[0];     
-          rf_ren_b_o            = x_issue_resp_register_read_i[1];           
-          rf_we                 = x_issue_resp_writeback_i;                          
+          rf_ren_a_o            = x_issue_resp_register_read_i[0];
+          rf_ren_b_o            = x_issue_resp_register_read_i[1];
+          rf_we                 = x_issue_resp_writeback_i;
           rf_wdata_sel_o        = RF_WD_COPROC;
         end
 

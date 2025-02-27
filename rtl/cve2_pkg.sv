@@ -692,7 +692,7 @@ package cve2_pkg;
 
   // Commit Interface
   typedef struct packed {
-    hartid_t hartid;  
+    hartid_t hartid;
     id_t     id;
     logic    commit_kill;
   } x_commit_t;
