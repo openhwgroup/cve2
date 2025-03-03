@@ -19,9 +19,7 @@ Instantiation Template
       .RV32E            ( 0                                ),
       .RV32M            ( cve2_pkg::RV32MFast              ),
       .RndCnstLfsrSeed  ( cve2_pkg::RndCnstLfsrSeedDefault ),
-      .RndCnstLfsrPerm  ( cve2_pkg::RndCnstLfsrPermDefault ),
-      .DmHaltAddr       ( 32'h1A110800                     ),
-      .DmExceptionAddr  ( 32'h1A110808                     )
+      .RndCnstLfsrPerm  ( cve2_pkg::RndCnstLfsrPermDefault )
   ) u_top (
       // Clock and reset
       .clk_i                  (),
@@ -65,6 +63,8 @@ Instantiation Template
 
       // Debug interface
       .debug_req_i            (),
+      .dm_halt_addr_i         (),
+      .dm_exception_addr_i    (),
       .crash_dump_o           (),
 
       // Special control signals
@@ -92,10 +92,6 @@ Parameters
 |                              |                     |            | "cve2_pkg::RV32MSlow": Slow multi-cycle multiplier, iterative divider |
 |                              |                     |            | "cve2_pkg::RV32MFast": 3-4 cycle multiplier, iterative divider        |
 |                              |                     |            | "cve2_pkg::RV32MSingleCycle": 1-2 cycle multiplier, iterative divider |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``DmHaltAddr``               | int                 | 0x1A110800 | Address to jump to when entering Debug Mode                           |
-+------------------------------+---------------------+------------+-----------------------------------------------------------------------+
-| ``DmExceptionAddr``          | int                 | 0x1A110808 | Address to jump to when an exception occurs while in Debug Mode       |
 +------------------------------+---------------------+------------+-----------------------------------------------------------------------+
 
 Any parameter marked *EXPERIMENTAL* when enabled is not verified to the same standard as the rest of the Ibex core.
