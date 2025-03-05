@@ -1,11 +1,12 @@
 // Copyright lowRISC contributors.
+// Copyright 2025 OpenHW Group.
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * Ibex simulation to run the RISC-V compliance test on
+ * CVE2 simulation to run the RISC-V compliance test on
  *
- * This is a toplevel wrapper for Ibex with helpers to run the RISC-V compliance
+ * This is a toplevel wrapper for CVE2 with helpers to run the RISC-V compliance
  * test. It is designed for Verilator, but should equally work for other
  * simulators (if the top-level clk and rst ports are replaced with a generated
  * clock).
@@ -121,9 +122,7 @@ module cve2_riscv_compliance (
       .ICache          (ICache          ),
       .ICacheECC       (ICacheECC       ),
       .SecureIbex      (SecureIbex      ),
-      .ICacheScramble  (ICacheScramble  ),
-      .DmHaltAddr      (32'h00000000    ),
-      .DmExceptionAddr (32'h00000000    )
+      .ICacheScramble  (ICacheScramble  )
     ) u_top (
       .clk_i                  (clk_sys                ),
       .rst_ni                 (rst_sys_n              ),
@@ -168,6 +167,8 @@ module cve2_riscv_compliance (
       .scramble_req_o         (                       ),
 
       .debug_req_i            ('b0                    ),
+      .dm_halt_addr_i         (32'h00000000           ),
+      .dm_exception_addr_i    (32'h00000000           ),
       .crash_dump_o           (                       ),
       .double_fault_seen_o    (                       ),
 
