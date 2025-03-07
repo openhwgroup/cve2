@@ -1,5 +1,6 @@
 # Build output
 build
+buildsim.log
 
 # Common editor/IDE config and temporary files
 .project
