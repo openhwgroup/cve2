@@ -40,3 +40,4 @@ modelsim.ini
 /scripts/sec/golden.src
 /scripts/sec/revised.src
 /scripts/sec/reports
+/scripts/sec/ref_design

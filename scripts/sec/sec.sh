@@ -100,7 +100,8 @@ elif [[ "${target_tool}" == "mentor" ]]; then
 
 elif [[ "${target_tool}" == "yosys" ]]; then
     echo "Using Yosys EQY"
-    eqy -f yosys/sec.eqy -j 4 -d ${report_dir} &> ${report_dir}/output.yosys.log
+    eqy -f yosys/sec.eqy -j $(($(nproc)/2)) -d ${report_dir} &> ${report_dir}/output.yosys.log
+    rm yosys/golden_io.txt
 
     if [ -f "${report_dir}/PASS" ]; then 
         RESULT=0

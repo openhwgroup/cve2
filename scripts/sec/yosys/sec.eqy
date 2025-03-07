@@ -12,14 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# To be ran as part of `./sec.sh -t yosys` from `scripts/sec`
+
 [gold]
 plugin -i slang
 read_slang --ignore-assertions -DGOLD --top cve2_top -f ./golden.src
 
+# Save the list of IO signals, in case the new revised version is different
+select -write yosys/golden_io.txt  o:* i:* 
+
 [gate]
 plugin -i slang
-read_slang --ignore-assertions -DGATE --top cve2_top -G Xinterface=0 -f ./revised.src
-delete cve2_top/x_*
+read_slang --ignore-assertions -DGATE --top cve2_top -f ./revised.src
+
+
+# Delete eventual new IO signals from the revised design from analysis
+select -set golden_io -read yosys/golden_io.txt
+select -set revised_io o:* i:*
+select -set excl_sigs @revised_io @golden_io %d
+delete @excl_sigs
 
 [script]
 prep -top cve2_top
