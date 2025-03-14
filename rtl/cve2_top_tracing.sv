@@ -52,6 +52,7 @@ module cve2_top_tracing import cve2_pkg::*; #(
 
   // Debug Interface
   input  logic                         debug_req_i,
+  output logic                         debug_halted_o,
   input  logic [31:0]                  dm_halt_addr_i,
   input  logic [31:0]                  dm_exception_addr_i,
   output crash_dump_t                  crash_dump_o,
@@ -146,6 +147,7 @@ module cve2_top_tracing import cve2_pkg::*; #(
     .irq_nm_i,
 
     .debug_req_i,
+    .debug_halted_o,
     .dm_halt_addr_i,
     .dm_exception_addr_i,
     .crash_dump_o,

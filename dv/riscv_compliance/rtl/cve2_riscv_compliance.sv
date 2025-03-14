@@ -167,6 +167,7 @@ module cve2_riscv_compliance (
       .scramble_req_o         (                       ),
 
       .debug_req_i            ('b0                    ),
+      .debug_halted_o         (                       ),
       .dm_halt_addr_i         (32'h00000000           ),
       .dm_exception_addr_i    (32'h00000000           ),
       .crash_dump_o           (                       ),

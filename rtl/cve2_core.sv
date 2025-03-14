@@ -62,6 +62,7 @@ module cve2_core import cve2_pkg::*; #(
 
   // Debug Interface
   input  logic                         debug_req_i,
+  output logic                         debug_halted_o,
   input  logic [31:0]                  dm_halt_addr_i,
   input  logic [31:0]                  dm_exception_addr_i,
   output crash_dump_t                  crash_dump_o,
@@ -611,6 +612,11 @@ module cve2_core import cve2_pkg::*; #(
   assign crash_dump_o.last_data_addr = lsu_addr_last;
   assign crash_dump_o.exception_addr = csr_mepc;
 
+  ///////////////////////
+  // Debug output      //
+  ///////////////////////
+
+  assign debug_halted_o = debug_mode;
 
   // Explict INC_ASSERT block to avoid unused signal lint warnings were asserts are not included
   `ifdef INC_ASSERT
