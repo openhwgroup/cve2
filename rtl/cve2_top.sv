@@ -17,7 +17,8 @@ module cve2_top import cve2_pkg::*; #(
   parameter int unsigned MHPMCounterNum   = 10,
   parameter int unsigned MHPMCounterWidth = 40,
   parameter bit          RV32E            = 1'b0,
-  parameter rv32m_e      RV32M            = RV32MFast
+  parameter rv32m_e      RV32M            = RV32MFast,
+  parameter bit          XInterface       = 1'b0
 ) (
   // Clock and Reset
   input  logic                         clk_i,
@@ -47,6 +48,25 @@ module cve2_top import cve2_pkg::*; #(
   output logic [31:0]                  data_wdata_o,
   input  logic [31:0]                  data_rdata_i,
   input  logic                         data_err_i,
+
+  // Core-V Extension Interface (CV-X-IF)
+  // Issue Interface
+  output logic                         x_issue_valid_o,
+  input  logic                         x_issue_ready_i,
+  output x_issue_req_t                 x_issue_req_o,
+  input  x_issue_resp_t                x_issue_resp_i,
+
+  // Register Interface
+  output x_register_t                  x_register_o,
+
+  // Commit Interface
+  output logic                         x_commit_valid_o,
+  output x_commit_t                    x_commit_o,
+
+  // Result Interface
+  input  logic                         x_result_valid_i,
+  output logic                         x_result_ready_o,
+  input  x_result_t                    x_result_i,
 
   // Interrupt inputs
   input  logic                         irq_software_i,
@@ -161,7 +181,8 @@ module cve2_top import cve2_pkg::*; #(
     .RV32M            (RV32M),
     .RV32B            (RV32B),
     .DbgTriggerEn     (DbgTriggerEn),
-    .DbgHwBreakNum    (DbgHwBreakNum)
+    .DbgHwBreakNum    (DbgHwBreakNum),
+    .XInterface       (XInterface)
   ) u_cve2_core (
     .clk_i(clk),
     .rst_ni,
@@ -186,6 +207,25 @@ module cve2_top import cve2_pkg::*; #(
     .data_wdata_o,
     .data_rdata_i,
     .data_err_i,
+
+    // Core-V Extension Interface (CV-X-IF)
+    // Issue Interface
+    .x_issue_valid_o,
+    .x_issue_ready_i,
+    .x_issue_req_o,
+    .x_issue_resp_i,
+
+    // Register Interface
+    .x_register_o,
+
+    // Commit Interface
+    .x_commit_valid_o,
+    .x_commit_o,
+
+    // Result Interface
+    .x_result_valid_i,
+    .x_result_ready_o,
+    .x_result_i,
 
     .irq_software_i,
     .irq_timer_i,
@@ -268,7 +308,6 @@ module cve2_top import cve2_pkg::*; #(
 
   `ASSERT_KNOWN(IbexDataGntX, data_gnt_i)
   `ASSERT_KNOWN(IbexDataRValidX, data_rvalid_i)
-  `ASSERT_KNOWN_IF(IbexDataRPayloadX, {data_rdata_i, data_err_i}, data_rvalid_i)
 
   `ASSERT_KNOWN(IbexIrqX, {irq_software_i, irq_timer_i, irq_external_i, irq_fast_i, irq_nm_i})
 
