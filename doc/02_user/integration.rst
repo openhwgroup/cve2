@@ -63,6 +63,7 @@ Instantiation Template
 
       // Debug interface
       .debug_req_i            (),
+      .debug_halted_o         (),
       .dm_halt_addr_i         (),
       .dm_exception_addr_i    (),
       .crash_dump_o           (),
