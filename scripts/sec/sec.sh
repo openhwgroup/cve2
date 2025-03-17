@@ -15,7 +15,7 @@
 # limitations under the License.
 
 usage() {                                 # Function: Print a help message.
-  echo "Usage: $0 [ -t {cadence,synopsys,mentor} ]" 1>&2
+  echo "Usage: $0 [ -t {cadence,mentor,synopsys,yosys} ]" 1>&2
 }
 exit_abnormal() {                         # Function: Exit with error.
   usage
@@ -44,7 +44,8 @@ if [ ! -d ./reports/ ]; then
     mkdir -p ./reports/
 fi
 
-if [[ "${target_tool}" != "cadence" && "${target_tool}" != "synopsys" && "${target_tool}" != "mentor" ]]; then
+if [[ "${target_tool}" != "cadence" && "${target_tool}" != "synopsys" 
+    && "${target_tool}" != "mentor" && "${target_tool}" != "yosys" ]]; then
     exit_abnormal
 fi
 
@@ -80,7 +81,7 @@ mkdir -p ${report_dir}
 
 if [[ "${target_tool}" == "cadence" ]]; then
     tcl_script=$(readlink -f $(dirname "${BASH_SOURCE[0]}"))/cadence/sec.tcl
-    jg -sec -proj ${report_dir} -batch -tcl ${tcl_script} -define report_dir ${report_dir} &> ${report_dir}/output.candence.log
+    jg -sec -proj ${report_dir} -batch -tcl ${tcl_script} -define report_dir ${report_dir} &> ${report_dir}/output.cadence.log
 
     if [ ! -f ${report_dir}/summary.cadence.log ]; then
         echo "Something went wrong during the process"
@@ -96,6 +97,20 @@ elif [[ "${target_tool}" == "synopsys" ]]; then
 elif [[ "${target_tool}" == "mentor" ]]; then
     echo "Mentor tool is not implemented yet"
     exit 1
+
+elif [[ "${target_tool}" == "yosys" ]]; then
+    echo "Using Yosys EQY"
+    eqy -f yosys/sec.eqy -j $(($(nproc)/2)) -d ${report_dir} &> ${report_dir}/output.yosys.log
+    rm yosys/golden_io.txt
+
+    if [ -f "${report_dir}/PASS" ]; then 
+        RESULT=0
+    elif [ -f "${report_dir}/FAIL" ]; then 
+        RESULT=1
+    else
+        echo "Failed to run Yosys EQY"
+        exit 1
+    fi
 fi
 
 if [[ $RESULT == 0 ]]; then
@@ -105,4 +120,3 @@ else
     echo "SEC: The DESIGN IS NOT SEQUENTIAL EQUIVALENT"
     exit 1
 fi
-
