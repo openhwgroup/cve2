@@ -103,6 +103,7 @@ module cve2_decoder #(
   logic        illegal_reg_rv32e;
   logic        csr_illegal;
   logic        rf_we;
+  logic        rf_we_xif;
 
   logic [31:0] instr;
   logic [31:0] instr_alu;
@@ -212,6 +213,7 @@ module cve2_decoder #(
 
     rf_wdata_sel_o        = RF_WD_EX;
     rf_we                 = 1'b0;
+    rf_we_xif             = 1'b0;
     rf_ren_a_o            = 1'b0;
     rf_ren_b_o            = 1'b0;
 
@@ -642,7 +644,7 @@ module cve2_decoder #(
         if(XInterface) begin
           rf_ren_a_o            = x_issue_resp_register_read_i[0];
           rf_ren_b_o            = x_issue_resp_register_read_i[1];
-          rf_we                 = x_issue_resp_writeback_i;
+          rf_we_xif             = x_issue_resp_writeback_i;
           rf_wdata_sel_o        = RF_WD_COPROC;
         end
 
@@ -660,7 +662,7 @@ module cve2_decoder #(
     // insufficient privileges), or when accessing non-available registers in RV32E,
     // these cases are not handled here
     if (illegal_insn) begin
-      // rf_we           = 1'b0;
+      rf_we           = XInterface ? rf_we_xif : 1'b0;
       data_req_o      = 1'b0;
       data_we_o       = 1'b0;
       jump_in_dec_o   = 1'b0;
