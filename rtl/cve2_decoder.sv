@@ -51,7 +51,7 @@ module cve2_decoder #(
   output logic [31:0]           zimm_rs1_type_o,
 
   // register file
-  output logic [XInterface:0]      rf_wdata_sel_o,   // RF write data 
+  output logic [XInterface:0]      rf_wdata_sel_o,   // RF write data selection
   output logic                     rf_we_o,          // write enable for regfile
   output logic [4:0]               rf_raddr_a_o,
   output logic [4:0]               rf_raddr_b_o,
