@@ -5,7 +5,7 @@ CV32E20 Specification
 License
 =======
 
-Copyright 2022-2025 OpenHW Group
+Copyright 2022-2025 OpenHW Foundation
 
 Copyright 2018-2022 lowRISC Revision 8d044a3d
 
@@ -29,7 +29,7 @@ limitations under the License.
 Introduction
 ============
 
-The OpenHW Group CV32E20, or simply E20, is a :term:`RISC-V` processor core that
+The OpenHW Foundation CV32E20, or simply E20, is a :term:`RISC-V` processor core that
 is targeted for the ultra-low-end of the 32-bit microcontroller (:term:`MCU`)
 application space. Likely uses include any “constrained compute socket”
 or as the processor element in embedded :term:`SoC` subsystems.
@@ -37,9 +37,9 @@ or as the processor element in embedded :term:`SoC` subsystems.
 The core design was originally developed as the PULPino *ZeroRISCY*
 processor by ETH Zürich and the University of Bologna and later enhanced
 by the lowRISC consortium as the `*Ibex* core <https://github.com/lowRISC/ibex>`_.  In 2023 a fork of Ibex was made
-by the OpenHW Group and given the name *CVE2*.  The CVE2 is a simplified version
+by the OpenHW Foundation and given the name *CVE2*.  The CVE2 is a simplified version
 of Ibex and qualified using the industrial-strength
-Core-V-Verification methodologies. The source :term:`RTL` code is written in SystemVerilog and maintained by the OpenHW Group.
+Core-V-Verification methodologies. The source :term:`RTL` code is written in SystemVerilog and maintained by the OpenHW Foundation.
 
 This specification is organized as requirements that apply to the “Scope
 of the :term:`IP`". The Revision 0.1 of this requirements document is intended
@@ -49,7 +49,7 @@ possibly beyond) design releases. Subsequent revision numbers are
 placeholders for these enhancements after the initial project freeze
 (PF) gate.
 
-The requirement list is to be approved by the OpenHW Group Technical
+The requirement list is to be approved by the OpenHW Foundation Technical
 Work Group (:term:`TWG`), as well as any subsequent change requests.
 
 The specification is complemented by a :ref:`user's guide<cve2_user_guide>`.
@@ -121,7 +121,7 @@ an option...") versus a desired goal ("...\ *should* support...",
 The following topics are beyond the scope of this specification:
 
 -  Software (SW layers), such as compilers, assemblers and :term:`OSes`
-   (although these could be part of the OpenHW Group CV32E20 project)
+   (although these could be part of the OpenHW Foundation CV32E20 project)
 
 -  Software emulation of RISC-V optional extensions (feasible but the
    scope of the IP is the core and coreplex hardware)

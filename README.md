@@ -7,7 +7,7 @@ The core will be made compatible with the OpenHW Group OBI protocol, it will use
 
 # CV32E20 RISC-V Core
 
-CV32E20 is a production-quality open source source 32-bit RISC-V CPU core written in
+CV32E20 is a production-quality open source 32-bit RISC-V CPU core written in
 SystemVerilog. The CPU core is heavily parametrizable and well-suited for
 embedded control applications. CV32E20 is being extensively verified and has
 seen multiple tape-outs. CV32E20 supports the Integer (I) or Embedded (E),
@@ -16,7 +16,7 @@ Integer Multiplication and Division (M), and Compressed (C) extensions.
 The block diagram below shows the *small* parametrization with a 2-stage
 pipeline.
 
-<p align="center"><img src="doc/03_reference/images/blockdiagram.svg" width="650"></p>
+<p align="center"><img src="doc/03_reference/images/blockdiagram.drawio.svg" width="650"></p>
 
 CV32E20 was initially developed as part of the [PULP platform](https://www.pulp-platform.org)
 under the name [&#34;Zero-riscy&#34;](https://doi.org/10.1109/PATMOS.2017.8106976), and has been

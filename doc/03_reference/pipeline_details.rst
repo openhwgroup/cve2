@@ -1,6 +1,6 @@
 .. _pipeline-details:
 
-.. figure:: images/blockdiagram.svg
+.. figure:: images/blockdiagram.drawio.svg
    :name: cve2-pipeline
    :align: center
 

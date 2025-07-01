@@ -7,7 +7,7 @@ To make it even smaller, support for the "E" extension was added under the code 
 In the PULP ecosystem, the core is used as the control core for PULP, PULPino and PULPissimo.
 
 In December 2018 lowRISC took over the development of Zero-riscy and renamed it to Ibex.
-In 2023 the OpenHW Group forked Ibex and renamed the fork CVE2.
+In 2023 the OpenHW Foundation forked Ibex and renamed the fork CVE2.
 
 References
 ----------
