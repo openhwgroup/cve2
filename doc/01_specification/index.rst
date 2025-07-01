@@ -5,7 +5,7 @@ CV32E20 Specification
 License
 =======
 
-Copyright 2022-2023 OpenHW Group
+Copyright 2022-2025 OpenHW Group
 
 Copyright 2018-2022 lowRISC Revision 8d044a3d
 
@@ -36,11 +36,10 @@ or as the processor element in embedded :term:`SoC` subsystems.
 
 The core design was originally developed as the PULPino *ZeroRISCY*
 processor by ETH Zürich and the University of Bologna and later enhanced
-by the lowRISC consortium as the *Ibex* core. For this project, the Ibex
-design description is copied and further enhanced by the OpenHW Group.
-The design is qualified using the industrial-strength
-Core-V-Verification methodologies. The source :term:`RTL` code is written in
-SystemVerilog and maintained by the OpenHW Group.
+by the lowRISC consortium as the `*Ibex* core <https://github.com/lowRISC/ibex>`_.  In 2023 a fork of Ibex was made
+by the OpenHW Group and given the name *CVE2*.  The CVE2 is a simplified version
+of Ibex and qualified using the industrial-strength
+Core-V-Verification methodologies. The source :term:`RTL` code is written in SystemVerilog and maintained by the OpenHW Group.
 
 This specification is organized as requirements that apply to the “Scope
 of the :term:`IP`". The Revision 0.1 of this requirements document is intended
@@ -53,12 +52,11 @@ placeholders for these enhancements after the initial project freeze
 The requirement list is to be approved by the OpenHW Group Technical
 Work Group (:term:`TWG`), as well as any subsequent change requests.
 
-The specification is complemented by a user's guide.
+The specification is complemented by a :ref:`user's guide<cve2_user_guide>`.
 
 A `List of Abbreviations`_ is available at the end of this document.
 
-This development is co-sponsored by NXP and Intrinsix, a wholly owned
-subsidiary of CEVA.
+This development is co-sponsored by NXP and Intrinsix ( acquired by Cadence Design Systems in 2023...), and by the EU-funded `TRISTAN project <https://tristan-project.eu>`_.
 
 Scope
 =====
@@ -68,7 +66,7 @@ Scope of the IP
 
 The **scope of the IP** is the processor core subsystem that is
 specified below and that is verified with a 100% coverage goal. In the
-verification plans, the scope of the IP can be partitioned into two DUTs
+verification plans, the scope of the IP can be partitioned into two :term:`DUTs<DUT>`
 (designs under test) - one covering the processor core itself, and a
 :term:`coreplex` covering the processor "core complex" which adds
 debug capabilities, an interrupt controller and system bus protocol
@@ -78,8 +76,9 @@ The scope of the IP is the **CV32E20 hardware** supporting all the
 features used in products based on the E20 core. A high-level block
 diagram of the E20 core is shown below:
 
-.. image:: ../03_reference/images/blockdiagram.svg
-  :alt: CV32E20 Blockdiagram
+.. image:: ../03_reference/images/blockdiagram.drawio.svg
+  :width: 100%
+  :alt: CV32E20 block diagram
 
 As displayed in this core block diagram, the E20 is a 2-stage pipelined
 implementation featuring a 32-bit Harvard memory architecture for
@@ -91,17 +90,16 @@ As displayed in the above figure, the IP comprises:
 
 -  The CV32E20 processor core with dual 32-bit Harvard memory interfaces
 
-   -  Instruction fetch bus, data load/store bus. Protocol is protocol is
-      [OPENHW-OBI]_
+   -  Instruction fetch bus and data load/store :term:`OBI` [OPENHW-OBI]_ buses
 
-   -  Support for both RV32I (32 x 32b GPRs) and RV32E (16 x 32b GPRs)
+   -  Support for both RV32I (32 x 32b :term:`GPRs<GPR(s)>`) and RV32E (16 x 32b GPRs)
 
    -  Support for :term:`ISA` extensions: C (compressed) and M (multiply &
       divide)
 
-   -  Support for basic set of Configuration & Status Registers (CSRs)
+   -  Support for basic set of Configuration & Status Registers (:term:`CSRs<CSR>`)
 
-At the coreplex design level, the following functions are added to the
+At the :term:`coreplex` design level, the following functions are added to the
 processor core:
 
 -  Debug module including the :term:`DTM`
@@ -139,17 +137,17 @@ parameters. Below is the list of golden configurations that will undergo
 verification in the project and their main parameters. The full list of
 parameters for each golden configuration are detailed in the user guide.
 
-+----------------------------+-----------------+----------------------+
-| Configuration              | Target          | RV32{E,I} ISA        |
-+----------------------------+-----------------+----------------------+
-| cv32e2_emc_fpga            | :term:`FPGA`    | RV32EMC              |
-+----------------------------+-----------------+----------------------+
-| cv32e2_imc_fpga            | FPGA            | RV32IMC              |
-+----------------------------+-----------------+----------------------+
-| cv32e2_emc_asic            | :term:`ASIC`    | RV32EMC              |
-+----------------------------+-----------------+----------------------+
-| cv32e2_imc_asic            | ASIC            | RV32IMC              |
-+----------------------------+-----------------+----------------------+
++----------------------------+-----------------+----------------------+-------+
+| **Configuration**          | **Target**      | **RV32{E,I} ISA**    |**TRL**|
++----------------------------+-----------------+----------------------+-------+
+| cv32e2_emc_fpga            | :term:`FPGA`    | RV32EMC              |       |
++----------------------------+-----------------+----------------------+-------+
+| cv32e2_imc_fpga            | FPGA            | RV32IMC              |       |
++----------------------------+-----------------+----------------------+-------+
+| cv32e2_emc_asic            | :term:`ASIC`    | RV32EMC              |       |
++----------------------------+-----------------+----------------------+-------+
+| cv32e2_imc_asic            | ASIC            | RV32IMC              |       |
++----------------------------+-----------------+----------------------+-------+
 
 References
 ==========
@@ -178,7 +176,7 @@ identify the versions of RISC-V extensions from these specifications.
    April 7, 2022.
 
 .. [OPENHW-OBI] OpenHW Open Bus Interface (OBI) protocol, version 1.4,
-   https://github.com/openhwgroup/core-v-docs/blob/master/cores/obi/OBI-v1.4.pdf
+   https://github.com/openhwgroup/obi/blob/main/OBI-v1.4.pdf
 
 .. [AMBA-AHB] “AMBA® AHB Protocol Specification”, ARM IHI 0033C (ID090921),
    https://developer.arm.com/documentation/ihi0033/latest
@@ -242,7 +240,7 @@ Operating modes (Privilege Levels)
 | PVL-10 | CV32E20 shall support only little-endian memory              |
 |        | organizations.                                               |
 +--------+--------------------------------------------------------------+
-| PVL-20 | CV32E20 shall support **machine** and **user**       |
+| PVL-20 | CV32E20 shall support **machine** and **user**               |
 |        | privilege modes.                                             |
 +--------+--------------------------------------------------------------+
 | PVL-30 | CV32E20 shall export the CPU's operating mode as an address  |
@@ -267,143 +265,141 @@ implemented set of CSRs is intentionally minimized.
 
 The implemented set of CSRs includes the following registers:
 
-+--------+--------------------------------------------------------------+
-| CSR-20 | CV32E20 shall implement these mandatory Machine Mode CSRs as |
-|        | per specifications in [RVpriv]_. Optional registers are      |
-|        | *highlighted*. The registers are listed based on ascending   |
-|        | CSR number.                                                  |
-|        |                                                              |
-|        | CSR Number CSR Register Description                          |
-|        |                                                              |
-|        | 0x300 mstatus // machine status                              |
-|        |                                                              |
-|        | 0x301 misa // machine isa and extensions                     |
-|        |                                                              |
-|        | 0x304 mie // machine interrupt enable register               |
-|        |                                                              |
-|        | 0x305 mtvec // machine trap vector base address              |
-|        |                                                              |
-|        | 0x320 mcountinhibit // HPM-10: machine counter inhibit       |
-|        | register                                                     |
-|        |                                                              |
-|        | *0x323 mhpmevent3 // HPM-20: perf monitor event selector*    |
-|        |                                                              |
-|        | *0x324 mhpmevent4 // HPM-20: perf monitor event selector*    |
-|        |                                                              |
-|        | *0x325 mhpmevent5 // HPM-20: perf monitor event selector*    |
-|        |                                                              |
-|        | *0x326 mhpmevent6 // HPM-20: perf monitor event selector*    |
-|        |                                                              |
-|        | *0x327 mhpmevent7 // HPM-20: perf monitor event selector*    |
-|        |                                                              |
-|        | *0x328 mhpmevent8 // HPM-20: perf monitor event selector*    |
-|        |                                                              |
-|        | *0x329 mhpmevent9 // HPM-20: perf monitor event selector*    |
-|        |                                                              |
-|        | *0x32a mhpmevent10 // HPM-20: perf monitor event selector*   |
-|        |                                                              |
-|        | *0x32b mhpmevent11 // HPM-20: perf monitor event selector*   |
-|        |                                                              |
-|        | *0x32c mhpmevent12 // HPM-20: perf monitor event selector*   |
-|        |                                                              |
-|        | 0x340 mscratch // machine scratch register                   |
-|        |                                                              |
-|        | 0x341 mepc // machine exception program counter              |
-|        |                                                              |
-|        | 0x342 mcause // machine cause register                       |
-|        |                                                              |
-|        | 0x343 mtval // machine trap value register                   |
-|        |                                                              |
-|        | 0x344 mip // machine interrupt pending register              |
-|        |                                                              |
-|        | 0x7a0 tselect // trigger select register                     |
-|        |                                                              |
-|        | 0x7a1 tdata1 // trigger data register 1                      |
-|        |                                                              |
-|        | 0x7a2 tdata2 // trigger data register 2                      |
-|        |                                                              |
-|        | 0x7a3 tdata3 // trigger data register 3                      |
-|        |                                                              |
-|        | 0x7a8 mcontext // machine context register                   |
-|        |                                                              |
-|        | 0x7aa scontext // supervisor context register                |
-|        |                                                              |
-|        | 0x7b0 dcsr // debug control and status register              |
-|        |                                                              |
-|        | 0x7b1 dpc // debug pc register                               |
-|        |                                                              |
-|        | 0x7b2 dscratch0 // debug scratch register 0                  |
-|        |                                                              |
-|        | 0x7b3 dscratch1 // debug scratch register 2                  |
-|        |                                                              |
-|        | 0x7c0 cpuctrl // cpu control register                        |
-|        |                                                              |
-|        | 0xb00 mcycle // HPM-10: machine cycle counter                |
-|        |                                                              |
-|        | 0xb02 minstret // HPM-10: machine insts retired counter      |
-|        |                                                              |
-|        | *0xb03 mpmcounter3 // HPM-10: number of load/store cycles*   |
-|        |                                                              |
-|        | *0xb04 mpmcounter4 // HPM-10: number of inst fetch cycles*   |
-|        |                                                              |
-|        | *0xb05 mpmcounter5 // HPM-10: number of load cycles*         |
-|        |                                                              |
-|        | *0xb06 mpmcounter6 // HPM-10: number of store cycles*        |
-|        |                                                              |
-|        | *0xb07 mpmcounter7 // HPM-10: number of jump cycles*         |
-|        |                                                              |
-|        | *0xb08 mpmcounter8 // HPM-10: number of conditional br       |
-|        | cycles*                                                      |
-|        |                                                              |
-|        | *0xb09 mpmcounter9 // HPM-10: number of cond br taken        |
-|        | cycles*                                                      |
-|        |                                                              |
-|        | *0xb0a mpmcounter10 // HPM-10: number of return inst cycles* |
-|        |                                                              |
-|        | *0xb0b mpmcounter11 // HPM-10: number of wfi cycles*         |
-|        |                                                              |
-|        | *0xb0c mpmcounter12 // HPM-10: number of divide cycles*      |
-|        |                                                              |
-|        | 0xb80 mcycleh // HPM-10: upper word of mcycle                |
-|        |                                                              |
-|        | 0xb82 minstreth // HPM-10: upper word of minstret            |
-|        |                                                              |
-|        | *0xb83 mpmcounter3h // HPM-20: upper word of mpmcounter3*    |
-|        |                                                              |
-|        | *0xb84 mpmcounter4h // HPM-20: upper word of mpmcounter4*    |
-|        |                                                              |
-|        | *0xb85 mpmcounter5h // HPM-20: upper word of mpmcounter5*    |
-|        |                                                              |
-|        | *0xb86 mpmcounter6h // HPM-20: upper word of mpmcounter6*    |
-|        |                                                              |
-|        | *0xb87 mpmcounter7h // HPM-20: upper word of mpmcounter7*    |
-|        |                                                              |
-|        | *0xb88 mpmcounter8h // HPM-20: upper word of mpmcounter8*    |
-|        |                                                              |
-|        | *0xb89 mpmcounter9h // HPM-20: upper word of mpmcounter9*    |
-|        |                                                              |
-|        | *0xb8a mpmcounter10h // HPM-20: upper word of mpmcounter10*  |
-|        |                                                              |
-|        | *0xb8b mpmcounter11h // HPM-20: upper word of mpmcounter11*  |
-|        |                                                              |
-|        | *0xb8c mpmcounter12h // HPM-20: upper word of mpmcounter12*  |
-|        |                                                              |
-|        | 0xc00 cycle // user mode cycle, lower 32b                    |
-|        |                                                              |
-|        | 0xc02 instret // user mode instret, lower 32b                |
-|        |                                                              |
-|        | 0xc80 cycleh // user mode cycle, upper 32b                   |
-|        |                                                              |
-|        | 0xc82 instreth // user mode instret, upper 32b               |
-|        |                                                              |
-|        | 0xf11 mvendorid // machine vendor ID                         |
-|        |                                                              |
-|        | 0xf12 marchid // machine architecture ID                     |
-|        |                                                              |
-|        | 0xf13 mimpid // machine implementation ID                    |
-|        |                                                              |
-|        | 0xf14 mhartid // hardware thread ID                          |
-+--------+--------------------------------------------------------------+
++--------+----------------------------------------------------------------------------+
+| CSR-20 | | CV32E20 shall implement these mandatory Machine Mode CSRs                |
+|        |  as per specifications in [RVpriv]_. Optional registers are                |
+|        |  *highlighted*. The registers are listed based on ascending                |
+|        |  CSR number.                                                               |
+|        |                                                                            |
+|        |                                                                            |
+|        |                                                                            |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x300   |  mstatus         | machine status                                |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x301   |  misa            | machine isa and extensions                    |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x304   |  mie             | machine interrupt enable register             |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x305   |  mtvec           | machine trap vector base address              |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x320   |  mcountinhibit   | HPM-10: machine counter inhibit register      |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0x323* |  *mhpmevent3*    | *HPM-20: perf monitor event selector*         |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0x324* |  *mhpmevent4*    | *HPM-20: perf monitor event selector*         |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0x325* |  *mhpmevent5*    | *HPM-20: perf monitor event selector*         |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0x326* |  *mhpmevent6*    | *HPM-20: perf monitor event selector*         |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0x327* |  *mhpmevent7*    | *HPM-20: perf monitor event selector*         |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0x328* |  *mhpmevent8*    | *HPM-20: perf monitor event selector*         |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0x329* |  *mhpmevent9*    | *HPM-20: perf monitor event selector*         |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0x32a* |  *mhpmevent10*   | *HPM-20: perf monitor event selector*         |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0x32b* |  *mhpmevent11*   | *HPM-20: perf monitor event selector*         |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0x32c* |  *mhpmevent12*   | *HPM-20: perf monitor event selector*         |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x340   |  mscratch        | machine scratch register                      |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x341   |  mepc            | machine exception program counter             |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x342   |  mcause          | machine cause register                        |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x343   |  mtval           | machine trap value register                   |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x344   |  mip             | machine interrupt pending register            |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x7a0   |  tselect         | trigger select register                       |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x7a1   |  tdata1          | trigger data register 1                       |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x7a2   |  tdata2          | trigger data register 2                       |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x7a3   |  tdata3          | trigger data register 3                       |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x7a8   |  mcontext        | machine context register                      |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x7aa   |  scontext        | supervisor context register                   |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x7b0   |  dcsr            | debug control and status register             |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x7b1   |  dpc             | debug pc register                             |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x7b2   |  dscratch0       | debug scratch register 0                      |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x7b3   |  dscratch1       | debug scratch register 2                      |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0x7c0   |  cpuctrl         | cpu control register                          |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0xb00   |  mcycle          | HPM-10: machine cycle counter                 |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0xb02   |  minstret        | HPM-10: machine insts retired counter         |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb03* |  *mhpmcounter3*   | *HPM-10: number of load/store cycles*         |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb04* |  *mhpmcounter4*   | *HPM-10: number of inst fetch cycles*         |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb05* |  *mhpmcounter5*   | *HPM-10: number of load cycles*               |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb06* |  *mhpmcounter6*   | *HPM-10: number of store cycles*              |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb07* |  *mhpmcounter7*   | *HPM-10: number of jump cycles*               |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb08* |  *mhpmcounter8*   | *HPM-10: number of conditional br cycles*     |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb09* |  *mhpmcounter9*   | *HPM-10: number of cond br taken cycles*      |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb0a* |  *mhpmcounter10*  | *HPM-10: number of return inst cycles*        |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb0b* |  *mhpmcounter11*  | *HPM-10: number of wfi cycles*                |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb0c* |  *mhpmcounter12*  | *HPM-10: number of divide cycles*             |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0xb80   |  mcycleh         | HPM-10: upper word of mcycle                  |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0xb82   |  minstreth       | HPM-10: upper word of minstret                |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb83* |  *mhpmcounter3h*  | *HPM-20: upper word of *mhpmcounter3*          |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb84* |  *mhpmcounter4h*  | *HPM-20: upper word of *mhpmcounter4*          |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb85* |  *mhpmcounter5h*  | *HPM-20: upper word of *mhpmcounter5*          |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb86* |  *mhpmcounter6h*  | *HPM-20: upper word of *mhpmcounter6*          |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb87* |  *mhpmcounter7h*  | *HPM-20: upper word of *mhpmcounter7*          |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb88* |  *mhpmcounter8h*  | *HPM-20: upper word of *mhpmcounter8*          |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb89* |  *mhpmcounter9h*  | *HPM-20: upper word of *mhpmcounter9*          |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb8a* |  *mhpmcounter10h* | *HPM-20: upper word of *mhpmcounter10*         |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb8b* |  *mhpmcounter11h* | *HPM-20: upper word of *mhpmcounter11*         |
+|        +---------+------------------+-----------------------------------------------+
+|        | *0xb8c* |  *mhpmcounter12h* | *HPM-20: upper word of *mhpmcounter12*         |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0xc00   |  cycle           | user mode cycle, lower 32b                    |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0xc02   |  instret         | user mode instret, lower 32b                  |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0xc80   |  cycleh          | user mode cycle, upper 32b                    |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0xc82   |  instreth        | user mode instret, upper 32b                  |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0xf11   |  mvendorid       | machine vendor ID                             |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0xf12   |  marchid         | machine architecture ID                       |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0xf13   |  mimpid          | machine implementation ID                     |
+|        +---------+------------------+-----------------------------------------------+
+|        | 0xf14   |  mhartid         | hardware thread ID                            |
++--------+---------+------------------+-----------------------------------------------+
 
 CSR hardware performance counters
 ---------------------------------
@@ -419,167 +415,144 @@ used to provide a fully coherent 64-bit register read that provides
 protection against any “race condition” involving an overflow from the
 lower order 32-bit register.
 
-+--------+---------------------------------------------------------------+
-| HPM-10 | CV32E20 shall implement the 64-bit mcycle and minstret        |
-|        | standard performance counters (including their upper 32 bits  |
-|        | counterparts mcycleh and minstreth) as per [RVpriv]_:         |
-|        |                                                               |
-|        | CSR Number PM Counter Description                             |
-|        |                                                               |
-|        | 0x320 mcountinhibit // machine-mode                           |
-|        |                                                               |
-|        | 0xb00 mcycle // machine mode cycle, lower 32 bits             |
-|        |                                                               |
-|        | 0xb02 minstret // machine mode instret, lower 32 bits         |
-|        |                                                               |
-|        | 0xb80 mcycleh // machine mode cycle, upper 32 bits            |
-|        |                                                               |
-|        | 0xb82 minstreth // machine mode instret, upper 32 bits        |
-|        |                                                               |
-|        | 0xc00 cycle // user mode cycle, lower 32b                     |
-|        |                                                               |
-|        | 0xc02 instret // user mode instret, lower 32b                 |
-|        |                                                               |
-|        | 0xc80 cycleh // user mode cycle, upper 32b                    |
-|        |                                                               |
-|        | 0xc82 instreth // user mode instret, upper 32b                |
-+--------+---------------------------------------------------------------+
-| HPM-20 | CV32E20 should support 10 optional event counters             |
-|        | (mhpmcounterX{h}) and their associated event selector         |
-|        | (mhpmeventX) performance monitoring registers. *The default   |
-|        | width of these registers is 32 bits*.                         |
-|        |                                                               |
-|        | These registers are intended to provide hardware performance  |
-|        | monitoring capabilities in FPGA development targets (and/or   |
-|        | ASIC SoC targets).                                            |
-|        |                                                               |
-|        | CSR Number PM Counter Description                             |
-|        |                                                               |
-|        | 0xb03 mhpmcounter3 // m-mode performance-monitoring counter 3 |
-|        |                                                               |
-|        | // NumCyclesLSU, lower 32 bits                                |
-|        |                                                               |
-|        | 0xb04 mphmcounter4 // m-mode performance-monitoring counter 4 |
-|        |                                                               |
-|        | // NumCyclesIF, lower 32 bits                                 |
-|        |                                                               |
-|        | 0xb05 mphmcounter5 // m-mode performance-monitoring counter 5 |
-|        |                                                               |
-|        | // NumLoads, lower 32 bits                                    |
-|        |                                                               |
-|        | 0xb06 mphmcounter6 // m-mode performance-monitoring counter 6 |
-|        |                                                               |
-|        | // NumStores, lower 32 bits                                   |
-|        |                                                               |
-|        | 0xb07 mphmcounter7 // m-mode performance-monitoring counter 7 |
-|        |                                                               |
-|        | // NumJumps, lower 32 bits                                    |
-|        |                                                               |
-|        | 0xb08 mphmcounter8 // m-mode performance-monitoring counter 8 |
-|        |                                                               |
-|        | // NumBranches, lower 32 bits                                 |
-|        |                                                               |
-|        | 0xb09 mphmcounter9 // m-mode performance-monitoring counter 9 |
-|        |                                                               |
-|        | // NumBranchesTaken, lower 32 bits                            |
-|        |                                                               |
-|        | 0xb0a mphmcounter10 // m-mode performance-monitoring counter  |
-|        | 10                                                            |
-|        |                                                               |
-|        | // NumInstrRetC, lower 32 bits                                |
-|        |                                                               |
-|        | 0xb0b mphmcounter11 // m-mode performance-monitoring counter  |
-|        | 11                                                            |
-|        |                                                               |
-|        | // NumCyclesWFI, lower 32 bits                                |
-|        |                                                               |
-|        | 0xb0c mphmcounter12 // m-mode performance-monitoring counter  |
-|        | 12                                                            |
-|        |                                                               |
-|        | // NumCyclesDivWait, lower 32 bits                            |
-|        |                                                               |
-|        | 0xb83 mhpmcounter3h // m-mode performance-monitoring counter  |
-|        | 3                                                             |
-|        |                                                               |
-|        | // NumCyclesLSU, upper 32 bits                                |
-|        |                                                               |
-|        | 0xb84 mphmcounter4h // m-mode performance-monitoring counter  |
-|        | 4                                                             |
-|        |                                                               |
-|        | // NumCyclesIF, upper 32 bits                                 |
-|        |                                                               |
-|        | 0xb85 mphmcounter5h // m-mode performance-monitoring counter  |
-|        | 5                                                             |
-|        |                                                               |
-|        | // NumLoads, upper 32 bits                                    |
-|        |                                                               |
-|        | 0xb86 mphmcounter6h // m-mode performance-monitoring counter  |
-|        | 6                                                             |
-|        |                                                               |
-|        | // NumStores, upper 32 bits                                   |
-|        |                                                               |
-|        | 0xb87 mphmcounter7h // m-mode performance-monitoring counter  |
-|        | 7                                                             |
-|        |                                                               |
-|        | // NumJumps, upper 32 bits                                    |
-|        |                                                               |
-|        | 0xb88 mphmcounter8h // m-mode performance-monitoring counter  |
-|        | 8                                                             |
-|        |                                                               |
-|        | // NumBranches, upper 32 bits                                 |
-|        |                                                               |
-|        | 0xb89 mphmcounter9h // m-mode performance-monitoring counter  |
-|        | 9                                                             |
-|        |                                                               |
-|        | // NumBranchesTaken, upper 32 bits                            |
-|        |                                                               |
-|        | 0xb8a mphmcounter10h // m-mode performance-monitoring counter |
-|        | 10                                                            |
-|        |                                                               |
-|        | // NumInstrRetC, upper 32 bits                                |
-|        |                                                               |
-|        | 0xb8b mphmcounter11h // m-mode performance-monitoring counter |
-|        | 11                                                            |
-|        |                                                               |
-|        | // NumCyclesWFI, upper 32 bits                                |
-|        |                                                               |
-|        | 0xb8c mphmcounter12h // m-mode performance-monitoring counter |
-|        | 12                                                            |
-|        |                                                               |
-|        | // NumCyclesDivWait, upper 32 bits                            |
-|        |                                                               |
-|        | The mphmeventX registers are the event selectors and          |
-|        | enable/disable the corresponding mphmcounterX registers. The  |
-|        | association of the events with the mphmcounterX registers are |
-|        | hardwired.                                                    |
-|        |                                                               |
-|        | CSR Number Event Selector Description: event ID/bit, reset    |
-|        | value                                                         |
-|        |                                                               |
-|        | 0x323 mhpmevent3 // 3, 0x0000_0008                            |
-|        |                                                               |
-|        | 0x324 mphmevent4 // 4, 0x0000_0010                            |
-|        |                                                               |
-|        | 0x325 mphmevent5 // 5, 0x0000_0020                            |
-|        |                                                               |
-|        | 0x326 mphmevent6 // 6, 0x0000_0040                            |
-|        |                                                               |
-|        | 0x327 mphmevent7 // 7, 0x0000_0080                            |
-|        |                                                               |
-|        | 0x328 mphmevent8 // 8, 0x0000_0100                            |
-|        |                                                               |
-|        | 0x329 mphmevent9 // 9, 0x0000_0200                            |
-|        |                                                               |
-|        | 0x32a mphmevent10 // 10, 0x0000_0400                          |
-|        |                                                               |
-|        | 0x32b mphmevent11 // 11, 0x0000_0800                          |
-|        |                                                               |
-|        | 0x32c mphmevent12 // 12, 0x0000_1000                          |
-+--------+---------------------------------------------------------------+
++--------+------------------------------------------------------------------------+
+| HPM-10 | CV32E20 shall implement the 64-bit mcycle and minstret                 |
+|        | standard performance counters (including their upper 32 bits           |
+|        | counterparts mcycleh and minstreth) as per [RVpriv]_:                  |
+|        |                                                                        |
+|        |                                                                        |
+|        +------------+---------------+-------------------------------------------+
+|        | CSR Number | PM Counter    | Description                               |
+|        +------------+---------------+-------------------------------------------+
+|        | 0x320      | mcountinhibit | machine-mode                              |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb00      | mcycle        | machine mode cycle, lower 32 bits         |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb02      | minstret      | machine mode instret, lower 32 bits       |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb80      | mcycleh       | machine mode cycle, upper 32 bits         |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb82      | minstreth     | machine mode instret, upper 32 bits       |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xc00      | cycle         | user mode cycle, lower 32b                |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xc02      | instret       | user mode instret, lower 32b              |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xc80      | cycleh        | user mode cycle, upper 32b                |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xc82      | instreth      | user mode instret, upper 32b              |
++--------+------------------------------------------------------------------------+
+| HPM-20 | CV32E20 should support 10 optional event counters                      |
+|        | (mhpmcounterX{h}) and their associated event selector                  |
+|        | (mhpmeventX) performance monitoring registers. *The default            |
+|        | width of these registers is 32 bits*.                                  |
+|        |                                                                        |
+|        | These registers are intended to provide hardware performance           |
+|        | monitoring capabilities in FPGA development targets (and/or            |
+|        | ASIC SoC targets).                                                     |
+|        |                                                                        |
+|        +------------+---------------+-------------------------------------------+
+|        | CSR Number | PM Counter    | Description                               |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb03      | mhpmcounter3  | m-mode performance-monitoring counter 3   |
+|        |            |               | NumCyclesLSU, lower 32 bits               |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb04      | mhpmcounter4  | m-mode performance-monitoring counter 4   |
+|        |            |               | NumCyclesIF, lower 32 bits                |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb05      | mhpmcounter5  | m-mode performance-monitoring counter 5   |
+|        |            |               | NumLoads, lower 32 bits                   |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb06      | mhpmcounter6  | m-mode performance-monitoring counter 6   |
+|        |            |               | NumStores, lower 32 bits                  |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb07      | mhpmcounter7  | m-mode performance-monitoring counter 7   |
+|        |            |               | NumJumps, lower 32 bits                   |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb08      | mhpmcounter8  | m-mode performance-monitoring counter 8   |
+|        |            |               | NumBranches, lower 32 bits                |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb09      | mhpmcounter9  | m-mode performance-monitoring counter 9   |
+|        |            |               | NumBranchesTaken, lower 32 bits           |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb0a      | mhpmcounter10 | m-mode performance-monitoring counter 10  |
+|        |            |               | NumInstrRetC, lower 32 bits               |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb0b      | mhpmcounter11 | m-mode performance-monitoring counter 11  |
+|        |            |               | NumCyclesWFI, lower 32 bits               |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb0c      | mhpmcounter12 | m-mode performance-monitoring counter 12  |
+|        |            |               | NumCyclesDivWait, lower 32 bits           |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb83      | mhpmcounter3h | m-mode performance-monitoring counter 3   |
+|        |            |               | NumCyclesLSU, upper 32 bits               |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb84      | mhpmcounter4h | m-mode performance-monitoring counter 4   |
+|        |            |               | NumCyclesIF, upper 32 bits                |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb85      | mhpmcounter5h | m-mode performance-monitoring counter 5   |
+|        |            |               | NumLoads, upper 32 bits                   |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb86      | mhpmcounter6h | m-mode performance-monitoring counter 6   |
+|        |            |               | NumStores, upper 32 bits                  |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb87      | mhpmcounter7h | m-mode performance-monitoring counter 7   |
+|        |            |               | NumJumps, upper 32 bits                   |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb88      | mhpmcounter8h | m-mode performance-monitoring counter 8   |
+|        |            |               | NumBranches, upper 32 bits                |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb89      | mphmcounter9h | m-mode performance-monitoring counter 9   |
+|        |            |               | NumBranchesTaken, upper 32 bits           |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb8a      | mphmcounter10h| m-mode performance-monitoring counter 10  |
+|        |            |               | NumInstrRetC, upper 32 bits               |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb8b      | mphmcounter11h| m-mode performance-monitoring counter 11  |
+|        |            |               | NumCyclesWFI, upper 32 bits               |
+|        +------------+---------------+-------------------------------------------+
+|        | 0xb8c      | mphmcounter12h| m-mode performance-monitoring counter 12  |
+|        |            |               | NumCyclesDivWait, upper 32 bits           |
+|        +------------+---------------+-------------------------------------------+
+|        |                                                                        |
+|        | The mphmeventX registers are the event selectors and                   |
+|        | enable/disable the corresponding mphmcounterX registers. The           |
+|        | association of the events with the mphmcounterX registers are          |
+|        | hardwired.                                                             |
+|        |                                                                        |
+|        +------------+----------------+------------------------------------------+
+|        | CSR Number | Event Selector | Description | event ID/bit | reset value |
+|        +------------+----------------+------------------------------------------+
+|        | 0x323      | mhpmevent3     |           3 | event ID/bit | reset value |
+|        +------------+----------------+------------------------------------------+
+
+
+
+|        |                                                                       |
+|        | 0x323 mhpmevent3 // 3, 0x0000_0008                                    |
+|        |                                                                       |
+|        | 0x324 mphmevent4 // 4, 0x0000_0010                                    |
+|        |                                                                       |
+|        | 0x325 mphmevent5 // 5, 0x0000_0020                                    |
+|        |                                                                       |
+|        | 0x326 mphmevent6 // 6, 0x0000_0040                                    |
+|        |                                                                       |
+|        | 0x327 mphmevent7 // 7, 0x0000_0080                                    |
+|        |                                                                       |
+|        | 0x328 mphmevent8 // 8, 0x0000_0100                                    |
+|        |                                                                       |
+|        | 0x329 mphmevent9 // 9, 0x0000_0200                                    |
+|        |                                                                       |
+|        | 0x32a mphmevent10 // 10, 0x0000_0400                                  |
+|        |                                                                       |
+|        | 0x32b mphmevent11 // 11, 0x0000_0800                                  |
+|        |                                                                       |
+|        | 0x32c mphmevent12 // 12, 0x0000_1000                                  |
++--------+-----------------------------------------------------------------------+
 
 .. note::
    The Ibex documentation is incorrect/confusing about the optional
-   presence of mpmcounter{11,12}. This specification assumes the Ibex
+   presence of mhpmcounter{11,12}. This specification assumes the Ibex
    documentation is simply incorrect for these 2 counters.
 
 .. note::
@@ -649,6 +622,7 @@ CV32E20 coreplex memory bus
 |        | HPROT_WIDTH 4                                               |
 |        |                                                             |
 |        | HMASTER_WIDTH 0                                             |
+|        |                                                             |
 +--------+-------------------------------------------------------------+
 | MEM-60 | The CV32E20 coreplex AHB5 bus protocol shall not support    |
 |        | signaling associated with exclusive accesses - this implies |
@@ -674,7 +648,7 @@ Debug
 
 +---------+------------------------------------------------------------+
 | DBG-10  | CV32E20 shall implement the features outlined in Chapter 4 |
-|         | of [RVdbg].                                                |
+|         | of [RVdbg-STABLE]_                                         |
 +---------+------------------------------------------------------------+
 
 In addition, there can be an external debug module, not in the scope of
@@ -700,7 +674,7 @@ IRQs, but is not yet ratified at the time of specification.
 +---------+------------------------------------------------------------+
 
 .. note::
-   It should be noted that Ibex had implemented a custom mechanism for NMI 
+   It should be noted that CVE2 had implemented a custom mechanism for NMI 
    recovery. A standard RISC-V way of NMI recovery is in draft stage. In
    future, the custom mechanism could be reworked to follow the standard.
 
@@ -793,7 +767,7 @@ the integration in FPGA and ASIC design flows:
 |         | requirement.                                               |
 +---------+------------------------------------------------------------+
 
-List of Abbreviations
+List of abbreviations
 =====================
 
 .. glossary::

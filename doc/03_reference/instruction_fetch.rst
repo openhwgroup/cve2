@@ -66,6 +66,6 @@ The LSB of the instruction address is ignored internally.
 Protocol
 --------
 
-The protocol used to communicate with the instruction cache or the instruction memory is very similar to the protocol used by the LSU on the data interface of Ibex.
+The protocol used to communicate with the instruction cache or the instruction memory is very similar to the protocol used by the LSU on the data interface of CVE2.
 See the description of the LSU in :ref:`LSU Protocol<lsu-protocol>` for details about this protocol.
 

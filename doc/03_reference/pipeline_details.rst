@@ -1,14 +1,14 @@
 .. _pipeline-details:
 
 .. figure:: images/blockdiagram.svg
-   :name: ibex-pipeline
+   :name: cve2-pipeline
    :align: center
 
-   Ibex Pipeline
+   CVE2 Pipeline
 
 Pipeline Details
 ================
-Ibex has a 2-stage pipeline, the 2 stages are:
+CVE2 has a 2-stage pipeline, the 2 stages are:
 
 Instruction Fetch (IF)
   Fetches instructions from memory via a prefetch buffer, capable of fetching 1 instruction per cycle if the instruction side memory system allows. See :ref:`instruction-fetch` for details.
@@ -20,12 +20,12 @@ Instruction Decode and Execute (ID/EX)
 All instructions require two cycles minimum to pass down the pipeline.
 One cycle in the IF stage and one in the ID/EX stage.
 Not all instructions can complete in the ID/EX stage in one cycle so will stall there until they complete.
-This means the maximum IPC (Instructions per Cycle) Ibex can achieve is 1 when multi-cycle instructions aren't used.
+This means the maximum IPC (Instructions per Cycle) CVE2 can achieve is 1 when multi-cycle instructions aren't used.
 See Multi- and Single-Cycle Instructions below for the details.
 
 Third Pipeline Stage
 --------------------
-Ibex can be configured to have a third pipeline stage (Writeback) which has major effects on performance and instruction behaviour.
+CVE2 can be configured to have a third pipeline stage (Writeback) which has major effects on performance and instruction behaviour.
 This feature is *EXPERIMENTAL* and the details of its impact are not yet documented here.
 All of the information presented below applies only to the two stage pipeline provided in the default configurations.
 

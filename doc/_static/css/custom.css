@@ -1,3 +1,21 @@
 .no-scrollbar-table td {
   white-space: normal !important;
 }
+
+
+table.docutils.align-default {
+  width: 100%;
+  /* table-layout: fixed; */
+}
+
+/* table.docutils.align-default td, 
+table.docutils.align-default th {
+  word-wrap: break-word;
+  white-space: normal;
+} */
+
+table.docutils.align-default td:last-child, 
+table.docutils.align-default th:last-child {
+    word-wrap: break-word;
+    white-space: normal;
+}

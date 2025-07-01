@@ -19,7 +19,7 @@ document is recommended reading.
 1. From GitHub: [fork](https://help.github.com/articles/fork-a-repo/) the [cve2](https://github.com/openhwgroup/cve2) repository
 2. Clone repository: `git clone https://github.com/[your_github_username]/cve2`
 3. Create your feature branch: `git checkout -b <my_branch>.`<br> Please uniquify your branch name.  See the [Git Cheats](https://github.com/openhwgroup/core-v-verif/blob/master/GitCheats.md)
-for a useful nominclature.
+for a useful nomenclature.
 4. Make your edits...
 5. Commit your changes: `git commit -m 'Add some feature' -s`
 6. Push feature branch: `git push origin <my_branch>`

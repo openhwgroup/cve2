@@ -6,9 +6,9 @@ Co-simulation System
 Overview
 --------
 
-A co-simulation system is provided that can run in either the Ibex UVM DV environment or with Simple System.
-This system runs a RISC-V ISS (currently only Spike is supported) in lockstep with an Ibex core.
-All instructions executed by Ibex and memory transactions generated are checked against the behaviour of the ISS.
+A co-simulation system is provided that can run in either the CVE2 UVM DV environment or with Simple System.
+This system runs a RISC-V ISS (currently only Spike is supported) in lockstep with an CVE2 core.
+All instructions executed by CVE2 and memory transactions generated are checked against the behaviour of the ISS.
 This system supports memory errors, interrupt and debug requests which are observed in the RTL simulation and forwarded to the ISS so the ISS and RTL remain in sync.
 The system uses a generic interface to allow support of multiple ISSes.
 Only VCS is supported as a simulator, though no VCS specific functionality is required so adding support for another simulator should be straight-forward.
@@ -25,8 +25,8 @@ It is disabled by default in the UVM DV environment currently, however it is int
 Setup and Usage
 ---------------
 
-Clone the `lowRISC fork of Spike <https://github.com/lowRISC/riscv-isa-sim>`_ and check out the ``ibex-cosim-v0.1`` tag.
-Other, later, versions called ``ibex-cosim-v*`` may also work but there's no guarantee of backwards compatibility.
+Clone the `lowRISC fork of Spike <https://github.com/lowRISC/riscv-isa-sim>`_ and check out the ``cve2-cosim-v0.1`` tag.
+Other, later, versions called ``cve2-cosim-v*`` may also work but there's no guarantee of backwards compatibility.
 Follow the Spike build instructions to build and install Spike.
 The build will install multiple header files and libraries, it is recommended a custom install location (using ``--prefix=<path>`` with ``configure``) is used to avoid cluttering system directories.
 The ``--enable-commitlog`` and ``--enable-misaligned`` options must be passed to ``configure``.
@@ -34,7 +34,7 @@ The ``--enable-commitlog`` and ``--enable-misaligned`` options must be passed to
 Once built, the ``CVE2_COSIM_ISS_ROOT`` environment variable must be set to the Spike root install directory (as given by ``--prefix=<path>`` to ``configure``) in order to build either the UVM DV environment or Simple System with co-simulation support.
 
 To build/run the UVM DV environment with the co-simulator add the ``COSIM=1`` argument to the make command.
-To build Simple System with the co-simulator build the ``lowrisc:cve2:cve2_simple_system_cosim`` core.
+To build Simple System with the co-simulator build the ``openhwgroup:cve2:cve2_simple_system_cosim`` core.
 
 Quick Build and Run Instructions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -43,7 +43,7 @@ Build and install the co-simulator
 
 .. code-block:: bash
 
-  # Get the Ibex co-simulation spike branch
+  # Get the CVE2 co-simulation spike branch
   git clone -b cve2_cosim https://github.com/lowRISC/riscv-isa-sim.git riscv-isa-sim-cosim
 
   # Setup build directory
@@ -71,7 +71,7 @@ Build and run Simple System with the co-simulation enabled
 .. code-block:: bash
 
   # Build simulator
-  fusesoc --cores-root=. run --target=sim --setup --build lowrisc:cve2:cve2_simple_system_cosim --RV32E=0 --RV32M=cve2_pkg::RV32MFast
+  fusesoc --cores-root=. run --target=sim --setup --build openhwgroup:cve2:cve2_simple_system_cosim --RV32E=0 --RV32M=cve2_pkg::RV32MFast
 
   # Build coremark test binary, with performance counter dump disabled. The
   # co-simulator system doesn't produce matching performance counters in spike so
@@ -82,7 +82,7 @@ Build and run Simple System with the co-simulation enabled
   export LD_LIBRARY_PATH=/opt/spike-cosim/lib:$LD_LIBRARY_PATH
 
   # Run coremark binary with co-simulation checking
-  build/lowrisc_cve2_cve2_simple_system_cosim_0/sim-verilator/Vcve2_simple_system --meminit=ram,examples/sw/benchmarks/coremark/coremark.elf
+  build/openhwgroup_cve2_cve2_simple_system_cosim_0/sim-verilator/Vcve2_simple_system --meminit=ram,examples/sw/benchmarks/coremark/coremark.elf
 
 Co-simulation details
 ----------------------
@@ -121,7 +121,7 @@ Trap Handling
 Traps are separated into two categories, synchronous and asynchronous.
 Synchronous traps are caused by a particular instruction's execution (e.g. an illegal instruction).
 Asynchronous traps are caused by external interrupts.
-Note that in Ibex error responses to both loads and store produce a synchronous trap so the co-simulation system has the same behaviour.
+Note that in CVE2 error responses to both loads and store produce a synchronous trap so the co-simulation system has the same behaviour.
 
 A synchronous trap is associated with a particular instruction and prevents that instruction from completing its execution.
 That instruction doesn't retire, but is still made visible on the RVFI.
@@ -150,13 +150,13 @@ Memory Access Checking and Bus Errors
 
 The co-simulation system must be informed of all Dside accesses performed by the RTL using ``notify_dside_access``.
 See :file:`dv/cosim/cosim.h` for further details.
-As Ibex doesn't perform speculative Dside memory accesses, all notified accesses are expected to match with accesses performed by the ISS in the same order they are notified.
+As CVE2 doesn't perform speculative Dside memory accesses, all notified accesses are expected to match with accesses performed by the ISS in the same order they are notified.
 
 Accesses notified via ``notify_dside_access`` can specify they saw an error response, the co-simulation system will produce the appropriate trap when the ISS attempts to access the address that saw the error.
 
 Accesses must be notified before they occur in the ISS for the access matching and trapping on errors to work.
 
-Iside accesses from Ibex can be speculative, so there is no simple link between accesses produced by the RTL and the accesses performed by the ISS for the Iside.
+Iside accesses from CVE2 can be speculative, so there is no simple link between accesses produced by the RTL and the accesses performed by the ISS for the Iside.
 This means no direct checking of Iside accesses is done, however errors on the Iside accesses that result in an instruction fault trap need to be notified to the co-simulation system.
 ``set_iside_error`` does this, it is provided with the address that saw the bus error and it should be called immediately before the ``step`` that will process the trap.
 The co-simulation system will produce an instruction fault trap if it attempts to access the provided error address in the ``step`` call following the ``set_iside_error`` call.
@@ -172,8 +172,8 @@ When a faulting instruction is reported on the RVFI and its ``rvfi_order_id`` ma
 
 The external interface probe should be used when it is guaranteed that a bus error to address A on the external interface results in a fetch error the next time an instruction with address A is observed entering the ID/EX stage (providing no successful access to A has occurred in the mean time).
 Otherwise the internal probe should be used.
-When Ibex is used with the prefetch buffer this guarantee holds and the external probe can be used.
-When Ibex is used with the instruction cache this guarantee does not hold and the internal probe must be used.
+When CVE2 is used with the prefetch buffer this guarantee holds and the external probe can be used.
+When CVE2 is used with the instruction cache this guarantee does not hold and the internal probe must be used.
 
 Care should be taken when using the internal probe as it will miss any bug that causes instruction faults to be ignored by the prefetch buffer or ICache (or whatever else has been used in place of these by a custom implementation).
-In the case of the Ibex ICache a separate testbench ensures instruction faults are dealt with appropriately within the ICache.
+In the case of the CVE2 ICache a separate testbench ensures instruction faults are dealt with appropriately within the ICache.
