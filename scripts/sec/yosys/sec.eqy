@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# To be ran as part of `./sec.sh -t yosys` from `scripts/sec`
+# To be run as part of `./sec.sh -t yosys` from `scripts/sec`
 
 [gold]
 plugin -i slang

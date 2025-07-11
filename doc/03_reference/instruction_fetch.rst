@@ -4,8 +4,9 @@ Instruction Fetch
 =================
 :file:`rtl/cve2_if_stage.sv.`
 
-.. figure:: images/if_stage.svg
+.. figure:: images/if_stage.drawio.svg
    :name: if_stage
+   :width: 100%
    :align: center
 
    Instruction Fetch (IF) stage
@@ -19,7 +20,7 @@ The fetch FIFO has a feedthrough path so when empty a new instruction entering t
 A localparam ``DEPTH`` gives a configurable depth which is set to 3 by default.
 
 The top-level of the instruction fetch controls the prefetch buffer (in particular flushing it on branches/jumps/exception and beginning prefetching from the appropriate new PC) and supplies new instructions to the ID/EX stage along with their PC.
-Compressed instructions are expanded by the IF stage so the decoder can always deal with uncompressed instructions (the ID stage still receives the compressed instruction for placing into ``mtval`` on an illegal instruction exception).
+Compressed instructions are expanded by the IF stage, so the decoder can always deal with uncompressed instructions (the ID stage still receives the compressed instruction for placing into ``mtval`` on an illegal instruction exception).
 
 Instruction-Side Memory Interface
 ---------------------------------

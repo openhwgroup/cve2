@@ -340,49 +340,49 @@ The implemented set of CSRs includes the following registers:
 |        +---------+------------------+-----------------------------------------------+
 |        | 0xb02   |  minstret        | HPM-10: machine insts retired counter         |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb03* |  *mhpmcounter3*   | *HPM-10: number of load/store cycles*         |
+|        | *0xb03* |  *mhpmcounter3*   | *HPM-10: number of load/store cycles*        |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb04* |  *mhpmcounter4*   | *HPM-10: number of inst fetch cycles*         |
+|        | *0xb04* |  *mhpmcounter4*   | *HPM-10: number of inst fetch cycles*        |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb05* |  *mhpmcounter5*   | *HPM-10: number of load cycles*               |
+|        | *0xb05* |  *mhpmcounter5*   | *HPM-10: number of load cycles*              |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb06* |  *mhpmcounter6*   | *HPM-10: number of store cycles*              |
+|        | *0xb06* |  *mhpmcounter6*   | *HPM-10: number of store cycles*             |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb07* |  *mhpmcounter7*   | *HPM-10: number of jump cycles*               |
+|        | *0xb07* |  *mhpmcounter7*   | *HPM-10: number of jump cycles*              |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb08* |  *mhpmcounter8*   | *HPM-10: number of conditional br cycles*     |
+|        | *0xb08* |  *mhpmcounter8*   | *HPM-10: number of conditional br cycles*    |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb09* |  *mhpmcounter9*   | *HPM-10: number of cond br taken cycles*      |
+|        | *0xb09* |  *mhpmcounter9*   | *HPM-10: number of cond br taken cycles*     |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb0a* |  *mhpmcounter10*  | *HPM-10: number of return inst cycles*        |
+|        | *0xb0a* |  *mhpmcounter10*  | *HPM-10: number of return inst cycles*       |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb0b* |  *mhpmcounter11*  | *HPM-10: number of wfi cycles*                |
+|        | *0xb0b* |  *mhpmcounter11*  | *HPM-10: number of wfi cycles*               |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb0c* |  *mhpmcounter12*  | *HPM-10: number of divide cycles*             |
+|        | *0xb0c* |  *mhpmcounter12*  | *HPM-10: number of divide cycles*            |
 |        +---------+------------------+-----------------------------------------------+
 |        | 0xb80   |  mcycleh         | HPM-10: upper word of mcycle                  |
 |        +---------+------------------+-----------------------------------------------+
 |        | 0xb82   |  minstreth       | HPM-10: upper word of minstret                |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb83* |  *mhpmcounter3h*  | *HPM-20: upper word of *mhpmcounter3*          |
+|        | *0xb83* |  *mhpmcounter3h*  | *HPM-20: upper word of *mhpmcounter3*        |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb84* |  *mhpmcounter4h*  | *HPM-20: upper word of *mhpmcounter4*          |
+|        | *0xb84* |  *mhpmcounter4h*  | *HPM-20: upper word of *mhpmcounter4*        |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb85* |  *mhpmcounter5h*  | *HPM-20: upper word of *mhpmcounter5*          |
+|        | *0xb85* |  *mhpmcounter5h*  | *HPM-20: upper word of *mhpmcounter5*        |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb86* |  *mhpmcounter6h*  | *HPM-20: upper word of *mhpmcounter6*          |
+|        | *0xb86* |  *mhpmcounter6h*  | *HPM-20: upper word of *mhpmcounter6*        |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb87* |  *mhpmcounter7h*  | *HPM-20: upper word of *mhpmcounter7*          |
+|        | *0xb87* |  *mhpmcounter7h*  | *HPM-20: upper word of *mhpmcounter7*        |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb88* |  *mhpmcounter8h*  | *HPM-20: upper word of *mhpmcounter8*          |
+|        | *0xb88* |  *mhpmcounter8h*  | *HPM-20: upper word of *mhpmcounter8*        |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb89* |  *mhpmcounter9h*  | *HPM-20: upper word of *mhpmcounter9*          |
+|        | *0xb89* |  *mhpmcounter9h*  | *HPM-20: upper word of *mhpmcounter9*        |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb8a* |  *mhpmcounter10h* | *HPM-20: upper word of *mhpmcounter10*         |
+|        | *0xb8a* |  *mhpmcounter10h* | *HPM-20: upper word of *mhpmcounter10*       |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb8b* |  *mhpmcounter11h* | *HPM-20: upper word of *mhpmcounter11*         |
+|        | *0xb8b* |  *mhpmcounter11h* | *HPM-20: upper word of *mhpmcounter11*       |
 |        +---------+------------------+-----------------------------------------------+
-|        | *0xb8c* |  *mhpmcounter12h* | *HPM-20: upper word of *mhpmcounter12*         |
+|        | *0xb8c* |  *mhpmcounter12h* | *HPM-20: upper word of *mhpmcounter12*       |
 |        +---------+------------------+-----------------------------------------------+
 |        | 0xc00   |  cycle           | user mode cycle, lower 32b                    |
 |        +---------+------------------+-----------------------------------------------+
@@ -524,31 +524,31 @@ lower order 32-bit register.
 |        | CSR Number | Event Selector | Description | event ID/bit | reset value |
 |        +------------+----------------+------------------------------------------+
 |        | 0x323      | mhpmevent3     |           3 | event ID/bit | reset value |
-|        +------------+----------------+------------------------------------------+
++--------+------------+----------------+------------------------------------------+
 
 
 
-|        |                                                                       |
-|        | 0x323 mhpmevent3 // 3, 0x0000_0008                                    |
-|        |                                                                       |
-|        | 0x324 mphmevent4 // 4, 0x0000_0010                                    |
-|        |                                                                       |
-|        | 0x325 mphmevent5 // 5, 0x0000_0020                                    |
-|        |                                                                       |
-|        | 0x326 mphmevent6 // 6, 0x0000_0040                                    |
-|        |                                                                       |
-|        | 0x327 mphmevent7 // 7, 0x0000_0080                                    |
-|        |                                                                       |
-|        | 0x328 mphmevent8 // 8, 0x0000_0100                                    |
-|        |                                                                       |
-|        | 0x329 mphmevent9 // 9, 0x0000_0200                                    |
-|        |                                                                       |
-|        | 0x32a mphmevent10 // 10, 0x0000_0400                                  |
-|        |                                                                       |
-|        | 0x32b mphmevent11 // 11, 0x0000_0800                                  |
-|        |                                                                       |
-|        | 0x32c mphmevent12 // 12, 0x0000_1000                                  |
-+--------+-----------------------------------------------------------------------+
+.. |        |                                                                       |
+.. |        | 0x323 mhpmevent3 // 3, 0x0000_0008                                    |
+.. |        |                                                                       |
+.. |        | 0x324 mphmevent4 // 4, 0x0000_0010                                    |
+.. |        |                                                                       |
+.. |        | 0x325 mphmevent5 // 5, 0x0000_0020                                    |
+.. |        |                                                                       |
+.. |        | 0x326 mphmevent6 // 6, 0x0000_0040                                    |
+.. |        |                                                                       |
+.. |        | 0x327 mphmevent7 // 7, 0x0000_0080                                    |
+.. |        |                                                                       |
+.. |        | 0x328 mphmevent8 // 8, 0x0000_0100                                    |
+.. |        |                                                                       |
+.. |        | 0x329 mphmevent9 // 9, 0x0000_0200                                    |
+.. |        |                                                                       |
+.. |        | 0x32a mphmevent10 // 10, 0x0000_0400                                  |
+.. |        |                                                                       |
+.. |        | 0x32b mphmevent11 // 11, 0x0000_0800                                  |
+.. |        |                                                                       |
+.. |        | 0x32c mphmevent12 // 12, 0x0000_1000                                  |
+.. +--------+-----------------------------------------------------------------------+
 
 .. note::
    The Ibex documentation is incorrect/confusing about the optional
