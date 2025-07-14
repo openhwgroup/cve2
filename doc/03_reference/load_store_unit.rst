@@ -31,10 +31,6 @@ Signals that are used by the LSU:
 | ``data_wdata_o[31:0]``     | output    | Data to be written to memory, sent together   |
 |                            |           | with ``data_req_o``                           |
 +----------------------------+-----------+-----------------------------------------------+
-| ``data_wdata_intg_o[6:0]`` | output    | Integrity bits to be written to memory, sent  |
-|                            |           | together with ``data_req_o`` (not used unless |
-|                            |           | the SecureCVE2 parameter is set)              |
-+----------------------------+-----------+-----------------------------------------------+
 | ``data_gnt_i``             | input     | The other side accepted the request.          |
 |                            |           | Outputs may change in the next cycle.         |
 +----------------------------+-----------+-----------------------------------------------+
@@ -49,20 +45,17 @@ Signals that are used by the LSU:
 +----------------------------+-----------+-----------------------------------------------+
 | ``data_rdata_i[31:0]``     | input     | Data read from memory                         |
 +----------------------------+-----------+-----------------------------------------------+
-| ``data_rdata_intg_i[6:0]`` | input     | Integrity bits read from memory (ignored      |
-|                            |           | unless the SecureCVE2 parameter is set)       |
-+----------------------------+-----------+-----------------------------------------------+
 
 
-Bus Integrity Checking
-----------------------
+.. Bus Integrity Checking
+.. ----------------------
 
-The core can optionally generate and verify check bits sent alongside the data for memory accesses.
-Checkbits are generated and checked using an inverted 39/32 Hsaio code (see :file:`vendor/lowrisc_ip/ip/prim/rtl/prim_secded_inv_39_32_enc.sv`).
-When this feature is used, any mismatch in checkbits will generate a major alert.
+.. The core can optionally generate and verify check bits sent alongside the data for memory accesses.
+.. Checkbits are generated and checked using an inverted 39/32 Hsaio code (see :file:`vendor/lowrisc_ip/ip/prim/rtl/prim_secded_inv_39_32_enc.sv`).
+.. When this feature is used, any mismatch in checkbits will generate a major alert.
 
-This feature is only used if the core is configured with the SecureCVE2 parameter set.
-For all other configurations, the integrity signals can be ignored.
+.. This feature is only used if the core is configured with the SecureIbex parameter set.
+.. For all other configurations, the integrity signals can be ignored.
 
 Misaligned Accesses
 -------------------

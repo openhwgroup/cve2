@@ -10,12 +10,12 @@ Instruction Decode and Execute
 
    Instruction Decode and Execute
 
-The Instruction Decode and Execute stage takes instruction data from the Instruction Fetch stage (which has been converted to the uncompressed representation in the compressed instruction case).
+The Instruction Decode and Execute stage takes instruction data from the :ref:`Instruction Fetch (IF) <instruction-fetch>` stage (which has been converted to the uncompressed representation in the compressed instruction case).
 The instructions are decoded and executed all within one cycle including the register read and write.
 The stage is made up of multiple sub-blocks which are described below.
 
-Instruction Decode Block (ID)
------------------------------
+Instruction Decode Stage (ID) block
+-----------------------------------
 Source File: :file:`rtl/cve2_id_stage.sv`
 
 The Instruction Decode (ID) controls the overall decode/execution process.
@@ -39,7 +39,8 @@ Decoder
 -------
 Source File: :file:`rtl/cve2_decoder.sv`
 
-The Decoder takes uncompressed instruction data and issues appropriate control signals to the other blocks to execute the instruction.
+The Decoder takes uncompressed instruction data and issues appropriate control signals to the other blocks to execute the instruction. 
+It is also responsible for the offloading of extended instructions to a coprocessor through the eXtension Interface (CV-X-IF), when optionally enabled on the CV32E20X configurations.
 
 Register File
 -------------

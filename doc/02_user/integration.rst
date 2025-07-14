@@ -14,12 +14,10 @@ Instantiation Template
 .. code-block:: verilog
 
   cve2_top #(
-      .MHPMCounterNum   ( 0                                ),
+      .MHPMCounterNum   ( 10                               ),
       .MHPMCounterWidth ( 40                               ),
       .RV32E            ( 0                                ),
-      .RV32M            ( cve2_pkg::RV32MFast              ),
-      .RndCnstLfsrSeed  ( cve2_pkg::RndCnstLfsrSeedDefault ),
-      .RndCnstLfsrPerm  ( cve2_pkg::RndCnstLfsrPermDefault )
+      .RV32M            ( cve2_pkg::RV32MFast              )
   ) u_top (
       // Clock and reset
       .clk_i                  (),
@@ -38,7 +36,6 @@ Instantiation Template
       .instr_rvalid_i         (),
       .instr_addr_o           (),
       .instr_rdata_i          (),
-      .instr_rdata_intg_i     (),
       .instr_err_i            (),
 
       // Data memory interface
@@ -51,8 +48,26 @@ Instantiation Template
       .data_wdata_o           (),
       .data_wdata_intg_o      (),
       .data_rdata_i           (),
-      .data_rdata_intg_i      (),
       .data_err_i             (),
+
+      // Core-V Extension Interface (CV-X-IF)
+      // Issue Interface
+      .x_issue_valid_o        (),
+      .x_issue_ready_i        (),
+      .x_issue_req_o          (),
+      .x_issue_resp_i         (),
+
+      // Register Interface
+      .x_register_o           (),
+
+      // Commit Interface
+      .x_commit_valid_o       (),
+      .x_commit_o             (),
+
+      // Result Interface     (),
+      .x_result_valid_i       (),
+      .x_result_ready_o       (),
+      .x_result_i             (),
 
       // Interrupt inputs
       .irq_software_i         (),

@@ -12,11 +12,11 @@ Pipeline Details
 CVE2 has a 2-stage pipeline, the 2 stages are:
 
 Instruction Fetch (IF)
-  Fetches instructions from memory via a prefetch buffer, capable of fetching 1 instruction per cycle if the instruction side memory system allows. See :ref:`instruction-fetch` for details.
+  Represented in light yellow in :numref:`cve2-pipeline`, it Fetches instructions from memory via a prefetch buffer, capable of fetching 1 instruction per cycle if the instruction side memory system allows.  See :ref:`instruction-fetch` for details.
 
 Instruction Decode and Execute (ID/EX)
-  Decodes fetched instruction and immediately executes it, register read and write all occurs in this stage.
-  Multi-cycle instructions will stall this stage until they are complete See :ref:`instruction-decode-execute` for details.
+  Represented in light blue in :numref:`cve2-pipeline`, it decodes fetched instruction and immediately executes it, register read and write all occurs in this stage.
+  Multi-cycle instructions will stall this stage until they are complete. See :ref:`instruction-decode-execute` for details.
 
 All instructions require two cycles minimum to pass down the pipeline.
 One cycle in the IF stage and one in the ID/EX stage.
@@ -24,12 +24,15 @@ Not all instructions can complete in the ID/EX stage in one cycle so will stall 
 This means the maximum IPC (Instructions per Cycle) CVE2 can achieve is 1 when multi-cycle instructions aren't used.
 See Multi- and Single-Cycle Instructions below for the details.
 
-.. TODO there is no third-pipeline stage (cve2_wb.sv) implemented on the current version code
+.. TODO there is no third-pipeline stage (cve2_wb.sv) implemented on the current version code. I substituted the text below for a note 
 .. Third Pipeline Stage 
 .. --------------------
 .. CVE2 can be configured to have a third pipeline stage (Writeback) which has major effects on performance and instruction behaviour.
 .. This feature is *EXPERIMENTAL* and the details of its impact are not yet documented here.
 .. All of the information presented below applies only to the two stage pipeline provided in the default configurations.
+
+.. note::
+   An optional third pipeline stage is planned to be implemented on the block Writeback (file :file:`rtl/cve2_wb.sv`). Currently it implements the default write-through mode. It is represented in light purple in :numref:`cve2-pipeline`.
 
 Multi- and Single-Cycle Instructions
 ------------------------------------
