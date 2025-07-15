@@ -5,7 +5,9 @@ CV32E20 Specification
 License
 =======
 
-Copyright 2022-2025 OpenHW Foundation
+Copyright (c) 2025 Eclipse Foundation
+
+Copyright 2022-2023 OpenHW Group
 
 Copyright 2018-2022 lowRISC Revision 8d044a3d
 
@@ -266,12 +268,9 @@ implemented set of CSRs is intentionally minimized.
 The implemented set of CSRs includes the following registers:
 
 +--------+-----------------------------------------------------------------------------+
-| CSR-20 | | CV32E20 shall implement these mandatory Machine Mode CSRs                 |
-|        |  as per specifications in [RVpriv]_. Optional registers are                 |
-|        |  *highlighted*. The registers are listed based on ascending                 |
-|        |  CSR number.                                                                |
-|        |                                                                             |
-|        |                                                                             |
+| CSR-20 | CV32E20 shall implement these mandatory Machine Mode CSRs as per            |
+|        | specifications in [RVpriv]_. Optional registers are *highlighted*. The      |
+|        | registers are listed based on ascending CSR number.                         |
 |        |                                                                             |
 |        +---------+-------------------+-----------------------------------------------+
 |        | 0x300   |  mstatus          | machine status                                |

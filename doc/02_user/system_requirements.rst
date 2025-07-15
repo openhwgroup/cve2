@@ -2,17 +2,18 @@ System and Tool Requirements
 ============================
 
 The CVE2 CPU core is written in SystemVerilog.
-We try to achieve a balance between the used language features (as described in our `style guide <https://github.com/lowRISC/style-guides/blob/master/VerilogCodingStyle.md>`_) and reasonably wide tool support.
+We try to achieve a balance between the used language features (as described in lowRISC's `style guide <https://github.com/lowRISC/style-guides/blob/master/VerilogCodingStyle.md>`_) and reasonably wide tool support.
 
 The following tools are known to work with the RTL code of CVE2.
 Please `file an issue <https://github.com/openhwgroup/cve2/issues>`_ if you experience problems with any of the listed tools, or if you have successfully used a tool with CVE2 which is not listed here.
 
+- Altair DSim
 - Synopsys Design Compiler
 - Xilinx Vivado, version |tool_requirements.vivado| and up.
 - Verilator, version |tool_requirements.verilator| and up.
 - Synopsys VCS, version at least |tool_requirements.vcs|.
 - Cadence Incisive/Xcelium
-- Mentor Questa
+- Siemens EDA Questa
 - Aldec Riviera Pro
 
 To run the UVM testbench a RTL simulator which supports SystemVerilog and UVM 1.2 is required.

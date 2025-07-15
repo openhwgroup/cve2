@@ -5,78 +5,79 @@
   This testplan is a work in progress still being implemented, so this document may not match the implemented verification in the repository.
   .. TODO This needs to be updated following https://github.com/openhwgroup/cve2/issues/281
   
-Test Plan
-=========
 
-Goals
------
+.. Test Plan
+.. =========
 
-* Verify compliance with all the RISC-V specifications CVE2 supports.
-* Ensure correct functionality is maintained across all possible behaviours of external interfaces (interrupts, memory responses, debug requests etc).
-* Hit all functional coverage points, described in :ref:`coverage-plan`.
+.. Goals
+.. -----
 
-Testbench Architecture
-----------------------
+.. * Verify compliance with all the RISC-V specifications CVE2 supports.
+.. * Ensure correct functionality is maintained across all possible behaviours of external interfaces (interrupts, memory responses, debug requests etc).
+.. * Hit all functional coverage points, described in :ref:`coverage-plan`.
 
-.. figure:: images/tb2.svg
-    :alt: Testbench Architecture
+.. Testbench Architecture
+.. ----------------------
 
-    Architecture of the UVM testbench for CVE2 core
+.. .. figure:: images/tb2.svg
+..     :alt: Testbench Architecture
 
-CVE2 utilises a co-simulation checking approach described in detail in :ref:`cosim`.
-With the co-simulation system all instructions CVE2 executes and all external events such as an interrupts or memory errors are fed to a golden model.
-The results of every instruction execution and every memory access are crossed checked against the golden model with any mismatches resulting in a test failure.
-The aim is to check all possible externally observable behaviours of ``cve2_top`` against the golden model.
-The golden model used is the `Spike RISC-V ISS <https://github.com/riscv-software-src/riscv-isa-sim>`_.
+..     Architecture of the UVM testbench for CVE2 core
 
-The testbench uses UVM.
-It consists of 3 agents:
+.. CVE2 utilises a co-simulation checking approach described in detail in :ref:`cosim`.
+.. With the co-simulation system all instructions CVE2 executes and all external events such as an interrupts or memory errors are fed to a golden model.
+.. The results of every instruction execution and every memory access are crossed checked against the golden model with any mismatches resulting in a test failure.
+.. The aim is to check all possible externally observable behaviours of ``cve2_top`` against the golden model.
+.. The golden model used is the `Spike RISC-V ISS <https://github.com/riscv-software-src/riscv-isa-sim>`_.
 
-Co-simulation Agent:
-  This has multiple monitors.
-  One monitors the RVFI interface which provides details of retired instructions.
-  The other monitors relate to fetched instructions and instruction memory errors; more details are provided in :ref:`coverage-plan`.
-  Additionally, it connects to the monitor of the Memory Interface Agent for the instruction and data side via analysis ports.
-  The monitored transactions are used by a scoreboard to provide information to the co-simulation system allowing it to step the golden model and check its execution and memory activity against CVE2's behaviour.
+.. The testbench uses UVM.
+.. It consists of 3 agents:
 
-Memory Interface Agent
-  This provides a driver and a monitor for the :ref:`CVE2 Memory Interface Protocol<lsu-protocol>`.
-  The driver provides fully randomised and configurable timings for responses and randomisation of error responses.
-  Two agents are instantiated; one for the data memory interface the other for the instruction memory interface.
-  Read data for memory responses is provided from a backing memory; write requests update the contents of the backing memory.
-  This is separate from the memory used by the golden model in the co-simulation agent.
-  The contents of these two memories will be identical unless there is a mismatch resulting in a failure.
-  The backing memory is held in a memory model as a separate UVM component.
-  The two agents use the same backing memory, so they have a coherent view of memory.
+.. Co-simulation Agent:
+..   This has multiple monitors.
+..   One monitors the RVFI interface which provides details of retired instructions.
+..   The other monitors relate to fetched instructions and instruction memory errors; more details are provided in :ref:`coverage-plan`.
+..   Additionally, it connects to the monitor of the Memory Interface Agent for the instruction and data side via analysis ports.
+..   The monitored transactions are used by a scoreboard to provide information to the co-simulation system allowing it to step the golden model and check its execution and memory activity against CVE2's behaviour.
 
-IRQ Agent
-  This provides a driver and a monitor for the IRQ interface.
-  It provides randomised interrupt stimulus to CVE2 when a test requests it.
-  Constraints can be used to control types of interrupts generated (e.g. NMI or not) and whether multiple interrupts should be raised together.
+.. Memory Interface Agent
+..   This provides a driver and a monitor for the :ref:`CVE2 Memory Interface Protocol<lsu-protocol>`.
+..   The driver provides fully randomised and configurable timings for responses and randomisation of error responses.
+..   Two agents are instantiated; one for the data memory interface the other for the instruction memory interface.
+..   Read data for memory responses is provided from a backing memory; write requests update the contents of the backing memory.
+..   This is separate from the memory used by the golden model in the co-simulation agent.
+..   The contents of these two memories will be identical unless there is a mismatch resulting in a failure.
+..   The backing memory is held in a memory model as a separate UVM component.
+..   The two agents use the same backing memory, so they have a coherent view of memory.
 
-Debug and reset signals are a single wire each so do not have a dedicated agent.
-Instead, any sequence that wishes to use them will directly manipulate them via a virtual interface
+.. IRQ Agent
+..   This provides a driver and a monitor for the IRQ interface.
+..   It provides randomised interrupt stimulus to CVE2 when a test requests it.
+..   Constraints can be used to control types of interrupts generated (e.g. NMI or not) and whether multiple interrupts should be raised together.
 
-The testbench instantiates the agents described above along with the memory model used by both the data and instruction side memory agents.
-A test consists of executing a pre-built binary (which is loaded into the memory model at the start of the test via backdoor accesses) along with configuring agents to provide appropriate stimulus for the test.
-Some tests may use the agents to generate stimulus at particular times (e.g. interrupts).
-A test may perform additional checking on top of the co-simulation golden model comparison where appropriate (e.g. ensuring a raised interrupt has caused an exception).
+.. Debug and reset signals are a single wire each so do not have a dedicated agent.
+.. Instead, any sequence that wishes to use them will directly manipulate them via a virtual interface
 
-Stimulus Strategy
------------------
+.. The testbench instantiates the agents described above along with the memory model used by both the data and instruction side memory agents.
+.. A test consists of executing a pre-built binary (which is loaded into the memory model at the start of the test via backdoor accesses) along with configuring agents to provide appropriate stimulus for the test.
+.. Some tests may use the agents to generate stimulus at particular times (e.g. interrupts).
+.. A test may perform additional checking on top of the co-simulation golden model comparison where appropriate (e.g. ensuring a raised interrupt has caused an exception).
 
-Stimulus falls into two categories:
+.. Stimulus Strategy
+.. -----------------
 
-* Instructions to execute: These are generated by the `RISC-V DV random instruction <https://github.com/google/riscv-dv>`_ generator and provided to the testbench via a raw binary file.
-* Activity on external interfaces.
+.. Stimulus falls into two categories:
 
-Instructions are generated ahead of time, so the test has no control over them at run time.
-All external interfaces have their stimulus generated at run time so can be controlled by the test.
-It is the responsibility of the regression run environment to ensure generated instructions are matched with appropriate tests (e.g. ensuring an exception handler is present where interrupts are expected).
+.. * Instructions to execute: These are generated by the `RISC-V DV random instruction <https://github.com/google/riscv-dv>`_ generator and provided to the testbench via a raw binary file.
+.. * Activity on external interfaces.
 
-Stimulus generation will use a coverage based approach.
-Stimulus is developed based upon the :ref:`coverage-plan`.
-Where coverage is not being hit stimulus will be added to hit it.
+.. Instructions are generated ahead of time, so the test has no control over them at run time.
+.. All external interfaces have their stimulus generated at run time so can be controlled by the test.
+.. It is the responsibility of the regression run environment to ensure generated instructions are matched with appropriate tests (e.g. ensuring an exception handler is present where interrupts are expected).
+
+.. Stimulus generation will use a coverage based approach.
+.. Stimulus is developed based upon the :ref:`coverage-plan`.
+.. Where coverage is not being hit stimulus will be added to hit it.
 
 .. TODO adapt it to CVE2
 .. Tests
