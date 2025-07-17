@@ -3,7 +3,7 @@
 Exceptions and Interrupts
 =========================
 
-Ibex implements trap handling for interrupts and exceptions according to the RISC-V Privileged Specification, version 1.11.
+CVE2 implements trap handling for interrupts and exceptions according to the RISC-V Privileged Specification, version 1.11.
 
 When entering an interrupt/exception handler, the core sets the ``mepc`` CSR to the current program counter and saves ``mstatus``.MIE to ``mstatus``.MPIE.
 All exceptions cause the core to jump to the base address of the vector table in the ``mtvec`` CSR.
@@ -20,14 +20,14 @@ It is assumed that the boot address is supplied via a register to avoid long pat
 Privilege Modes
 ---------------
 
-Ibex supports operation in Machine Mode (M-Mode) and User Mode (U-Mode).
+CVE2 supports operation in Machine Mode (M-Mode) and User Mode (U-Mode).
 The core resets into M-Mode and will jump to M-Mode on any interrupt or exception.
 On execution of an MRET instruction, the core will return to the Privilege Mode stored in ``mstatus``.MPP.
 
 Interrupts
 ----------
 
-Ibex supports the following interrupts.
+CVE2 supports the following interrupts.
 
 +-------------------------+-------+--------------------------------------------------+
 | Interrupt Input Signal  | ID    | Description                                      |
@@ -51,7 +51,7 @@ For more information, see the :ref:`cs-registers` documentation.
 
 If multiple interrupts are pending, they are handled in the priority order defined by the RISC-V Privileged Specification, version 1.11 (see Machine Interrupt Registers, Section 3.1.9).
 The fast interrupts have a platform defined priority.
-In Ibex they take priority over all other interrupts and between fast interrupts the highest priority is given to the interrupt with the lowest ID.
+In CVE2 they take priority over all other interrupts and between fast interrupts the highest priority is given to the interrupt with the lowest ID.
 
 The NMI is enabled independent of the values in the ``mstatus`` and ``mie`` CSRs, and it is not visible through the ``mip`` CSR.
 It has interrupt ID 31, i.e., it has the highest priority of all interrupts and the core jumps to the trap-handler base address (in ``mtvec``) plus 0x7C to handle the NMI.
@@ -67,7 +67,7 @@ In Debug Mode, all interrupts including the NMI are ignored independent of ``mst
 Recoverable Non-Maskable Interrupt
 ----------------------------------
 
-To support recovering from an NMI happening during a trap handling routine, Ibex features additional CSRs for backing up ``mstatus``.MPP, ``mstatus``.MPIE, ``mepc`` and ``mcause``.
+To support recovering from an NMI happening during a trap handling routine, CVE2 features additional CSRs for backing up ``mstatus``.MPP, ``mstatus``.MPIE, ``mepc`` and ``mcause``.
 These CSRs are not accessible by software running on the core.
 
 These CSRs are nonstandard.
@@ -77,7 +77,7 @@ For more information, see `the corresponding proposal <https://github.com/riscv/
 Exceptions
 ----------
 
-Ibex can trigger an exception due to the following exception causes:
+CVE2 can trigger an exception due to the following exception causes:
 
 +----------------+---------------------------------------------------------------+
 | Exception Code | Description                                                   |
@@ -103,7 +103,7 @@ The illegal instruction exception, instruction access fault, LSU error exception
 Nested Interrupt/Exception Handling
 -----------------------------------
 
-Ibex does support nested interrupt/exception handling in software.
+CVE2 does support nested interrupt/exception handling in software.
 The hardware automatically disables interrupts upon entering an interrupt/exception handler.
 Otherwise, interrupts/exceptions during the critical part of the handler, i.e. before software has saved the ``mepc`` and ``mstatus`` CSRs, would cause those CSRs to be overwritten.
 If desired, software can explicitly enable interrupts by setting ``mstatus``.MIE to 1'b1 from within the handler.
@@ -144,7 +144,7 @@ The following pseudo-code snippet visualizes how to perform nested interrupt han
    }
 
 Nesting of interrupts/exceptions in hardware is not supported.
-The purpose of the nonstandard ``mstack`` CSRs in Ibex is only to support recoverable NMIs.
+The purpose of the nonstandard ``mstack`` CSRs in CVE2 is only to support recoverable NMIs.
 These CSRs are not accessible by software.
 While handling an NMI, all interrupts are ignored independent of ``mstatus``.MIE.
 Nested NMIs are not supported.
@@ -154,12 +154,12 @@ Nested NMIs are not supported.
 Double Fault Detection
 ----------------------
 
-Ibex has a mechanism to detect when a double fault has occurred.
+CVE2 has a mechanism to detect when a double fault has occurred.
 A double fault is defined as a synchronous exception occurring whilst handling a previous synchronous exception.
 The ``cpuctrl`` custom CSR has fields to provide software visibility and access to this mechanism.
 
-When a synchronous exception occurs, Ibex sets ``cpuctrl``.sync_exception_seen.
-Ibex clears ``cpuctrl``.sync_exception_seen when ``mret`` is executed.
+When a synchronous exception occurs, CVE2 sets ``cpuctrl``.sync_exception_seen.
+CVE2 clears ``cpuctrl``.sync_exception_seen when ``mret`` is executed.
 If a synchronous exception occurs whilst ``cpuctrl``.sync_exception_seen is set, a double fault has been detected.
 
 When a double fault is detected, the ``double_fault_seen_o`` output is asserted for one cycle and ``cpuctrl``.double_fault_seen is set.

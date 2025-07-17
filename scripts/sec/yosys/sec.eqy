@@ -1,4 +1,4 @@
-# Copyright 2025 OpenHW Group
+# Copyright 2025 OpenHW Foundation
 #
 # Licensed under the Solderpad Hardware Licence, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# To be ran as part of `./sec.sh -t yosys` from `scripts/sec`
+# To be run as part of `./sec.sh -t yosys` from `scripts/sec`
 
 [gold]
 plugin -i slang

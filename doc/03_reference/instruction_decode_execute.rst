@@ -3,18 +3,19 @@
 Instruction Decode and Execute
 ==============================
 
-.. figure:: images/de_ex_stage.svg
-   :name: de_ex_stage
+.. figure:: images/de_ex_stage.drawio.svg
+   :name: de_ex_stage.drawio.svg
+   :width: 100%
    :align: center
 
    Instruction Decode and Execute
 
-The Instruction Decode and Execute stage takes instruction data from the instruction fetch stage (which has been converted to the uncompressed representation in the compressed instruction case).
+The Instruction Decode and Execute stage takes instruction data from the :ref:`Instruction Fetch (IF) <instruction-fetch>` stage (which has been converted to the uncompressed representation in the compressed instruction case).
 The instructions are decoded and executed all within one cycle including the register read and write.
 The stage is made up of multiple sub-blocks which are described below.
 
-Instruction Decode Block (ID)
------------------------------
+Instruction Decode Stage (ID) block
+-----------------------------------
 Source File: :file:`rtl/cve2_id_stage.sv`
 
 The Instruction Decode (ID) controls the overall decode/execution process.
@@ -38,11 +39,12 @@ Decoder
 -------
 Source File: :file:`rtl/cve2_decoder.sv`
 
-The decoder takes uncompressed instruction data and issues appropriate control signals to the other blocks to execute the instruction.
+The Decoder takes uncompressed instruction data and issues appropriate control signals to the other blocks to execute the instruction. 
+It is also responsible for the offloading of extended instructions to a coprocessor through the eXtension Interface (CV-X-IF), when optionally enabled on the CV32E20X configurations.
 
 Register File
 -------------
-Source Files: :file:`rtl/cve2_register_file_ff.sv` :file:`rtl/cve2_register_file_fpga.sv` :file:`rtl/cve2_register_file_latch.sv`
+Source File: :file:`rtl/cve2_register_file_ff.sv`
 
 See :ref:`register-file` for more details.
 
@@ -50,7 +52,7 @@ Execute Block
 -------------
 Source File: :file:`rtl/cve2_ex_block.sv`
 
-The execute block contains the ALU and the multiplier/divider blocks, it does little beyond wiring and instantiating these blocks.
+The Execute Block contains the ALU and the multiplier/divider blocks, it does little beyond wiring and instantiating these blocks.
 
 Arithmetic Logic Unit (ALU)
 ---------------------------
@@ -173,9 +175,9 @@ See :ref:`load-store-unit` for more details.
 
 .. rubric:: Footnotes
 
-.. [#B_draft] Ibex fully implements the ratified version 1.0.0 of the RISC-V Bit-Manipulation Extension including the Zba, Zbb, Zbc and Zbs sub-extensions.
-   In addition, Ibex also supports the remaining Zbe, Zbf, Zbp, Zbr and Zbt sub-extensions as defined in draft version 0.93 of the RISC-V Bit-Manipulation Extension.
+.. [#B_draft] CVE2 fully implements the ratified version 1.0.0 of the RISC-V Bit-Manipulation Extension including the Zba, Zbb, Zbc and Zbs sub-extensions.
+   In addition, CVE2 also supports the remaining Zbe, Zbf, Zbp, Zbr and Zbt sub-extensions as defined in draft version 0.93 of the RISC-V Bit-Manipulation Extension.
    Note that the latter sub-extensions may change before being ratified as a standard by the RISC-V Foundation.
-   Ibex will be updated to match future versions of the specification.
+   CVE2 will be updated to match future versions of the specification.
    Prior to ratification this may involve backwards incompatible changes.
    Additionally, neither GCC or Clang have committed to maintaining support upstream for unratified versions of the specification.

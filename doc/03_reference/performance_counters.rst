@@ -3,17 +3,17 @@
 Performance Counters
 ====================
 
-Ibex implements performance counters according to the RISC-V Privileged Specification, version 1.11 (see Hardware Performance Monitor, Section 3.1.11).
+CVE2 implements performance counters according to the RISC-V Privileged Specification, version 1.11 (see Hardware Performance Monitor, Section 3.1.11).
 The performance counters are placed inside the Control and Status Registers (CSRs) and can be accessed with the ``CSRRW(I)`` and ``CSRRS/C(I)`` instructions.
 
-Ibex implements the clock cycle counter ``mcycle(h)``, the retired instruction counter ``minstret(h)``, as well as the 29 event counters ``mhpmcounter3(h)`` - ``mhpmcounter31(h)`` and the corresponding event selector CSRs ``mhpmevent3`` - ``mhpmevent31``, and the ``mcountinhibit`` CSR to individually enable/disable the counters.
+CVE2 implements the clock cycle counter ``mcycle(h)``, the retired instruction counter ``minstret(h)``, as well as the 29 event counters ``mhpmcounter3(h)`` - ``mhpmcounter31(h)`` and the corresponding event selector CSRs ``mhpmevent3`` - ``mhpmevent31``, and the ``mcountinhibit`` CSR to individually enable/disable the counters.
 ``mcycle(h)`` and ``minstret(h)`` are always available and 64 bit wide.
 The ``mhpmcounter`` performance counters are optional (unavailable by default) and parametrizable in width.
 
 Event Selector
 --------------
 
-The following events can be monitored using the performance counters of Ibex.
+The following events can be monitored using the performance counters of CVE2.
 
 +--------------+------------------+---------------------------------------------------------+
 | Event ID/Bit | Event Name       | Event Description                                       |
@@ -68,10 +68,9 @@ The ``mcycle(h)`` and ``minstret(h)`` counters are always available and 64 bit w
 The event counters ``mhpmcounter3(h)`` - ``mhpmcounter31(h)`` are parametrizable.
 Their width can be parametrized between 1 and 64 bit through the ``WidthMHPMCounters`` parameter, which defaults to 40 bit wide counters.
 
-The number of available event counters ``mhpmcounterX(h)`` can be controlled via the ``NumMHPMCounters`` parameter.
-By default (``NumMHPMCounters`` set to 0), no counters are available to software.
-Set ``NumMHPMCounters`` to a value between 1 and 8 to make the counters ``mhpmcounter3(h)`` - ``mhpmcounter10(h)`` available as listed below.
-Setting ``NumMHPMCounters`` to values larger than 8 does not result in any more performance counters.
+The number of available event counters ``mhpmcounterX(h)`` can be controlled via the ``MHPMCounterNum``, set to 10 by default.
+Set ``MHPMCounterNum`` to a value between 1 and 10 to make the counters ``mhpmcounter3(h)`` - ``mhpmcounter12(h)`` available as listed below.
+Setting ``MHPMCounterNum`` to values larger than 10 does not result in any more performance counters.
 
 Unavailable counters always read 0.
 

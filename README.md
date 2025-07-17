@@ -7,7 +7,7 @@ The core will be made compatible with the OpenHW Group OBI protocol, it will use
 
 # CV32E20 RISC-V Core
 
-CV32E20 is a production-quality open source source 32-bit RISC-V CPU core written in
+CV32E20 is a production-quality open source 32-bit RISC-V CPU core written in
 SystemVerilog. The CPU core is heavily parametrizable and well-suited for
 embedded control applications. CV32E20 is being extensively verified and has
 seen multiple tape-outs. CV32E20 supports the Integer (I) or Embedded (E),
@@ -16,7 +16,7 @@ Integer Multiplication and Division (M), and Compressed (C) extensions.
 The block diagram below shows the *small* parametrization with a 2-stage
 pipeline.
 
-<p align="center"><img src="doc/03_reference/images/blockdiagram.svg" width="650"></p>
+<p align="center"><img src="doc/03_reference/images/blockdiagram.drawio.svg" width="650"></p>
 
 CV32E20 was initially developed as part of the [PULP platform](https://www.pulp-platform.org)
 under the name [&#34;Zero-riscy&#34;](https://doi.org/10.1109/PATMOS.2017.8106976), and has been
@@ -47,10 +47,12 @@ Only the person who actually performs the merge can add these labels (you need c
 
 ## Configuration
 
+<!-- TODO: This section and numbers need to be updated considering that the example code was removed -->
+
 CV32E20 offers several configuration parameters to meet the needs of various application scenarios.
 The options include different choices for the architecture of the multiplier unit, as well as a range of performance and security features.
 The table below indicates performance, area, and verification status for a few selected configurations.
-These are configurations on which lowRISC is focusing for performance evaluation and design verification (see [supported configs](cve2_configs.yaml)).
+These are configurations on which OpenHW is focusing for performance evaluation and design verification (see [supported configs](cve2_configs.yaml)).
 
 | Config                            | "micro" | "small"               |
 | --------------------------------- | ------- | --------------------- |
@@ -72,9 +74,9 @@ Notes:
   Green indicates that verification is close to complete.
   Amber indicates that some verification has been performed, but the configuration is still experimental.
   Red indicates a configuration with minimal/no verification.
-* v.1.0.0 of the RISC-V Bit-Manipulation Extension is supported as well as the remaining sub-extensions of draft v.0.93 of the bitmanip spec.
+<!-- * v.1.0.0 of the RISC-V Bit-Manipulation Extension is supported as well as the remaining sub-extensions of draft v.0.93 of the bitmanip spec.
   The latter is *not ratified* and there may be changes before ratification.
-  See [Standards Compliance](https://ibex-core.readthedocs.io/en/latest/01_overview/compliance.html) in the Ibex documentation for more information.
+  See [Standards Compliance](https://ibex-core.readthedocs.io/en/latest/01_overview/compliance.html) in the Ibex documentation for more information. -->
 
 ## Documentation (to be updated)
 
@@ -82,11 +84,11 @@ The CVE2 documentation can be
 [read online at ReadTheDocs](https://docs.openhwgroup.org/projects/cve2-user-manual/en/latest/). It is also contained in
 the `doc` folder of this repository.
 
-## Examples
+<!-- ## Examples
 
 The CVE2 repository includes [Simple System](examples/simple_system/README.md).
 This is an intentionally simple integration of CV32E20 with a basic system that targets simulation.
-It is intended to provide an easy way to get bare metal binaries running on CV32E20 in simulation.
+It is intended to provide an easy way to get bare metal binaries running on CV32E20 in simulation. -->
 
 ## Contributing
 

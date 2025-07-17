@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-#  Copyright (c) 2020, 2023 OpenHW Group
+#  Copyright (c) 2020, 2023 OpenHW Foundation
 #
 #  Licensed under the Solderpad Hardware Licence, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -38,8 +38,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'CV32E20 Documentation'
-copyright = '2017-2018, ETH Zurich and University of Bologna, 2018-2022 lowRISC, 2022-2023 OpenHW Group'
-author = 'OpenHW Group'
+copyright = '2017-2018, ETH Zurich and University of Bologna, 2018-2022 lowRISC, 2022-2025 OpenHW Foundation'
+author = 'OpenHW Foundation'
 
 # The short X.Y version
 version = u'0.1'
@@ -165,7 +165,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'CV32E20_Documentation.tex', u'CV32E20 Documentation',
-     u'OpenHW Group', 'manual'),
+     u'OpenHW Foundation', 'manual'),
 ]
 
 
