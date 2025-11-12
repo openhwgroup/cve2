@@ -462,6 +462,7 @@ module cve2_core import cve2_pkg::*; #(
     .lsu_store_err_i(lsu_store_err),
 
     // Core-V Extension Interface (CV-X-IF)
+    .hart_id_i      (hart_id_i),
     // Issue Interface
     .x_issue_valid_o(x_issue_valid_o),
     .x_issue_ready_i(x_issue_ready_i),
