@@ -17,10 +17,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install FuseSoC from lowRISC
+        run: |
+          python3 -m venv venv_cve2/
+          source venv_cve2/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade -r python-requirements.txt
+          # Make the venv tools available to subsequent steps
+          echo "$PWD/venv_cve2/bin" >> $GITHUB_PATH
+
+      - name: Check FuseSoC version
+        run: |
+          echo "which fusesoc: $(which fusesoc || true)"
+          fusesoc --version || echo "fusesoc not found or failed to run"
+
       - name: Install OSS CAD Suite
         uses: YosysHQ/setup-oss-cad-suite@v3
 
-      - name: Check yosys installation
+      - name: Check Yosys version
         run: yosys --version || true
 
       - name: Run SEC on the standard core configuration
