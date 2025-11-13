@@ -156,6 +156,10 @@ python-lint:
 sec:
 	./scripts/sec/sec.sh -t yosys
 
+.PHONY: sec_XInterface
+sec_XInterface:
+	./scripts/sec/sec.sh -t yosys -X
+
 .PHONY: clean
 clean:
 	-rm -rf ./build ./formal/riscv-formal/build

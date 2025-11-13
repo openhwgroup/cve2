@@ -1,4 +1,4 @@
-# Copyright 2025 OpenHW Foundation
+# Copyright (c) 2025 Eclipse Foundation
 #
 # Licensed under the Solderpad Hardware Licence, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,22 +15,10 @@
 # To be run as part of `./sec.sh -t yosys` from `scripts/sec`
 
 [gold]
-plugin -i slang
-read_slang --ignore-assertions -DGOLD --top cve2_top -f ./golden.src
-
-# Save the list of IO signals, in case the new revised version is different
-select -write yosys/golden_io.txt  o:* i:* 
+tcl ../../scripts/sec/yosys/sec.tcl GOLD
 
 [gate]
-plugin -i slang
-read_slang --ignore-assertions -DGATE --top cve2_top -f ./revised.src
-
-
-# Delete eventual new IO signals from the revised design from analysis
-select -set golden_io -read yosys/golden_io.txt
-select -set revised_io o:* i:*
-select -set excl_sigs @revised_io @golden_io %d
-delete @excl_sigs
+tcl ../../scripts/sec/yosys/sec.tcl GATE
 
 [script]
 prep -top cve2_top
@@ -39,4 +27,3 @@ memory_map
 [strategy sat]
 use sat
 depth 5
-
