@@ -41,4 +41,4 @@ jobs:
         run: make sec
 
       - name: Run SEC on the eXtension InterFace configuration
-        run: make sec_Xinterface
+        run: make sec_XInterface
