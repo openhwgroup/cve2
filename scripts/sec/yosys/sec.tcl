@@ -26,11 +26,8 @@ yosys plugin -i slang
 set DESIGN [lindex $argv 0] 
 set XInterface $::env(XInterface)
 
-puts "Compiling the $DESIGN design"
 puts "XInterface: $XInterface"
 
-
-# Conditional logic based on its value
 if {$DESIGN eq "GOLD"} {
     puts "Running GOLD flow"
 
@@ -53,20 +50,19 @@ if {$DESIGN eq "GOLD"} {
     # Delete eventual new IO ports from the revised design from analysis, as we 
     # cannot compare designs with different sets of IO ports
 
-
     for {set i 10} {$i >= 0} {incr i -1} {
         if {[file exists "yosys/golden_io.txt"]} {
             break
         } else {
-            puts "Attempt [ expr 10-$i+1 ]: File not found"
+            puts "Attempt [ expr 10-$i+1 ]: yosys/golden_io.txt not found"
             if {$i > 0} {
                 after 50
             } else {
-                puts "yosys/golden_io.txt not found after 10 attempts"
+                error "yosys/golden_io.txt not found after 10 attempts"
+                exit 1
             }
         }
     }
-
     yosys select -set golden_io -read yosys/golden_io.txt
     yosys select -set revised_io o:* i:*
     yosys select -set excl_sigs @revised_io @golden_io %d
