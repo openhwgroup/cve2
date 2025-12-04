@@ -31,7 +31,7 @@ puts "XInterface: $XInterface"
 if {$DESIGN eq "GOLD"} {
     puts "Running GOLD flow"
 
-    yosys read_slang --ignore-assertions -D$DESIGN -DXInterface=$XInterface --top cve2_top -f ./golden.src
+    yosys read_slang --ignore-assertions -D$DESIGN -G XInterface=$XInterface --top cve2_top -f ./golden.src
 
     if {$XInterface eq 0} {
         # Exclude specifically the top IO CV-X-IF signals from analysis
@@ -45,7 +45,7 @@ if {$DESIGN eq "GOLD"} {
 } elseif {$DESIGN eq "GATE"} {
     puts "Running GATE flow"
 
-    yosys read_slang --ignore-assertions -D$DESIGN -DXInterface=$XInterface --top cve2_top -f ./revised.src
+    yosys read_slang --ignore-assertions -D$DESIGN -G XInterface=$XInterface --top cve2_top -f ./revised.src
 
     # Delete eventual new IO ports from the revised design from analysis, as we 
     # cannot compare designs with different sets of IO ports
