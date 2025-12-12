@@ -283,15 +283,15 @@ module cve2_if_stage import cve2_pkg::*; (
   ////////////////
 
   // Selectors must be known/valid.
-  `ASSERT_KNOWN(CVE2ExcPcMuxKnown, exc_pc_mux_i)
+ `ASSERT_KNOWN(CVE2ExcPcMuxKnown, exc_pc_mux_i)
 
   // Boot address must be aligned to 256 bytes.
-  `ASSERT(CVE2BootAddrUnaligned, boot_addr_i[7:0] == 8'h00)
+ `ASSERT(CVE2BootAddrUnaligned, boot_addr_i[7:0] == 8'h00)
 
   // Address must not contain X when request is sent.
-  `ASSERT(CVE2InstrAddrUnknown, instr_req_o |-> !$isunknown(instr_addr_o))
+ `ASSERT(CVE2InstrAddrUnknown, instr_req_o |-> !$isunknown(instr_addr_o))
 
   // Address must be word aligned when request is sent.
-  `ASSERT(CVE2InstrAddrUnaligned, instr_req_o |-> (instr_addr_o[1:0] == 2'b00))
+ `ASSERT(CVE2InstrAddrUnaligned, instr_req_o |-> (instr_addr_o[1:0] == 2'b00))
 
 endmodule

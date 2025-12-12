@@ -52,11 +52,11 @@ module cve2_register_file_ff #(
   end
 
   // No flops for R0 as it's hard-wired to 0
-  for (genvar i = 1; i < NUM_WORDS; i++) begin : g_rf_flops
+  for (genvar i = 1; i < NUM_WORDS; i++) begin : g_rf_flops // generate loop generates reset for each register individually
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (!rst_ni) begin
-        rf_reg_q[i] <= WordZeroVal;
-      end else if (we_a_dec[i]) begin
+        rf_reg_q[i] <= WordZeroVal; // zero on reset
+      end else if (we_a_dec[i]) begin // only writes to address "we_a_decoder" decided by "we_a_dec" decoder
         rf_reg_q[i] <= wdata_a_i;
       end
     end
@@ -65,8 +65,10 @@ module cve2_register_file_ff #(
   // R0 is nil
   assign rf_reg[0] = WordZeroVal;
 
+  //copies all register values except x0 from the flip-flops (rf_reg_q) into a read array (rf_reg).
   assign rf_reg[NUM_WORDS-1:1] = rf_reg_q[NUM_WORDS-1:1];
 
+  // output values based on address input
   assign rdata_a_o = rf_reg[raddr_a_i];
   assign rdata_b_o = rf_reg[raddr_b_i];
 
