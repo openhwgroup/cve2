@@ -292,6 +292,25 @@ module cve2_id_stage #(
 
     logic scoreboard_free;
 
+    // The cve2 can issue up to X_INSTR_INFLIGHT instructions over the X-IF 
+    // without waiting for their completion.
+    //
+    // Each issued instruction, identified by a unique ID, sets its corresponding 
+    // scoreboard bit to `1`. When the instruction completes, that bit is cleared 
+    // back to `0`.
+    //
+    // The cve2 always issues instructions in order, but the co-processor may 
+    // complete (commit) them out of order.
+    //
+    // Once the scoreboard has issued the X_INSTR_INFLIGHT-th instruction, 
+    // the instruction ID counter wraps around to 0.
+    //
+    // If the previous instruction with ID 0 has already completed 
+    // (i.e., scoreboard[0] == 0), the cve2 can issue a new instruction with ID 0. 
+    // Otherwise, it waits for the instruction with ID 0 to finish before reusing it.
+    //
+    // This behavior applies similarly to all other instruction IDs.
+
     assign scoreboard_free = ~scoreboard_q[x_instr_id_q];
 
     always_comb begin
