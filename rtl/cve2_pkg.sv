@@ -664,7 +664,7 @@ package cve2_pkg;
   parameter int unsigned X_HARTID_WIDTH   = 32;
   parameter int unsigned X_DUAL_READ      = 0;
   parameter int unsigned X_DUAL_WRITE     = 0;
-  parameter int unsigned X_INSTR_INFLIGHT = X_ID_WIDTH**2;
+  parameter int unsigned X_INSTR_INFLIGHT = 2**X_ID_WIDTH;
 
   typedef logic [X_NUM_RS+X_DUAL_READ-1:0] readregflags_t;
   typedef logic [X_DUAL_WRITE:0]           writeregflags_t;
