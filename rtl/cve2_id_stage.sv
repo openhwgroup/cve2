@@ -267,6 +267,7 @@ module cve2_id_stage #(
 
   // CV-X-IF
   logic stall_coproc;
+  logic scoreboard_busy;
 
   ///////////////
   // ID-EX FSM //
@@ -312,6 +313,10 @@ module cve2_id_stage #(
     // This behavior applies similarly to all other instruction IDs.
 
     assign scoreboard_free = ~scoreboard_q[x_instr_id_q];
+
+
+    assign scoreboard_busy = (scoreboard_q != '0);
+
 
     always_comb begin
       scoreboard_d = scoreboard_q;
@@ -370,6 +375,7 @@ module cve2_id_stage #(
 
 
     assign multicycle_done = lsu_req_dec ? lsu_resp_valid_i : ex_valid_i;
+    assign scoreboard_busy = 1'b0;
 
     // Issue Interface
     assign x_issue_valid_o      = 1'b0;
@@ -613,6 +619,8 @@ module cve2_id_stage #(
     .wfi_insn_i      (wfi_insn_dec),
     .ebrk_insn_i     (ebrk_insn),
     .csr_pipe_flush_i(csr_pipe_flush),
+
+    .xif_scoreboard_busy_i(scoreboard_busy),
 
     // from IF-ID pipeline
     .instr_valid_i          (instr_valid_i),
