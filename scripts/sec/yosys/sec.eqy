@@ -24,17 +24,6 @@ tcl ../../scripts/sec/yosys/sec.tcl GATE
 prep -top cve2_top
 memory_map
 
-cd cve2_top
-
-# assume lower 8 bits of boot address are 0
-# make sure there are no processes (connect can't run on modules with processes)
-proc
-opt
-
-# tie only the low 8 bits to 0 (leave [31:8] unconstrained)
-connect -set boot_addr_i[7:0] 8'h00
-opt
-
 [strategy sat]
 use sat
 depth 5
