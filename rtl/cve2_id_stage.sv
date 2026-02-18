@@ -562,7 +562,6 @@ module cve2_id_stage #(
 
     // Core-V eXtension Interface (CV-X-IF)
     .x_issue_resp_register_read_i(x_issue_resp_i.register_read),
-    .x_issue_resp_writeback_i(x_issue_resp_i.writeback),
 
     // jump/branches
     .jump_in_dec_o  (jump_in_dec),
@@ -857,7 +856,7 @@ module cve2_id_stage #(
             rf_we_raw       = rf_we_dec & ex_valid_i;
           end
           if (illegal_insn_dec && XInterface) begin
-            coproc_done     = x_result_valid_i & x_result_i.we;
+            coproc_done     = x_result_valid_i;
             rf_we_raw       = x_result_valid_i & x_result_i.we;
           end
           if (multicycle_done) begin
