@@ -91,7 +91,6 @@ module cve2_decoder #(
 
   // Core-V eXtension interface (CV-X-IF)
   input  cve2_pkg::readregflags_t  x_issue_resp_register_read_i,
-  input  cve2_pkg::writeregflags_t x_issue_resp_writeback_i,
 
   // jump/branches
   output logic                     jump_in_dec_o,         // jump is being calculated in ALU
@@ -663,7 +662,6 @@ module cve2_decoder #(
       if(XInterface) begin
         rf_ren_a_o       = x_issue_resp_register_read_i[0];
         rf_ren_b_o       = x_issue_resp_register_read_i[1];
-        rf_we            = x_issue_resp_writeback_i;
         rf_wdata_sel_o   = $bits(rf_wdata_sel_o)'({RF_WD_COPROC});
       end 
     end

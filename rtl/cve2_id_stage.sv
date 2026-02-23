@@ -284,10 +284,11 @@ module cve2_id_stage #(
     end
   end
 
+  logic coproc_done;
+
   // CV-X-IF
   if (XInterface) begin: gen_xif
 
-    logic coproc_done;
     logic [X_INSTR_INFLIGHT-1:0] scoreboard_d, scoreboard_q;
     id_t x_instr_id_d, x_instr_id_q;
 
@@ -342,8 +343,6 @@ module cve2_id_stage #(
 
     assign multicycle_done = lsu_req_dec ? lsu_resp_valid_i : (illegal_insn_dec ? coproc_done : ex_valid_i);
 
-    assign coproc_done = (x_issue_valid_o & x_issue_ready_i & ~x_issue_resp_i.writeback) | (x_result_valid_i & x_result_i.we);
-
     // Issue Interface
     assign x_issue_valid_o      = instr_executing & illegal_insn_dec & (id_fsm_q == FIRST_CYCLE) & scoreboard_free;
     assign x_issue_req_o.instr  = instr_rdata_i;
@@ -372,7 +371,9 @@ module cve2_id_stage #(
     x_issue_resp_t unused_x_issue_resp;
     logic          unused_x_result_valid;
     x_result_t     unused_x_result;
+    logic          unused_coproc_done;
 
+    assign unused_coproc_done = coproc_done;
 
     assign multicycle_done = lsu_req_dec ? lsu_resp_valid_i : ex_valid_i;
     assign scoreboard_busy = 1'b0;
@@ -561,7 +562,6 @@ module cve2_id_stage #(
 
     // Core-V eXtension Interface (CV-X-IF)
     .x_issue_resp_register_read_i(x_issue_resp_i.register_read),
-    .x_issue_resp_writeback_i(x_issue_resp_i.writeback),
 
     // jump/branches
     .jump_in_dec_o  (jump_in_dec),
@@ -775,6 +775,7 @@ module cve2_id_stage #(
     branch_set_raw_d        = 1'b0;
     jump_set_raw            = 1'b0;
     perf_branch_o           = 1'b0;
+    coproc_done             = 1'b1;
 
     if (instr_executing_spec) begin
       unique case (id_fsm_q)
@@ -827,6 +828,7 @@ module cve2_id_stage #(
                   if(x_issue_resp_i.accept && x_issue_resp_i.writeback) begin
                       id_fsm_d = MULTI_CYCLE;
                       stall_coproc = 1'b1;
+                      coproc_done  = 1'b0;
                   end
                   else begin
                     id_fsm_d = FIRST_CYCLE;
@@ -853,7 +855,10 @@ module cve2_id_stage #(
           if(multdiv_en_dec) begin
             rf_we_raw       = rf_we_dec & ex_valid_i;
           end
-
+          if (illegal_insn_dec && XInterface) begin
+            coproc_done     = x_result_valid_i;
+            rf_we_raw       = x_result_valid_i & x_result_i.we;
+          end
           if (multicycle_done) begin
             id_fsm_d        = FIRST_CYCLE;
           end else begin
