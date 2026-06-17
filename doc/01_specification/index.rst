@@ -108,10 +108,6 @@ processor core:
 
 -  Debug module including the :term:`DTM`
 
--  System bus wrappers to convert from OBI [OPENHW-OBI]_ to the
-   :term:`AMBA`-:term:`AHB` (Advanced Microcontroller Bus Architecture, Advanced
-   High-performance Bus) protocol [AMBA-AHB]_
-
 In addition to these main configurations, multiple fine grain parameters
 are available.
 
@@ -200,9 +196,6 @@ identify the versions of RISC-V extensions from these specifications.
 .. [X-IF] OpenHW Group Specification: Core-V eXtension interface (CV-X-IF), version v1.0.0,
    https://github.com/openhwgroup/core-v-xif/releases/tag/v1.0.0
 
-.. [AMBA-AHB] “AMBA® AHB Protocol Specification”, ARM IHI 0033C (ID090921),
-   https://developer.arm.com/documentation/ihi0033/latest
-
 .. [RVsmclic] “Smclic” Core-Local Interrupt Controller (CLIC) RISC-V
    Privileged Architecture Extension, version 0.9-draft, 3/15/2022,
    https://github.com/riscv/riscv-fast-interrupt/blob/master/clic.pdf
@@ -264,13 +257,9 @@ Operating modes (Privilege Levels)
 | PVL-10 | CV32E20 shall support only little-endian memory              |
 |        | organizations.                                               |
 +--------+--------------------------------------------------------------+
-| PVL-20 | CV32E20 shall support **machine** and **user**               |
-|        | privilege modes.                                             |
+| PVL-20 | CV32E20 shall only support **machine** privilege mode.       |
 +--------+--------------------------------------------------------------+
-| PVL-30 | CV32E20 shall export the CPU's operating mode as an address  |
-|        | phase attribute output signals on the Harvard memory         |
-|        | interfaces (instruction fetch, data load/store) with machine |
-|        | mode defined as 1'b1 and user mode as 1'b0.                  |
+| PVL-30 | Deprecated.                                                  |
 +--------+--------------------------------------------------------------+
 | PVL-40 | CV32E20 shall support the **bare** (addressing) mode, that   |
 |        | is, no support for address translation or protection.        |
@@ -592,70 +581,13 @@ CV32E20 core memory bus
 |        | Data references support 8-bit byte, 16-bit halfword and     |
 |        | 32-bit word elements.                                       |
 +--------+-------------------------------------------------------------+
-
-CV32E20 coreplex memory bus
----------------------------
-
+| MEM-20 | Deprecated.                                                 |
 +--------+-------------------------------------------------------------+
-| MEM-20 | The CV32E20 coreplex shall support a Harvard memory         |
-|        | interface with two 32-bit AMBA-AHB5 interfaces, one for     |
-|        | instruction fetch and a second for data loads & stores.     |
-|        | Each bus includes a 32-bit byte address and dual 32-bit     |
-|        | buses for read and write data. Data references support      |
-|        | 8-bit byte, 16-bit halfword and 32-bit word elements.       |
-+--------+-------------------------------------------------------------+
-| MEM-21 | The CV32E20 coreplex also shall support a 32-bit AMBA-AHB5  |
-|        | interface from the debug module to allow real-time debug    |
-|        | access to system memory.                                    |
-+--------+-------------------------------------------------------------+
-| MEM-30 | The CV32E20 coreplex shall support unaligned (also known as |
+| MEM-30 | The CV32E20 shall support unaligned (also known as          |
 |        | *misaligned*) data accesses for the E20 core by generating  |
 |        | 2 bus cycles to complete the memory reference. This         |
 |        | capability requires individual byte strobes be supported in |
 |        | the attached data memory.                                   |
-|        |                                                             |
-|        | If this capability cannot be supported, the coreplex shall  |
-|        | support an optional hardware configuration where all        |
-|        | unaligned data accesses are decomposed into combinations of |
-|        | 8- and 16-bit transfers. This means the ‘worst-case' data   |
-|        | unalignment may require 3 bus cycles (byte, halfword, byte) |
-|        | to complete.                                                |
-+--------+-------------------------------------------------------------+
-| MEM-40 | The CV32E20 coreplex shall generate only SINGLE AHB         |
-|        | transactions, that is, no BURST transactions are generated  |
-|        | by the E20 core.                                            |
-+--------+-------------------------------------------------------------+
-| MEM-50 | The CV32E20 coreplex AHB5 bus protocol shall support the    |
-|        | following design interface parameters:                      |
-|        |                                                             |
-|        | ADDR_WIDTH 32                                               |
-|        |                                                             |
-|        | DATA_WIDTH 32                                               |
-|        |                                                             |
-|        | HBURST_WIDTH 4                                              |
-|        |                                                             |
-|        | HPROT_WIDTH 4                                               |
-|        |                                                             |
-|        | HMASTER_WIDTH 0                                             |
-|        |                                                             |
-+--------+-------------------------------------------------------------+
-| MEM-60 | The CV32E20 coreplex AHB5 bus protocol shall not support    |
-|        | signaling associated with exclusive accesses - this implies |
-|        | the HEXCL and HEXOKAY control signals are not used.         |
-+--------+-------------------------------------------------------------+
-| MEM-70 | The CV32E20 coreplex AHB5 bus protocol shall encode the     |
-|        | operating mode of every access using the {HNONSECURE,       |
-|        | HPROT[1]} bus attribute signals defined as:                 |
-|        |                                                             |
-|        | if E20 core mode = user, then {HNONSECURE, HPROT[1]} =      |
-|        | 2'b10                                                       |
-|        |                                                             |
-|        | if E20 core mode = machine, then {HNONSECURE, HPROT[1]} =   |
-|        | 2'b01                                                       |
-+--------+-------------------------------------------------------------+
-| MEM-80 | The CV32E20 coreplex AHB5 bus protocol shall implement a    |
-|        | 4-bit HPROT[*] bus attribute control where HPROT[3:2] is    |
-|        | hardwired to 2'b00.                                         |
 +--------+-------------------------------------------------------------+
 
 Debug
@@ -707,42 +639,6 @@ Coprocessor interface
 |        | :term:`CV-X-IF` coprocessor interface.                      |
 +--------+-------------------------------------------------------------+
 
-PPA targets
-===========
-
-These PPA targets will be updated when physical design monitoring is
-integrated in the continuous integration flow.
-
-+--------+-------------------------------------------------------------+
-| PPA-10 | CV32E20 should be resource optimized for both ASIC and FPGA |
-|        | targets.                                                    |
-|        |                                                             |
-|        | In general, the relative priority of the PPA metrics is     |
-|        | Power > Area > Performance. The project needs to determine  |
-|        | how much to measure and minimize power dissipation -        |
-|        | core/coreplex area provides a general proxy for power with  |
-|        | numerous caveats.                                           |
-+--------+-------------------------------------------------------------+
-| PPA-20 | CV32E20 should deliver more than x.y CoreMark/MHz           |
-|        | performance when targeting RV32IMC for maximum performance, |
-|        | for example, GCC -O3 compiler options and attached to zero  |
-|        | wait-state instruction and data memories.                   |
-|        |                                                             |
-|        | This performance metric should be defined across multiple   |
-|        | configuration variables like RV32{I,E}MC, compilers         |
-|        | {GCC,LLVM} and compiler options {-O3, -Os/-Oz}. The core's  |
-|        | operating environment is defined with attached zero         |
-|        | wait-state instruction and data memories.                   |
-+--------+-------------------------------------------------------------+
-| PPA-30 | CV32E20 should operate at more than ? MHz in the            |
-|        | CV32E20\_?\_fpga configuration on Kintex 7 FPGA technology. |
-|        |                                                             |
-|        | Metric details to be supplied later.                        |
-+--------+-------------------------------------------------------------+
-
-.. TODO PPA-30 Clock frequency requirement on a FPGA implementation
-.. TODO PPA-50 Clock frequency requirement on an (16nm FinFET) ASIC implementation
-
 Physical design rules
 ---------------------
 
@@ -783,29 +679,17 @@ List of abbreviations
 
 .. glossary::
 
-   AHB
-      Advanced High-performance Bus
-
    ALU
       Arithmetic/Logic Unit
 
-   AMBA
-      Arm(R)'s Advanced Microcontroller Bus Architecture 
-
    ASIC
       Application-Specific Integrated Circuit 
-
-   AXI
-      Advanced eXtensible Interface
 
    CLIC
       Core-Local Interrupt Controller
 
    CLINT
       RISC-V Privileged Specification Interrupt Controller
-
-   coreplex
-      Core Complex
 
    CSR
       Control and Status Register
@@ -815,60 +699,54 @@ List of abbreviations
 
    DTM
       Debug Transport Module
-      
+
    DUT
       Device Under Test
-      
+
    FPGA
       Field Programmable Gate Array
-   
+
    GPR(s)
       CPU General-Purpose Register(s)
-   
+
    ID/EX
       Pipeline stage: Instruction Decode & Execute
-      
+
    IF
       Pipeline stage: Instruction Fetch
-      
+
    IP
       Intellectual Property
-      
+
    ISA
       Instruction Set Architecture
-   
+
    LSU
       CPU Load/Store Unit
-      
+
    MCU
       Microcontroller Unit
-      
-   MHz
-      Megahertz
-      
-   MULT
-      CPU Multiplier
-      
+
    OBI
       Open Bus Interface protocol
-   
+
    OSes
       Operating Systems
-   
+
    PF
-      Open Hardware Group Project Freeze 
-      
+      Open Hardware Group Project Freeze
+
    PLIC
       Platform-Level Interrupt Controller
-      
+
    RISC-V
-      5th generation of UC Berkeley reduced instruction set computing, pronounced as "risk-five" 
-      
+      5th generation of UC Berkeley reduced instruction set computing, pronounced as "risk-five"
+
    RTL
       Register-Transfer Language
-      
+
    SoC
-      System on a Chip 
-      
+      System on a Chip
+
    TWG
       Technical Working Group
