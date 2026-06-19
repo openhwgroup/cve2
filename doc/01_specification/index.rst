@@ -68,11 +68,12 @@ Scope of the IP
 
 The **scope of the IP** is the processor core subsystem that is
 specified below and that is verified with a 100% coverage goal. In the
-verification plans, the scope of the IP can be partitioned into two :term:`DUTs<DUT>`
-(designs under test) - one covering the processor core itself, and a
-:term:`coreplex` covering the processor "core complex" which adds
+verification plans, the scope of the IP, also called the :term:`DUT<DUT>`
+(design under test) only covers the processor core itself.
+The "core complex", sometimes called the "uncore", which adds
 debug capabilities, an interrupt controller and system bus protocol
-wrappers to the E20 core.
+wrappers external to the E20 core are explictily excluded from the
+scope of the IP to be verified.
 
 The scope of the IP is the **CV32E20 hardware** supporting all the
 features used in products based on the E20 core. A high-level block
@@ -102,11 +103,6 @@ As displayed in the above figure, the IP comprises:
    -  Support for basic set of Configuration & Status Registers (:term:`CSRs<CSR>`)
 
    -  Optional support for the Core-V eXtension Interface (:term:`CV-X-IF`) [X-IF]_
-
-At the :term:`coreplex` design level, the following functions are added to the
-processor core:
-
--  Debug module including the :term:`DTM`
 
 In addition to these main configurations, multiple fine grain parameters
 are available.
@@ -182,7 +178,7 @@ identify the versions of RISC-V extensions from these specifications.
    Architecture, Document Version 20211203”, Editors Andrew Waterman,
    Krste Asanović, and John Hauser, RISC-V International, December 2021.
 
-.. [RVdbg-RATIFIED] “RISC-V External Debug Support, Document Version
+.. .. [RVdbg-RATIFIED] “RISC-V External Debug Support, Document Version
    0.13.2”, Editors Tim Newsome and Megan Wachs, RISC-V Foundation, March
    22, 2019.
 
@@ -598,8 +594,7 @@ Debug
 |         | of [RVdbg-STABLE]_                                         |
 +---------+------------------------------------------------------------+
 
-In addition, there can be an external debug module, not in the scope of
-the IP.
+Note that the external debug module is not in the scope of the IP.
 
 Interrupts
 ----------
