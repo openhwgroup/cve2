@@ -84,7 +84,7 @@ module cve2_top_tracing import cve2_pkg::*; #(
 
   // cve2_tracer relies on the signals from the RISC-V Formal Interface
   `ifndef RVFI
-    $fatal("Fatal error: RVFI needs to be defined globally.");
+    $fatal(1, "Fatal error: RVFI needs to be defined globally.");
   `endif
 
   logic        rvfi_valid;
