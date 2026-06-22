@@ -110,6 +110,10 @@ import cve2_pkg::*;
   localparam int unsigned RV32BEnabled = (RV32B == RV32BNone) ? 0 : 1;
   localparam int unsigned RV32MEnabled = (RV32M == RV32MNone) ? 0 : 1;
   localparam int unsigned PMPAddrWidth = (PMPGranularity > 0) ? 33 - PMPGranularity : 32;
+  localparam int unsigned UmodeEnabled = 0;
+
+  logic umode_control;
+  assign umode_control = logic'(UmodeEnabled);
 
   // misa
   localparam logic [31:0] MISA_VALUE =
@@ -123,7 +127,7 @@ import cve2_pkg::*;
     | (RV32MEnabled      << 12)  // M - Integer Multiply/Divide extension
     | (0                 << 13)  // N - User level interrupts supported
     | (0                 << 18)  // S - Supervisor mode implemented
-    | (1                 << 20)  // U - User mode implemented
+    | (UmodeEnabled      << 20)  // U - User mode implemented
     | (0                 << 23)  // X - Non-standard extensions present
     | (32'(CSR_MISA_MXL) << 30); // M-XLEN
 
@@ -528,11 +532,13 @@ import cve2_pkg::*;
               mie:  csr_wdata_int[CSR_MSTATUS_MIE_BIT],
               mpie: csr_wdata_int[CSR_MSTATUS_MPIE_BIT],
               mpp:  priv_lvl_e'(csr_wdata_int[CSR_MSTATUS_MPP_BIT_HIGH:CSR_MSTATUS_MPP_BIT_LOW]),
-              mprv: csr_wdata_int[CSR_MSTATUS_MPRV_BIT],
-              tw:   csr_wdata_int[CSR_MSTATUS_TW_BIT]
+              mprv: csr_wdata_int[CSR_MSTATUS_MPRV_BIT] & umode_control,
+              tw:   csr_wdata_int[CSR_MSTATUS_TW_BIT] & umode_control
           };
-          // Convert illegal values to M-mode
-          if ((mstatus_d.mpp != PRIV_LVL_M) && (mstatus_d.mpp != PRIV_LVL_U)) begin
+          // Convert illegal values to M-mode.  When U-mode is disabled
+          // (umode_control==0) any non-M value (including U) is forced to M.
+          if ((mstatus_d.mpp != PRIV_LVL_M) &&
+              !(umode_control && (mstatus_d.mpp == PRIV_LVL_U))) begin
             mstatus_d.mpp = PRIV_LVL_M;
           end
         end
@@ -557,8 +563,10 @@ import cve2_pkg::*;
         CSR_DCSR: begin
           dcsr_d = csr_wdata_int;
           dcsr_d.xdebugver = XDEBUGVER_STD;
-          // Change to PRIV_LVL_M if software writes an unsupported value
-          if ((dcsr_d.prv != PRIV_LVL_M) && (dcsr_d.prv != PRIV_LVL_U)) begin
+          // Change to PRIV_LVL_M if software writes an unsupported value.
+          // When U-mode is disabled, U is also unsupported -> force M.
+          if ((dcsr_d.prv != PRIV_LVL_M) &&
+              !(umode_control && (dcsr_d.prv == PRIV_LVL_U))) begin
             dcsr_d.prv = PRIV_LVL_M;
           end
 
@@ -693,7 +701,8 @@ import cve2_pkg::*;
           // otherwise just set mstatus.MPIE/MPP
           // See RISC-V Privileged Specification, version 1.11, Section 3.1.6.1
           mstatus_d.mpie = 1'b1;
-          mstatus_d.mpp  = PRIV_LVL_U;
+          // Least-privileged supported mode: U if implemented, else M.
+          mstatus_d.mpp  = umode_control ? PRIV_LVL_U : PRIV_LVL_M;
         end
       end // csr_restore_mret_i
 
@@ -921,7 +930,7 @@ import cve2_pkg::*;
   );
 
   // MSTACK
-  localparam status_stk_t MSTACK_RESET_VAL = '{mpie: 1'b1, mpp: PRIV_LVL_U};
+  localparam status_stk_t MSTACK_RESET_VAL = '{mpie: 1'b1, mpp: UmodeEnabled ? PRIV_LVL_U : PRIV_LVL_M};
   cve2_csr #(
     .Width     ($bits(status_stk_t)),
     .ShadowCopy(1'b0),
@@ -1420,7 +1429,7 @@ import cve2_pkg::*;
                                    1'b1,                    // m       : match in m-mode
                                    1'b0,                    // 0       : zero
                                    1'b0,                    // s       : not supported
-                                   1'b1,                    // u       : match in u-mode
+                                   umode_control,           // u       : match in u-mode
                                    selected_tmatch_control, // execute : match instruction address
                                    1'b0,                    // store   : not supported
                                    1'b0};                   // load    : not supported
