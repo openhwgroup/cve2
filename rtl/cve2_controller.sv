@@ -156,13 +156,21 @@ module cve2_controller #(
 
 `ifndef SYNTHESIS
   // synopsys translate_off
-  // make sure we are called later so that we do not generate messages for
-  // glitches
+  // make sure we are called later so that we do not generate messages for glitches
+  logic [31:0] pc_last = 0;
   always_ff @(negedge clk_i) begin
-    // print warning in case of decoding errors
+    // print warning in case of decoding errors (terminate if the PC doesn't advance).
     if ((ctrl_fsm_cs == DECODE) && instr_valid_i && !instr_fetch_err_i && illegal_insn_d) begin
-     $display("%m @ %t: Illegal instruction (hart %0x) at PC 0x%h: 0x%h", $time, cve2_core.hart_id_i,
-               cve2_id_stage.pc_id_i, cve2_id_stage.instr_rdata_i);
+      $display("%m @ %0t: Illegal instruction (hart %0x) at PC 0x%h: 0x%h",
+                $time, cve2_core.hart_id_i, cve2_id_stage.pc_id_i, cve2_id_stage.instr_rdata_i);
+      if (cve2_id_stage.pc_id_i != pc_last) begin
+        pc_last = cve2_id_stage.pc_id_i;
+      end
+      else begin
+        $display("%m @ %0t: PC 0x%h stuck on illegal instruction: 0x%h",
+                  $time, cve2_id_stage.pc_id_i, cve2_id_stage.instr_rdata_i);
+        $finish;
+      end
     end
   end
   // synopsys translate_on
