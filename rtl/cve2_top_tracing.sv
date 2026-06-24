@@ -51,6 +51,8 @@ module cve2_top_tracing import cve2_pkg::*; #(
   input  x_issue_resp_t                x_issue_resp_i,
 
   // Register Interface
+  output logic                         x_register_valid_o,
+  input  logic                         x_register_ready_i,
   output x_register_t                  x_register_o,
 
   // Commit Interface

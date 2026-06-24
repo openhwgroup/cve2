@@ -58,6 +58,8 @@ Instantiation Template
       .x_issue_resp_i         (),
 
       // Register Interface
+      .x_register_valid_o     (),
+      .x_register_ready_i     (),
       .x_register_o           (),
 
       // Commit Interface

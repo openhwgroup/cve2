@@ -142,6 +142,8 @@ module cve2_riscv_compliance (
       .x_issue_req_o          (                       ),
       .x_issue_resp_i         ('0                     ),
 
+      .x_register_valid_o     (                       ),
+      .x_register_ready_i     ('0                     ),
       .x_register_o           (                       ),
 
       .x_commit_valid_o       (                       ),
