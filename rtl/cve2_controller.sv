@@ -781,13 +781,25 @@ module cve2_controller #(
 
     logic exception_req, exception_req_pending, exception_req_accepted, exception_req_done;
     logic exception_pc_set, seen_exception_pc_set, expect_exception_pc_set;
-    logic exception_req_needs_pc_set;
+    logic exception_req_needs_pc_set, exception_req_withdrawn;
 
     assign exception_req = (special_req | enter_debug_mode | handle_irq);
     // Any exception rquest will cause a transition out of DECODE, once the controller transitions
     // back into DECODE we're done handling the request.
     assign exception_req_done =
       exception_req_pending & (ctrl_fsm_cs != DECODE) & (ctrl_fsm_ns == DECODE);
+
+    // A request that was seen but withdrawn before the controller ever committed to servicing it
+    // (still in DECODE, never left - exception_req_accepted never went high) doesn't count as
+    // pending. E.g. an interrupt can be legitimately masked by software clearing mstatus.MIE while
+    // the controller is still waiting for the current instruction to retire (see
+    // cve2_controller.sv:465-467); handle_irq correctly drops and the controller correctly carries
+    // on. Without this, exception_req_pending would stay latched (its only other clear condition is
+    // exception_req_done, which requires actually leaving/re-entering DECODE) until some unrelated
+    // later exception happens to cycle the FSM through DECODE, incorrectly flagging ordinary correct
+    // behavior (id_in_ready_o=1) as CVE2DontSkipExceptionReq violations in the meantime.
+    assign exception_req_withdrawn =
+      exception_req_pending & ~exception_req_accepted & ~exception_req & (ctrl_fsm_cs == DECODE);
 
     assign exception_req_needs_pc_set = enter_debug_mode | handle_irq | special_req_pc_change;
 
@@ -802,17 +814,21 @@ module cve2_controller #(
         expect_exception_pc_set <= 1'b0;
         seen_exception_pc_set   <= 1'b0;
       end else begin
-        // Keep `exception_req_pending` asserted once an exception_req is seen until it is done
-        exception_req_pending <= (exception_req_pending | exception_req) & ~exception_req_done;
+        // Keep `exception_req_pending` asserted once an exception_req is seen until it is done, or
+        // until it's withdrawn (see exception_req_withdrawn above)
+        exception_req_pending <= (exception_req_pending | exception_req) & ~exception_req_done &
+          ~exception_req_withdrawn;
 
         // The exception req has been accepted once the controller transitions out of decode
         exception_req_accepted <= (exception_req_accepted & ~exception_req_done) |
           (exception_req & ctrl_fsm_ns != DECODE);
 
         // Set `expect_exception_pc_set` if exception req needs one and keep it asserted until
-        // exception req is done
+        // exception req is done or withdrawn - otherwise a withdrawn request's residual
+        // expect_exception_pc_set could wrongly demand a PC set from a later, unrelated request that
+        // doesn't need one
         expect_exception_pc_set <= (expect_exception_pc_set | exception_req_needs_pc_set) &
-          ~exception_req_done;
+          ~exception_req_done & ~exception_req_withdrawn;
 
         // Keep `seen_exception_pc_set` asserted once an exception PC set is seen until the
         // exception req is done
@@ -826,8 +842,19 @@ module cve2_controller #(
 
     // Only signal ready, allowing a new instruction into ID, if there is no exception request
     // pending or it is done this cycle.
+    // Excludes RESET/BOOT_SET: a debug/irq request can legitimately be latched as pending before
+    // the core has ever fetched (e.g. halt-on-reset per RISC-V Debug Spec v0.13, "the hart must
+    // enter Debug Mode before executing any instructions" if a halt request is asserted through
+    // reset). id_in_ready_o has no operational meaning in these two states since instr_valid_i is
+    // structurally 0 until FIRST_FETCH (no fetch has been issued yet), so it can't actually skip
+    // anything; without this exclusion the assertion false-fires on that legitimate scenario.
+    // Also permitted the same cycle exception_req_withdrawn first goes true: exception_req_pending
+    // itself only clears on the *next* clock edge (registered), so there's an inherent one-cycle gap
+    // between a request being withdrawn and the pending flag catching up - exception_req_withdrawn
+    // covers exactly that gap combinationally.
     `ASSERT(CVE2DontSkipExceptionReq,
-      id_in_ready_o |-> !exception_req_pending || exception_req_done)
+      (id_in_ready_o && !(ctrl_fsm_cs inside {RESET, BOOT_SET})) |->
+      !exception_req_pending || exception_req_done || exception_req_withdrawn)
 
     // Once a PC set has been performed for an exception request there must not be any other
     // excepting those to move into debug mode.
