@@ -781,7 +781,7 @@ module cve2_controller #(
 
     logic exception_req, exception_req_pending, exception_req_accepted, exception_req_done;
     logic exception_pc_set, seen_exception_pc_set, expect_exception_pc_set;
-    logic exception_req_needs_pc_set, exception_req_withdrawn;
+    logic exception_req_needs_pc_set, exception_req_withdrawn, irq_withdrawn_in_taken;
 
     assign exception_req = (special_req | enter_debug_mode | handle_irq);
     // Any exception rquest will cause a transition out of DECODE, once the controller transitions
@@ -802,6 +802,18 @@ module cve2_controller #(
       exception_req_pending & ~exception_req_accepted & ~exception_req & (ctrl_fsm_cs == DECODE);
 
     assign exception_req_needs_pc_set = enter_debug_mode | handle_irq | special_req_pc_change;
+
+    // An interrupt can be committed (DECODE -> IRQ_TAKEN, handle_irq=1 at commit) and then withdrawn
+    // before the very next cycle, when IRQ_TAKEN itself would perform the PC redirect: IRQ_TAKEN only
+    // sets pc_set_o if handle_irq is *still* true that cycle, so if the interrupt source dropped in
+    // the meantime the core correctly declines to jump - but ctrl_fsm_ns unconditionally returns to
+    // DECODE regardless, so exception_req_done fires with no PC set having occurred. This is the
+    // IRQ_TAKEN-specific counterpart to exception_req_withdrawn above (which only covers withdrawal
+    // while still in DECODE, before exception_req_accepted goes high); by the time the FSM has
+    // reached IRQ_TAKEN the request is already accepted, so exception_req_withdrawn's own ~
+    // exception_req_accepted term can never apply here.
+    assign irq_withdrawn_in_taken =
+      (ctrl_fsm_cs == IRQ_TAKEN) & exception_req_pending & expect_exception_pc_set & ~handle_irq;
 
     // An exception PC set uses specific PC types
     assign exception_pc_set =
@@ -865,10 +877,11 @@ module cve2_controller #(
       |-> !pc_set_o)
 
     // When an exception request is done there must have been an appropriate PC set (either this
-    // cycle or a previous one).
+    // cycle or a previous one) - unless the request was an interrupt withdrawn right at the moment
+    // IRQ_TAKEN would have set it (see irq_withdrawn_in_taken above).
     `ASSERT(CVE2SetExceptionPCOnSpecialReqIfExpected,
       exception_req_pending && expect_exception_pc_set && exception_req_done |->
-      seen_exception_pc_set || exception_pc_set)
+      seen_exception_pc_set || exception_pc_set || irq_withdrawn_in_taken)
 
     // If there's a pending exception req that doesn't need a PC set we must not see one
     `ASSERT(CVE2NoPCSetOnSpecialReqIfNotExpected,
