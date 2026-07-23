@@ -113,6 +113,8 @@ module cve2_id_stage #(
   input  cve2_pkg::x_issue_resp_t   x_issue_resp_i,
 
   // Register Interface
+  output logic                      x_register_valid_o,
+  input  logic                      x_register_ready_i,
   output  cve2_pkg::x_register_t    x_register_o,
 
   // Commit Interface
@@ -274,6 +276,7 @@ module cve2_id_stage #(
   // CV-X-IF
   logic stall_coproc;
   logic scoreboard_busy;
+  logic unused_x_register_ready;
 
   ///////////////
   // ID-EX FSM //
@@ -300,21 +303,21 @@ module cve2_id_stage #(
 
     logic scoreboard_free;
 
-    // The cve2 can issue up to X_INSTR_INFLIGHT instructions over the X-IF 
+    // The cve2 can issue up to X_INSTR_INFLIGHT instructions over the X-IF
     // without waiting for their completion.
     //
-    // Each issued instruction, identified by a unique ID, sets its corresponding 
-    // scoreboard bit to `1`. When the instruction completes, that bit is cleared 
+    // Each issued instruction, identified by a unique ID, sets its corresponding
+    // scoreboard bit to `1`. When the instruction completes, that bit is cleared
     // back to `0`.
     //
-    // The cve2 always issues instructions in order, but the co-processor may 
+    // The cve2 always issues instructions in order, but the co-processor may
     // complete (commit) them out of order.
     //
-    // Once the scoreboard has issued the X_INSTR_INFLIGHT-th instruction, 
+    // Once the scoreboard has issued the X_INSTR_INFLIGHT-th instruction,
     // the instruction ID counter wraps around to 0.
     //
-    // If the previous instruction with ID 0 has already completed 
-    // (i.e., scoreboard[0] == 0), the cve2 can issue a new instruction with ID 0. 
+    // If the previous instruction with ID 0 has already completed
+    // (i.e., scoreboard[0] == 0), the cve2 can issue a new instruction with ID 0.
     // Otherwise, it waits for the instruction with ID 0 to finish before reusing it.
     //
     // This behavior applies similarly to all other instruction IDs.
@@ -356,12 +359,16 @@ module cve2_id_stage #(
     assign x_issue_req_o.hartid = hart_id_i;
 
     // Register Interface
+    assign x_register_valid_o      = x_issue_valid_o;
+    assign unused_x_register_ready = x_register_ready_i;
     assign x_register_o.rs[0]    = rf_rdata_a_fwd;
     assign x_register_o.rs[1]    = rf_rdata_b_fwd;
     assign x_register_o.rs[2]    = rf_rdata_c_fwd;
     assign x_register_o.rs_valid = '1;
     assign x_register_o.id       = x_instr_id_q;
     assign x_register_o.hartid   = hart_id_i;
+
+    // Commit Interface
     assign x_commit_valid_o       = x_issue_valid_o & x_issue_ready_i;
     assign x_commit_o.commit_kill = 1'b0;
     assign x_commit_o.id          = x_instr_id_q;
@@ -394,6 +401,8 @@ module cve2_id_stage #(
     assign unused_x_issue_resp  = x_issue_resp_i;
 
     // Register Interface
+    assign x_register_valid_o      = 1'b0;
+    assign unused_x_register_ready = x_register_ready_i;
     assign x_register_o = '0;
 
     // Commit Interface
@@ -978,7 +987,7 @@ module cve2_id_stage #(
         RF_WD_EX,
         RF_WD_CSR,
         RF_WD_COPROC})
-  end 
+  end
   else begin : no_gen_asserts_xif
     `ASSERT(IbexRegfileWdataSelValid, instr_valid_i |-> rf_wdata_sel inside {
         RF_WD_EX,
