@@ -156,23 +156,37 @@ module cve2_controller #(
 
 `ifndef SYNTHESIS
   // synopsys translate_off
-  // make sure we are called later so that we do not generate messages for glitches
-  logic [31:0] pc_last = 0;
-  always_ff @(negedge clk_i) begin
-    // print warning in case of decoding errors (terminate if the PC doesn't advance).
-    if ((ctrl_fsm_cs == DECODE) && instr_valid_i && !instr_fetch_err_i && illegal_insn_d) begin
-      $display("%m @ %0t: Illegal instruction (hart %0x) at PC 0x%h: 0x%h",
-                $time, cve2_core.hart_id_i, cve2_id_stage.pc_id_i, cve2_id_stage.instr_rdata_i);
-      if (cve2_id_stage.pc_id_i != pc_last) begin
-        pc_last = cve2_id_stage.pc_id_i;
-      end
-      else begin
-        $display("%m @ %0t: PC 0x%h stuck on illegal instruction: 0x%h",
-                  $time, cve2_id_stage.pc_id_i, cve2_id_stage.instr_rdata_i);
-        $finish;
-      end
+    // Illegal instruction catcher
+    logic        curr_illegal, prev_illegal;
+    logic [31:0] curr_pc,      prev_pc;
+
+    assign curr_illegal = ((ctrl_fsm_cs == DECODE) && instr_valid_i && !instr_fetch_err_i && illegal_insn_d);
+    assign curr_pc = cve2_id_stage.pc_id_i;
+
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+        if (!rst_ni) begin
+            prev_illegal <= 1'b0;
+            prev_pc      <= 'X;
+        end else begin
+            // Capture current cycle's signals to inspect in the NEXT cycle
+            prev_illegal <= curr_illegal;
+            prev_pc      <= curr_pc;
+
+            // Check for (one-time) illegal-instruction case
+            if (curr_illegal) begin
+                $display("%m @ %0t: Hart %0d encountered illegal instruction at PC 0x%h: 0x%h",
+                          $time, cve2_core.hart_id_i, cve2_id_stage.pc_id_i, cve2_id_stage.instr_rdata_i);
+
+                // Check for stuck-at-illegal-instruction case
+                // If PC has not changed then you are stuck, so fatal-out.
+                // Note the 4-state equality check to catch illegal instructions at address '0.
+                if (curr_pc === prev_pc) begin
+                    $fatal(1, "%m @ %0t: Hart %0d stuck in consecutive illegal cycles at PC 0x%h: 0x%h",
+                              $time, cve2_core.hart_id_i, cve2_id_stage.pc_id_i, cve2_id_stage.instr_rdata_i);
+                end
+            end
+        end
     end
-  end
   // synopsys translate_on
 `endif
 
