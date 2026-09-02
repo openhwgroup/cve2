@@ -157,7 +157,7 @@ module cve2_controller #(
 `ifndef SYNTHESIS
   // synopsys translate_off
     // Illegal instruction catcher
-    logic        curr_illegal, prev_illegal;
+    logic        curr_illegal;
     logic [31:0] curr_pc,      prev_pc;
 
     assign curr_illegal = ((ctrl_fsm_cs == DECODE) && instr_valid_i && !instr_fetch_err_i && illegal_insn_d);
@@ -165,11 +165,9 @@ module cve2_controller #(
 
     always_ff @(posedge clk_i or negedge rst_ni) begin
         if (!rst_ni) begin
-            prev_illegal <= 1'b0;
             prev_pc      <= 'X;
         end else begin
-            // Capture current cycle's signals to inspect in the NEXT cycle
-            prev_illegal <= curr_illegal;
+            // Capture current cycle's PC to inspect in the NEXT cycle
             prev_pc      <= curr_pc;
 
             // Check for (one-time) illegal-instruction case
@@ -181,7 +179,7 @@ module cve2_controller #(
                 // If PC has not changed then you are stuck, so fatal-out.
                 // Note the 4-state equality check to catch illegal instructions at address '0.
                 if (curr_pc === prev_pc) begin
-                    $fatal(1, "%m @ %0t: Hart %0d stuck in consecutive illegal cycles at PC 0x%h: 0x%h",
+                    $fatal(1, "\n\t%m @ %0t: Hart %0d stuck in consecutive illegal cycles at PC 0x%h: 0x%h",
                               $time, cve2_core.hart_id_i, cve2_id_stage.pc_id_i, cve2_id_stage.instr_rdata_i);
                 end
             end
