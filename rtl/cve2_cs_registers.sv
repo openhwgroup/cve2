@@ -295,8 +295,16 @@ import cve2_pkg::*;
       CSR_MSTATUSH: csr_rdata_int = '0;
 
       // menvcfg: machine environment configuration, all zeros for CVE2 (none of the relevant
-      // features are implemented)
-      CSR_MENVCFG, CSR_MENVCFGH: csr_rdata_int = '0;
+      // features are implemented). Per the RISC-V Privileged spec ([RVpriv] SS3.1.18), these
+      // registers do not exist when U-mode is not supported, so access must be illegal in
+      // that case (matching the CSR_MSECCFG pattern above, gated on PMPEnable).
+      CSR_MENVCFG, CSR_MENVCFGH: begin
+        if (umode_control) begin
+          csr_rdata_int = '0;
+        end else begin
+          illegal_csr = 1'b1;
+        end
+      end
 
       // misa
       CSR_MISA: csr_rdata_int = MISA_VALUE;
@@ -310,9 +318,14 @@ import cve2_pkg::*;
         csr_rdata_int[CSR_MFIX_BIT_HIGH:CSR_MFIX_BIT_LOW] = mie_q.irq_fast;
       end
 
-      // mcounteren: machine counter enable
+      // mcounteren: machine counter enable. Per [RVpriv] SS3.1.11, "In
+      // systems without U-mode, the mcounteren register should not exist."
       CSR_MCOUNTEREN: begin
-        csr_rdata_int = '0;
+        if (umode_control) begin
+          csr_rdata_int = '0;
+        end else begin
+          illegal_csr = 1'b1;
+        end
       end
 
       CSR_MSCRATCH: csr_rdata_int = mscratch_q;
